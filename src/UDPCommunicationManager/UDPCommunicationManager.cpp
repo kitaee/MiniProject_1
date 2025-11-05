@@ -256,6 +256,47 @@ void UDPCommunicationManager::funcMapInit()
 
 	msgProc = bind(&UDPCommunicationManager::recvInnerRouteToComm, this, placeholders::_1);
 	funcMap.insert({ _T("InnerRouteToComm"), msgProc });
+
+	msgProc = bind(&UDPCommunicationManager::recvInnerAirThreatInfo, this, placeholders::_1);
+	funcMap.insert({ _T("InnerAirThreatInfoToComm"), msgProc });
+
+	msgProc = bind(&UDPCommunicationManager::recvMissileDetonation, this, placeholders::_1);
+	funcMap.insert({ _T("MissileDetonation"), msgProc });
+}
+
+void UDPCommunicationManager::recvMissileDetonation(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerAirThreatDetonationToATM"));
+	mec->sendMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::recvInnerAirThreatInfo(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("AirThreatInfo"));
+	NUShort msgID(0x0d);;
+	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
+
+	NUShort objectID(nomMsg->getValue(_T("AirThreatInfo.ObjectID"))->toShort());
+	nomMsg_new->setValue(_T("AirThreatInfo.ObjectID"), &objectID);
+
+	NUShort objectState(nomMsg->getValue(_T("AirThreatInfo.ObjectState"))->toShort());
+	nomMsg_new->setValue(_T("AirThreatInfo.ObjectState"), &objectState);
+
+	NDouble posX(nomMsg->getValue(_T("AirThreatInfo.PositionX"))->toDouble());
+	nomMsg_new->setValue(_T("AirThreatInfo.PositionX"), &posX);
+
+	NDouble posY(nomMsg->getValue(_T("AirThreatInfo.PositionY"))->toDouble());
+	nomMsg_new->setValue(_T("AirThreatInfo.PositionY"), &posY);
+
+	NDouble velX(nomMsg->getValue(_T("AirThreatInfo.VelocityX"))->toDouble());
+	nomMsg_new->setValue(_T("AirThreatInfo.VelocityX"), &velX);
+
+	NDouble velY(nomMsg->getValue(_T("AirThreatInfo.VelocityY"))->toDouble());
+	nomMsg_new->setValue(_T("AirThreatInfo.VelocityY"), &velY);
+
+	std::cout << "\n" << posX << ", " << posY << std::endl;
+
+	commInterface->sendCommMsg(nomMsg_new);
 }
 
 void UDPCommunicationManager::recvInnerRouteToComm(shared_ptr<NOM> nomMsg)
@@ -279,7 +320,6 @@ void UDPCommunicationManager::recvSendScenario(shared_ptr<NOM> nomMsg)
 	nomMsg_new->setValue(_T("Scenario.OriginLng"), &(NDouble)(nomMsg->getValue(_T("Scenario.OriginLng"))->toDouble()));
 
 	nomMsg_new->setValue(_T("Scenario.WayPoint0_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_X"))->toDouble()));
-	nomMsg_new->setValue(_T("Scenario.WayPoint0_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_X"))->toDouble()));
 	nomMsg_new->setValue(_T("Scenario.WayPoint0_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_Y"))->toDouble()));
 	nomMsg_new->setValue(_T("Scenario.WayPoint1_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_X"))->toDouble()));
 	nomMsg_new->setValue(_T("Scenario.WayPoint1_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_Y"))->toDouble()));
@@ -287,10 +327,15 @@ void UDPCommunicationManager::recvSendScenario(shared_ptr<NOM> nomMsg)
 	nomMsg_new->setValue(_T("Scenario.WayPoint2_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_Y"))->toDouble()));
 	nomMsg_new->setValue(_T("Scenario.WayPoint3_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_X"))->toDouble()));
 	nomMsg_new->setValue(_T("Scenario.WayPoint3_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_Y"))->toDouble()));
-	nomMsg_new->setValue(_T("Scenario.RadarPositionX"), &(NDouble)(nomMsg->getValue(_T("Scenario.RadarPositionX"))->toDouble()));
-	nomMsg_new->setValue(_T("Scenario.RadarPositionY"), &(NDouble)(nomMsg->getValue(_T("Scenario.RadarPositionY"))->toDouble()));
-	nomMsg_new->setValue(_T("Scenario.LauncherPositionX"), &(NDouble)(nomMsg->getValue(_T("Scenario.LauncherPositionX"))->toDouble()));
-	nomMsg_new->setValue(_T("Scenario.LauncherPositionY"), &(NDouble)(nomMsg->getValue(_T("Scenario.LauncherPositionY"))->toDouble()));
+
+	nomMsg_new->setValue(_T("Scenario.WayPoint0_Lat"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_Lat"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint0_Lng"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_Lng"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint1_Lat"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_Lat"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint1_Lng"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_Lng"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint2_Lat"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_Lat"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint2_Lng"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_Lng"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint3_Lat"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_Lat"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint3_Lng"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_Lng"))->toDouble()));
 
 	this->sendMsg(nomMsg_new);
 }

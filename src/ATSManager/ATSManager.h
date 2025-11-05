@@ -24,15 +24,6 @@ using namespace nom;
 using namespace nlinestream;
 using namespace gepaf;
 
-// WGS84 타원체 상수
-const double WGS84_A = 6378137.0;        // 적도 반경 (meter)
-const double WGS84_F = 1.0 / 298.257223563; // 역편평률
-const double WGS84_E2 = 2.0 * WGS84_F - WGS84_F * WGS84_F; // 이심률 제곱
-
-// 각도 <-> 라디안 변환 상수
-const double DEG_TO_RAD = M_PI / 180.0;
-const double RAD_TO_DEG = 180.0 / M_PI;
-
 class BASEMGRDLL_API ATSManager : public BaseManager
 {
 public:
@@ -89,16 +80,16 @@ private:
 	// 파싱한 4개의 점이 저장될 위치
 	std::vector<std::pair<double, double>> points;
 
-	// 인코딩된 경로
-	std::string encodedPathString;
-
 	// 기준 위도 경도
 	std::pair<double, double> origin;
 
-	//
-	std::vector<std::pair<double, double>> transformedPath;
+	// 위도 경도 파싱점
+	std::vector<std::pair<double, double>> latlng;
 
+	// 인코딩된 경로
+	std::string encodedPathString;
 
+	int step = 0;
 
 	virtual void recvInnerStartSimulationToModel(std::shared_ptr<NOM>);
 	virtual void recvInnerStopSimulationToModel(std::shared_ptr<NOM>);
@@ -108,4 +99,30 @@ private:
 	virtual void interpolation(const std::vector<std::pair<double, double>>& keyPoints);
 	virtual AirThreat* createAT();
 	virtual void deleteAT();
+	virtual void encodedLatLng(std::vector<std::pair<double, double>>);
+
+	void printFlightTimeTable(const std::map<double, std::pair<double, double>>& flightTimeTable) {
+		// Check if the map is empty
+		if (flightTimeTable.empty()) {
+			std::cout << "The flight time table is empty." << std::endl;
+			return;
+		}
+
+		std::cout << "--- Flight Time Table Contents ---" << std::endl;
+
+		// Iterate through the map using a range-based for loop
+		for (const auto& entry : flightTimeTable) {
+			// 'entry.first' is the key (double)
+			// 'entry.second' is the value (std::pair<double, double>)
+
+			double key = entry.first;
+			double first_pair_value = entry.second.first;
+			double second_pair_value = entry.second.second;
+
+			std::cout << "Key: " << key
+				<< ": Value: (" << first_pair_value
+				<< ", " << second_pair_value << ")" << std::endl;
+		}
+		std::cout << "--------------------------------" << std::endl;
+	}
 };

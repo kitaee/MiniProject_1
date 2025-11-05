@@ -28,7 +28,7 @@ ATSManager::initialize(void)
 
 
 	setUserName(_T("ATSManager"));
-
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << "ATS_Initialized" << std::endl;
 	// design by contract
 	mec = new MECComponent;
 	mec->setUser(this);
@@ -196,13 +196,13 @@ void ATSManager::funcMapInit()
 void ATSManager::pointParser(std::shared_ptr<NOM> nomMsg)
 {
     points.clear();
-    encodedPathString.clear();
+    latlng.clear();
+    step = 0;
 
     // 기준 위도 경도 수신
     origin.first = nomMsg->getValue(_T("Scenario.OriginLat"))->toDouble();
     origin.second = nomMsg->getValue(_T("Scenario.OriginLng"))->toDouble();
 
-    std::cout << "\n\n\n\n" << origin.first << ", " << origin.second << "\n\n" <<std::endl;
     // WayPoint 0 추가
     double x0 = nomMsg->getValue(_T("Scenario.WayPoint0_X"))->toDouble();
     double y0 = nomMsg->getValue(_T("Scenario.WayPoint0_Y"))->toDouble();
@@ -223,6 +223,29 @@ void ATSManager::pointParser(std::shared_ptr<NOM> nomMsg)
     double y3 = nomMsg->getValue(_T("Scenario.WayPoint3_Y"))->toDouble();
     points.emplace_back(x3, y3);
 
+    // WayPoint 0 위경도 추가
+    double lat0 = nomMsg->getValue(_T("Scenario.WayPoint0_Lat"))->toDouble();
+    double lng0 = nomMsg->getValue(_T("Scenario.WayPoint0_Lng"))->toDouble();
+    latlng.emplace_back(lat0, lng0);
+
+    // WayPoint 1 위경도 추가
+    double lat1 = nomMsg->getValue(_T("Scenario.WayPoint1_Lat"))->toDouble();
+    double lng1 = nomMsg->getValue(_T("Scenario.WayPoint1_Lng"))->toDouble();
+    latlng.emplace_back(lat1, lng1);
+
+    // WayPoint 2 위경도 추가
+    double lat2 = nomMsg->getValue(_T("Scenario.WayPoint2_Lat"))->toDouble();
+    double lng2 = nomMsg->getValue(_T("Scenario.WayPoint2_Lng"))->toDouble();
+    latlng.emplace_back(lat2, lng2);
+
+    // WayPoint 3 위경도 추가
+    double lat3 = nomMsg->getValue(_T("Scenario.WayPoint3_Lat"))->toDouble();
+    double lng3 = nomMsg->getValue(_T("Scenario.WayPoint3_Lng"))->toDouble();
+    latlng.emplace_back(lat3, lng3);
+
+    interpolation(latlng);
+    step = 1;
+    flightTimeTable.clear();
     interpolation(points);
 }
 
@@ -254,17 +277,9 @@ std::pair<double, double> interpolate_catmull_rom(
 
 void ATSManager::interpolation(const std::vector<std::pair<double, double>>& keyPoints) {
 
-    if (keyPoints.size() < 4) {
-        std::cerr << "경로 보간을 위해 최소 4개의 키 포인트가 필요합니다." << std::endl;
-        return;
-    }
-
     // 기존 데이터 초기화
-    flightTimeTable.clear();
-    transformedPath.clear(); // **transformedPath 초기화 추가**
-
     const int segmentsPerInterval = 50;
-    std::vector<std::pair<double, double>> path; // path는 (X, Y) 상대 좌표 (미터)
+    std::vector<std::pair<double, double>> path;
     size_t N = keyPoints.size();
 
     // 1. Catmull-Rom 스플라인을 이용한 상대 좌표 경로 생성 (기존 로직 유지)
@@ -290,10 +305,14 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
         path.push_back(interpolate_catmull_rom(keyPoints[i - 1], keyPoints[i], keyPoints[i + 1], keyPoints[i + 1], t));
     }
 
-    if (path.empty()) return;
+    if (path.empty()) return ;
+
+    if (step == 0) {
+        encodedLatLng(path);
+        return;
+    }
 
     // 2. 전체 경로 길이 계산 및 누적 거리 계산 (path를 사용하여 거리 계산)
-    // ... (기존 로직 유지)
     std::vector<double> cumulativeDistances;
     cumulativeDistances.push_back(0.0);
     double totalDistance = 0.0;
@@ -304,7 +323,6 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
     }
 
     // 3. 등속력 운동 시뮬레이션 및 flightTimeTable 저장 (X, Y 상대좌표를 저장)
-    // ... (기존 로직 유지)
     double totalFlightTime = 20.0;
     double speed = totalDistance / totalFlightTime;
     const double timeStep = 0.5;
@@ -343,16 +361,34 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
         flightTimeTable[currentTime] = currentPos;
 
         currentTime += timeStep;
+
+        
     }
 
     std::cout << "시뮬레이션 결과가 ATSManager::flightTimeTable에 저장되었습니다 (총 이동 거리: "
         << std::fixed << std::setprecision(2) << totalDistance << ", 예상 비행 시간: " << totalFlightTime << "초)\n";
+}
+void ATSManager::encodedLatLng(std::vector<std::pair<double, double>> path)
+{
+    // 5. 폴리라인 인코딩 (transformedPath 사용)
+    using Encoder = PolylineEncoder<5>; // 기본 정밀도 5 사용
+
+    auto getLat = [](const std::pair<double, double>& p) { return p.first; };  // p.first = Lat
+    auto getLon = [](const std::pair<double, double>& p) { return p.second; }; // p.second = Lon
+
+    encodedPathString = Encoder::encode(
+        path.cbegin(),
+        path.cend(),
+        getLat,
+        getLon
+    );
+
+    std::cout << "\n\n\n\n" << encodedPathString << "\n\n\n\n" << std::endl;
 
     atsNOM = meb->getNOMInstance(name, _T("InnerRouteToComm"));
     NString route(util::string2tstring(encodedPathString));
     atsNOM->setValue(_T("RouteAT"), &route);
     mec->sendMsg(atsNOM);
-    std::cout << "\n\n\n\n" << encodedPathString << "\n\n\n\n" << std::endl;
 }
 
 AirThreat* ATSManager::createAT()
@@ -413,7 +449,7 @@ void ATSManager::sendATInfo()
     auto [pos_pair, vel_pair, curState] = AirThreat_ptr->getValue();
 
     // ObjectID는 예시로 1을 사용하거나, AirThreat 객체 내부에 ID가 있다면 사용
-    NUShort objectID(1);
+    NUShort objectID(10200);
     atsNOM->setValue(_T("AirThreatInfo.ObjectID"), &objectID);
 
     // ObjectState 설정
@@ -436,6 +472,7 @@ void ATSManager::sendATInfo()
 
     mec->sendMsg(atsNOM);
 
+
     // 3. 상태 확인 및 종료
     // 만약 상태가 격추라면 release (BaseManager의 stop, 타이머 해제 등 포함)
     if (curState == 1) {
@@ -457,11 +494,14 @@ void ATSManager::recvInnerStartSimulationToModel(std::shared_ptr<NOM> nomMsg)
     sendATInfo_Periodic = std::bind(&ATSManager::sendATInfo, this);
     nTimer = &(NTimer::getInstance());
 
+    printFlightTimeTable(flightTimeTable);
+
     // 500ms(0.5초) 주기로 sendATInfo 호출 시작
     timerHandle = nTimer->addPeriodicTask(500, sendATInfo_Periodic);
 }
 void ATSManager::recvInnerStopSimulationToModel(std::shared_ptr<NOM> nomMsg)
 {
+    std::cout << "\n\n\n시뮬레이션 종료됨\n\n\n\n" << std::endl;
     release();
 }
 

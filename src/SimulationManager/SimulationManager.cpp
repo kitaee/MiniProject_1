@@ -148,18 +148,42 @@ void SimulationManager::recvInnerSendScenario(std::shared_ptr<NOM> nomMsg)
 	nomMsgToModel->setValue(_T("Scenario.WayPoint3_X"), &temp);
 	temp = nomMsg->getValue(_T("Scenario.WayPoint3_Y"))->toDouble();
 	nomMsgToModel->setValue(_T("Scenario.WayPoint3_Y"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.RadarPositionX"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.RadarPositionX"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.RadarPositionY"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.RadarPositionY"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.LauncherPositionX"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.LauncherPositionX"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.LauncherPositionY"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.LauncherPositionY"), &temp);
 	temp = nomMsg->getValue(_T("Scenario.OriginLat"))->toDouble();
 	nomMsgToModel->setValue(_T("Scenario.OriginLat"), &temp);
 	temp = nomMsg->getValue(_T("Scenario.OriginLng"))->toDouble();
 	nomMsgToModel->setValue(_T("Scenario.OriginLng"), &temp);
+
+	temp = nomMsg->getValue(_T("Scenario.WayPoint0_Lat"))->toDouble();
+	nomMsgToModel->setValue(_T("Scenario.WayPoint0_Lat"), &temp);
+
+
+	temp = nomMsg->getValue(_T("Scenario.WayPoint0_Lng"))->toDouble();
+	nomMsgToModel->setValue(_T("Scenario.WayPoint0_Lng"), &temp);
+
+
+	temp = nomMsg->getValue(_T("Scenario.WayPoint1_Lat"))->toDouble();
+	nomMsgToModel->setValue(_T("Scenario.WayPoint1_Lat"), &temp);
+
+
+	temp = nomMsg->getValue(_T("Scenario.WayPoint1_Lng"))->toDouble();
+	nomMsgToModel->setValue(_T("Scenario.WayPoint1_Lng"), &temp);
+
+
+	temp = nomMsg->getValue(_T("Scenario.WayPoint2_Lat"))->toDouble();
+	nomMsgToModel->setValue(_T("Scenario.WayPoint2_Lat"), &temp);
+
+
+	temp = nomMsg->getValue(_T("Scenario.WayPoint2_Lng"))->toDouble();
+	nomMsgToModel->setValue(_T("Scenario.WayPoint2_Lng"), &temp);
+
+
+	temp = nomMsg->getValue(_T("Scenario.WayPoint3_Lat"))->toDouble();
+	nomMsgToModel->setValue(_T("Scenario.WayPoint3_Lat"), &temp);
+
+
+	temp = nomMsg->getValue(_T("Scenario.WayPoint3_Lng"))->toDouble();
+	nomMsgToModel->setValue(_T("Scenario.WayPoint3_Lng"), &temp);
+
 
 	mec->sendMsg(nomMsgToModel);
 
