@@ -1,5 +1,4 @@
 ﻿#pragma once
-#define _USE_MATH_DEFINES
 #include <nFramework/BaseManager.h>
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
@@ -91,6 +90,8 @@ private:
 
 	int step = 0;
 
+	std::pair<double, double> lastVelocity = { 0.0, 0.0 };
+
 	virtual void recvInnerStartSimulationToModel(std::shared_ptr<NOM>);
 	virtual void recvInnerStopSimulationToModel(std::shared_ptr<NOM>);
 	virtual void recvDetonation(std::shared_ptr<NOM>);
@@ -101,28 +102,28 @@ private:
 	virtual void deleteAT();
 	virtual void encodedLatLng(std::vector<std::pair<double, double>>);
 
-	void printFlightTimeTable(const std::map<double, std::pair<double, double>>& flightTimeTable) {
-		// Check if the map is empty
-		if (flightTimeTable.empty()) {
-			std::cout << "The flight time table is empty." << std::endl;
-			return;
-		}
+	//void printFlightTimeTable(const std::map<double, std::pair<double, double>>& flightTimeTable) {
+	//	// Check if the map is empty
+	//	if (flightTimeTable.empty()) {
+	//		std::cout << "The flight time table is empty." << std::endl;
+	//		return;
+	//	}
 
-		std::cout << "--- Flight Time Table Contents ---" << std::endl;
+	//	std::cout << "--- Flight Time Table Contents ---" << std::endl;
 
-		// Iterate through the map using a range-based for loop
-		for (const auto& entry : flightTimeTable) {
-			// 'entry.first' is the key (double)
-			// 'entry.second' is the value (std::pair<double, double>)
+	//	// Iterate through the map using a range-based for loop
+	//	for (const auto& entry : flightTimeTable) {
+	//		// 'entry.first' is the key (double)
+	//		// 'entry.second' is the value (std::pair<double, double>)
 
-			double key = entry.first;
-			double first_pair_value = entry.second.first;
-			double second_pair_value = entry.second.second;
+	//		double key = entry.first;
+	//		double first_pair_value = entry.second.first;
+	//		double second_pair_value = entry.second.second;
 
-			std::cout << "Key: " << key
-				<< ": Value: (" << first_pair_value
-				<< ", " << second_pair_value << ")" << std::endl;
-		}
-		std::cout << "--------------------------------" << std::endl;
-	}
+	//		std::cout << "Key: " << key
+	//			<< ": Value: (" << first_pair_value
+	//			<< ", " << second_pair_value << ")" << std::endl;
+	//	}
+	//	std::cout << "--------------------------------" << std::endl;
+	//}
 };

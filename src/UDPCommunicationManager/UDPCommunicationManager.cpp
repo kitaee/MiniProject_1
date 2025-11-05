@@ -268,6 +268,7 @@ void UDPCommunicationManager::recvMissileDetonation(shared_ptr<NOM> nomMsg)
 {
 	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerAirThreatDetonationToATM"));
 	mec->sendMsg(nomMsg_new);
+	//std::cout << "\n\n\n\nUDP에서 미사일 폭파 이벤트 수신\n\n\n" << std::endl;
 }
 
 void UDPCommunicationManager::recvInnerAirThreatInfo(shared_ptr<NOM> nomMsg)
@@ -294,7 +295,7 @@ void UDPCommunicationManager::recvInnerAirThreatInfo(shared_ptr<NOM> nomMsg)
 	NDouble velY(nomMsg->getValue(_T("AirThreatInfo.VelocityY"))->toDouble());
 	nomMsg_new->setValue(_T("AirThreatInfo.VelocityY"), &velY);
 
-	std::cout << "\n" << posX << ", " << posY << std::endl;
+	//std::cout << "\n" << velX << ", " << velY << std::endl;
 
 	commInterface->sendCommMsg(nomMsg_new);
 }

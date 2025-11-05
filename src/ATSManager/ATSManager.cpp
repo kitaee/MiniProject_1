@@ -4,7 +4,6 @@
 #include <nFramework/util/util.h>
 #include <map>
 
-
 /************************************************************************
 	constructor / destructor
 ************************************************************************/
@@ -26,27 +25,20 @@ ATSManager::initialize(void)
 {
 	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
 
-
 	setUserName(_T("ATSManager"));
-    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << "ATS_Initialized" << std::endl;
-	// design by contract
+    ntcout << "ATS_Initialized" << std::endl;
+
 	mec = new MECComponent;
 	mec->setUser(this);
 
     funcMapInit();
+
 }
 
 void
 ATSManager::release()
 {
-    nTimer->removeTask(timerHandle);
-    deleteAT();
-    currentSimTime = 0.0;
-    AirThreat_ptr = nullptr;
-	delete mec;
-	mec = nullptr;
-	meb = nullptr;
-    initialize();
+    
 }
 
 /************************************************************************
@@ -154,7 +146,7 @@ bool
 ATSManager::start()
 {
 	IniHandler iniHandler;
-	iniHandler.readIni(_T("ATSManager/ATSManager.ini")); // ※주의 작업디렉터리: Main.exe가 있는 경로
+	iniHandler.readIni(_T("ATSManager/ATSManager.ini"));
 
 	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
 
@@ -165,7 +157,13 @@ bool
 ATSManager::stop()
 {
 	bool result = true;
-
+    nTimer->removeTask(timerHandle);
+    deleteAT();
+    delete mec;
+    mec = nullptr;
+    meb = nullptr;
+    
+    initialize();
 	return result;
 }
 
@@ -195,9 +193,15 @@ void ATSManager::funcMapInit()
 
 void ATSManager::pointParser(std::shared_ptr<NOM> nomMsg)
 {
+    // 초기화 프로세스
+    flightTimeTable.clear();
+    encodedPathString.clear();
+    deleteAT();
     points.clear();
     latlng.clear();
     step = 0;
+    currentSimTime = 0.0;
+    lastVelocity = { 0.0, 0.0 };
 
     // 기준 위도 경도 수신
     origin.first = nomMsg->getValue(_T("Scenario.OriginLat"))->toDouble();
@@ -253,12 +257,7 @@ double distance(const std::pair<double, double>& p1, const std::pair<double, dou
 		return std::sqrt(std::pow(p2.first - p1.first, 2) + std::pow(p2.second - p1.second, 2));
 }
 
-std::pair<double, double> interpolate_catmull_rom(
-	const std::pair<double, double>& p0,
-	const std::pair<double, double>& p1,
-	const std::pair<double, double>& p2,
-	const std::pair<double, double>& p3,
-	double t)
+std::pair<double, double> interpolate_catmull_rom(const std::pair<double, double>& p0, const std::pair<double, double>& p1, const std::pair<double, double>& p2, const std::pair<double, double>& p3, double t)
 {
 	double t2 = t * t;
 	double t3 = t2 * t;
@@ -323,7 +322,7 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
     }
 
     // 3. 등속력 운동 시뮬레이션 및 flightTimeTable 저장 (X, Y 상대좌표를 저장)
-    double totalFlightTime = 20.0;
+    double totalFlightTime = 60.0;
     double speed = totalDistance / totalFlightTime;
     const double timeStep = 0.5;
     double currentTime = 0.0;
@@ -368,9 +367,9 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
     std::cout << "시뮬레이션 결과가 ATSManager::flightTimeTable에 저장되었습니다 (총 이동 거리: "
         << std::fixed << std::setprecision(2) << totalDistance << ", 예상 비행 시간: " << totalFlightTime << "초)\n";
 }
+
 void ATSManager::encodedLatLng(std::vector<std::pair<double, double>> path)
 {
-    // 5. 폴리라인 인코딩 (transformedPath 사용)
     using Encoder = PolylineEncoder<5>; // 기본 정밀도 5 사용
 
     auto getLat = [](const std::pair<double, double>& p) { return p.first; };  // p.first = Lat
@@ -383,7 +382,7 @@ void ATSManager::encodedLatLng(std::vector<std::pair<double, double>> path)
         getLon
     );
 
-    std::cout << "\n\n\n\n" << encodedPathString << "\n\n\n\n" << std::endl;
+    std::cout << "\n\nPolyLine Encoded Path:\n" << encodedPathString << std::endl;
 
     atsNOM = meb->getNOMInstance(name, _T("InnerRouteToComm"));
     NString route(util::string2tstring(encodedPathString));
@@ -397,7 +396,6 @@ AirThreat* ATSManager::createAT()
 	return AirThreat::getInstance();
 }
 
-// AirThreatManager::deleteAT() 함수: AirThreat::destroyInstance() 호출을 통해 객체를 삭제
 void ATSManager::deleteAT()
 {
 	std::cout << "\n--- AirThreatManager::deleteAT() 호출 ---" << std::endl;
@@ -406,47 +404,90 @@ void ATSManager::deleteAT()
 
 void ATSManager::sendATInfo()
 {
-    // 1. 공중 위협 객체 업데이트
-    if (AirThreat_ptr != nullptr && !flightTimeTable.empty()) { // <--- map이 비어있지 않은지 확인
-        // 시간표 flightTimeTable를 직접 사용
-        auto it = flightTimeTable.find(currentSimTime);
+    std::pair<double, double> p_pair;
+    std::pair<double, double> v_pair;
+    double cState;
+    if (AirThreat_ptr != nullptr) {
+        std::tie(p_pair, v_pair, cState) = AirThreat_ptr->getValue();
+    }
+    // 발사대로부터 3000Km 이상 벗어나면
+    if (p_pair.first >= -3000000 &&  p_pair.first <= 3000000 && p_pair.second >= -3000000 && p_pair.second <= 3000000 && cState != 1) {
+        // 1. 공중 위협 객체 업데이트
+        if (AirThreat_ptr != nullptr && !flightTimeTable.empty()) {
 
-        if (it != flightTimeTable.end()) {
-            // 현재 위치 (curPos)
-            const auto& curPos = it->second;
-
-            // 현재 속도 (curVel)를 계산
+            // 1.1 시간표 탐색 및 현재 위치/속도 계산
+            std::pair<double, double> curPos = { 0.0, 0.0 };
             std::pair<double, double> curVel = { 0.0, 0.0 };
-            double nextTime = currentSimTime + 0.5;
+            //bool isTableTraversed = false; // 이 플래그 대신 시간표 탐색 성공 여부로 판단
 
-            // flightTimeTable에서 바로 find
-            auto nextIt = flightTimeTable.find(nextTime);
+            auto it = flightTimeTable.find(currentSimTime);
+            const double timeStep = 0.5; // 시간 간격
 
-            if (nextIt != flightTimeTable.end()) {
-                const auto& nextPos = nextIt->second;
+            if (it != flightTimeTable.end()) {
+                // **A. 시간표 탐색 성공 (경로 이동 중)**
 
-                curVel.first = (nextPos.first - curPos.first) / 0.5;
-                curVel.second = (nextPos.second - curPos.second) / 0.5;
+                // 현재 위치 (curPos)는 시간표에서 가져옴
+                curPos = it->second;
+
+                // 다음 시간 계산 및 탐색
+                double nextTime = currentSimTime + timeStep;
+                auto nextIt = flightTimeTable.find(nextTime);
+
+                if (nextIt != flightTimeTable.end()) {
+                    // 다음 위치가 시간표에 있을 경우: 속도 계산
+                    const auto& nextPos = nextIt->second;
+
+                    curVel.first = (nextPos.first - curPos.first) / timeStep;
+                    curVel.second = (nextPos.second - curPos.second) / timeStep;
+
+                    // 마지막 속도 저장 (경로가 끝난 후 직진에 사용)
+                    lastVelocity = curVel;
+
+                }
+                else {
+                    // 현재 시간이 시간표의 마지막 엔트리일 경우: 마지막 속도를 사용
+                    curVel = lastVelocity;
+                }
+
+                // 시뮬레이션 시간 증가
+                currentSimTime += timeStep;
+            }
+            else {
+                // **B. 시간표 탐색 실패 (경로 이동 완료, 직진 운동 시작/유지)**
+
+                // 직전 프레임의 위치와 마지막 계산된 속도(lastVelocity)를 이용
+                curVel = lastVelocity; // 마지막 속도를 유지
+
+                // 새 위치 = 이전 위치 + (마지막 속도 * 시간 간격)
+                std::pair<double, double> pos_pair;
+                std::pair<double, double> vel_pair;
+                double curState;
+                if (AirThreat_ptr != nullptr) {
+                    std::tie(pos_pair, vel_pair, curState) = AirThreat_ptr->getValue();
+                }
+                curPos = pos_pair; // 직전 업데이트 위치를 가져옴
+                curPos.first += curVel.first * timeStep;
+                curPos.second += curVel.second * timeStep;
+
+                // 시뮬레이션 시간도 계속 증가
+                currentSimTime += timeStep;
             }
 
+            // 1.2 AirThreat 객체 업데이트
             AirThreat_ptr->updateValue(curPos, curVel);
-            currentSimTime += 0.5;
-        }
-        else {
-            // currentSimTime이 시간표의 끝을 초과한 경우
-            // 객체는 최종 위치에 머무르며, 타이머를 해제하고 시뮬레이션을 종료할 수 있습니다.
-
-            //ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << _T("경로 끝 도달. 타이머 해제.") << std::endl;
-            // release();
         }
     }
-
-
+    
     // 2. NOM 메시지 생성 및 전송
     atsNOM = meb->getNOMInstance(name, _T("InnerAirThreatInfoToComm"));
 
     // AirThreat 객체에서 현재 값(업데이트된 값)을 가져옵니다.
-    auto [pos_pair, vel_pair, curState] = AirThreat_ptr->getValue();
+    std::pair<double, double> pos_pair;
+    std::pair<double, double> vel_pair;
+    double curState;
+    if (AirThreat_ptr != nullptr) {
+        std::tie(pos_pair, vel_pair, curState) = AirThreat_ptr->getValue();
+    }
 
     // ObjectID는 예시로 1을 사용하거나, AirThreat 객체 내부에 ID가 있다면 사용
     NUShort objectID(10200);
@@ -472,37 +513,52 @@ void ATSManager::sendATInfo()
 
     mec->sendMsg(atsNOM);
 
-
     // 3. 상태 확인 및 종료
-    // 만약 상태가 격추라면 release (BaseManager의 stop, 타이머 해제 등 포함)
     if (curState == 1) {
-        release();
+        deleteAT();
+        nTimer->removeTask(timerHandle);
     }
 }
 
 void ATSManager::recvDetonation(std::shared_ptr<NOM> nomMsg)
 {
-    auto [pos_pair, vel_pair, curState] = AirThreat_ptr->getValue();
-    AirThreat_ptr->setValue(pos_pair, vel_pair, 1);
+    std::pair<double, double> p_pair;
+    std::pair<double, double> v_pair;
+    double cState;
+    if (AirThreat_ptr != nullptr) {
+        std::tie(p_pair, v_pair, cState) = AirThreat_ptr->getValue();
+        AirThreat_ptr->setValue(p_pair, v_pair, 1);
+    }
+    //std::cout << "\n\n\n\n격추됨\n\n\n\n" << std::endl;
 }
+
 void ATSManager::recvInnerStartSimulationToModel(std::shared_ptr<NOM> nomMsg)
 {
+    nTimer = &(NTimer::getInstance());
     // 시뮬레이션 시작 시 시간 초기화
     currentSimTime = 0.0;
 
     AirThreat_ptr = ATSManager::createAT();
     sendATInfo_Periodic = std::bind(&ATSManager::sendATInfo, this);
-    nTimer = &(NTimer::getInstance());
 
-    printFlightTimeTable(flightTimeTable);
+    /*printFlightTimeTable(flightTimeTable);*/
 
     // 500ms(0.5초) 주기로 sendATInfo 호출 시작
     timerHandle = nTimer->addPeriodicTask(500, sendATInfo_Periodic);
 }
+
 void ATSManager::recvInnerStopSimulationToModel(std::shared_ptr<NOM> nomMsg)
 {
     std::cout << "\n\n\n시뮬레이션 종료됨\n\n\n\n" << std::endl;
-    release();
+    deleteAT();
+    nTimer->removeTask(timerHandle);
+    flightTimeTable.clear();
+    encodedPathString.clear();
+    points.clear();
+    latlng.clear();
+    step = 0;
+    currentSimTime = 0.0;
+    lastVelocity = { 0.0, 0.0 };
 }
 
 /************************************************************************

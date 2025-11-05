@@ -125,7 +125,7 @@ StateManager::removeMsg(std::shared_ptr<NOM> nomMsg)
 void
 StateManager::sendMsg(std::shared_ptr<NOM> nomMsg)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+	// ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
 
 
 	mec->sendMsg(nomMsg);
