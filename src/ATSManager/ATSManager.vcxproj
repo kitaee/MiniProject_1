@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="AirThreat.h" />
     <ClInclude Include="ATSManager.h" />
+    <ClInclude Include="polylineencoder.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\bin\ATSManager\ATSManager.xml" />

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <nFramework/util/IniHandler.h>
 #include "ATSManager.h"
+#include <nFramework/util/util.h>
 #include <map>
 
 
@@ -32,25 +33,20 @@ ATSManager::initialize(void)
 	mec = new MECComponent;
 	mec->setUser(this);
 
-	// 함수들 바인딩
-	msgProc = std::bind(&ATSManager::pointParser, this, std::placeholders::_1);
-	msgFuncMap.insert(std::make_pair(_T("SendScenario_ToATM"), msgProc));
-
-
-    std::function <void(void*)> periodicFunc = std::bind(&ATSManager::sendATInfo, this);
-
-    nTimer = &(NTimer::getInstance());
-    timerHandle = nTimer->addPeriodicTask(500, periodicFunc);
-
+    funcMapInit();
 }
 
 void
 ATSManager::release()
 {
     nTimer->removeTask(timerHandle);
+    deleteAT();
+    currentSimTime = 0.0;
+    AirThreat_ptr = nullptr;
 	delete mec;
 	mec = nullptr;
 	meb = nullptr;
+    initialize();
 }
 
 /************************************************************************
@@ -162,9 +158,6 @@ ATSManager::start()
 
 	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
 
-    AirThreat_ptr = ATSManager::createAT();
-    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
-
 	return true;
 }
 
@@ -173,7 +166,6 @@ ATSManager::stop()
 {
 	bool result = true;
 
-    ATSManager::deleteAT();
 	return result;
 }
 
@@ -184,27 +176,98 @@ ATSManager::setMEBComponent(IMEBComponent* realMEB)
 	mec->setMEB(meb);
 }
 
-void ATSManager::pointParser(std::shared_ptr<NOM> nomMsg)
+void ATSManager::funcMapInit()
 {
+    std::function<void(std::shared_ptr<NOM>)> msgProc;
 
+    msgProc = bind(&ATSManager::pointParser, this, std::placeholders::_1);
+    msgFuncMap.insert({ _T("InnerSendScenarioToModel"), msgProc });
+
+    msgProc = bind(&ATSManager::recvInnerStartSimulationToModel, this, std::placeholders::_1);
+    msgFuncMap.insert({ _T("InnerStartSimulationToModel"), msgProc });
+
+    msgProc = bind(&ATSManager::recvInnerStopSimulationToModel, this, std::placeholders::_1);
+    msgFuncMap.insert({ _T("InnerStopSimulationToModel"), msgProc });
+
+    msgProc = bind(&ATSManager::recvDetonation, this, std::placeholders::_1);
+    msgFuncMap.insert({ _T("InnerAirThreatDetonationToATM"), msgProc });
 }
 
-/**
-     * @brief Catmull-Rom 스플라인 보간을 사용하여 비행 경로를 계산하고,
-     * 등속도 운동 시뮬레이션 결과를 timetable에 저장합니다.
-     * @param keyPoints: 4개 이상의 키 포인트 (P0, P1, P2, ...)
-     */
+void ATSManager::pointParser(std::shared_ptr<NOM> nomMsg)
+{
+    points.clear();
+    encodedPathString.clear();
+
+    // 기준 위도 경도 수신
+    origin.first = nomMsg->getValue(_T("Scenario.OriginLat"))->toDouble();
+    origin.second = nomMsg->getValue(_T("Scenario.OriginLng"))->toDouble();
+
+    std::cout << "\n\n\n\n" << origin.first << ", " << origin.second << "\n\n" <<std::endl;
+    // WayPoint 0 추가
+    double x0 = nomMsg->getValue(_T("Scenario.WayPoint0_X"))->toDouble();
+    double y0 = nomMsg->getValue(_T("Scenario.WayPoint0_Y"))->toDouble();
+    points.emplace_back(x0, y0);
+
+    // WayPoint 1 추가
+    double x1 = nomMsg->getValue(_T("Scenario.WayPoint1_X"))->toDouble();
+    double y1 = nomMsg->getValue(_T("Scenario.WayPoint1_Y"))->toDouble();
+    points.emplace_back(x1, y1);
+
+    // WayPoint 2 추가
+    double x2 = nomMsg->getValue(_T("Scenario.WayPoint2_X"))->toDouble();
+    double y2 = nomMsg->getValue(_T("Scenario.WayPoint2_Y"))->toDouble();
+    points.emplace_back(x2, y2);
+
+    // WayPoint 3 추가
+    double x3 = nomMsg->getValue(_T("Scenario.WayPoint3_X"))->toDouble();
+    double y3 = nomMsg->getValue(_T("Scenario.WayPoint3_Y"))->toDouble();
+    points.emplace_back(x3, y3);
+
+    interpolation(points);
+}
+
+double distance(const std::pair<double, double>& p1, const std::pair<double, double>& p2) {
+		return std::sqrt(std::pow(p2.first - p1.first, 2) + std::pow(p2.second - p1.second, 2));
+}
+
+std::pair<double, double> interpolate_catmull_rom(
+	const std::pair<double, double>& p0,
+	const std::pair<double, double>& p1,
+	const std::pair<double, double>& p2,
+	const std::pair<double, double>& p3,
+	double t)
+{
+	double t2 = t * t;
+	double t3 = t2 * t;
+
+	// Catmull-Rom 기저 함수 (Tension=0.0)
+	double b1 = 0.5 * (-t3 + 2.0 * t2 - t);
+	double b2 = 0.5 * (3.0 * t3 - 5.0 * t2 + 2.0);
+	double b3 = 0.5 * (-3.0 * t3 + 4.0 * t2 + t);
+	double b4 = 0.5 * (t3 - t2);
+
+	std::pair<double, double> p;
+	p.first = p0.first * b1 + p1.first * b2 + p2.first * b3 + p3.first * b4;
+	p.second = p0.second * b1 + p1.second * b2 + p2.second * b3 + p3.second * b4;
+	return p;
+}
+
 void ATSManager::interpolation(const std::vector<std::pair<double, double>>& keyPoints) {
+
     if (keyPoints.size() < 4) {
         std::cerr << "경로 보간을 위해 최소 4개의 키 포인트가 필요합니다." << std::endl;
         return;
     }
 
+    // 기존 데이터 초기화
+    flightTimeTable.clear();
+    transformedPath.clear(); // **transformedPath 초기화 추가**
+
     const int segmentsPerInterval = 50;
-    std::vector<std::pair<double, double>> path;
+    std::vector<std::pair<double, double>> path; // path는 (X, Y) 상대 좌표 (미터)
     size_t N = keyPoints.size();
 
-    // 1. Catmull-Rom 스플라인을 이용한 경로 생성
+    // 1. Catmull-Rom 스플라인을 이용한 상대 좌표 경로 생성 (기존 로직 유지)
 
     // P0 -> P1 구간 (시작점 처리)
     for (int i = 0; i <= segmentsPerInterval; ++i) {
@@ -229,7 +292,8 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
 
     if (path.empty()) return;
 
-    // 2. 전체 경로 길이 계산 및 누적 거리 계산
+    // 2. 전체 경로 길이 계산 및 누적 거리 계산 (path를 사용하여 거리 계산)
+    // ... (기존 로직 유지)
     std::vector<double> cumulativeDistances;
     cumulativeDistances.push_back(0.0);
     double totalDistance = 0.0;
@@ -239,13 +303,12 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
         cumulativeDistances.push_back(totalDistance);
     }
 
-    // 3. 등속도 운동 시뮬레이션 및 timetable 저장
-
+    // 3. 등속력 운동 시뮬레이션 및 flightTimeTable 저장 (X, Y 상대좌표를 저장)
+    // ... (기존 로직 유지)
     double totalFlightTime = 20.0;
     double speed = totalDistance / totalFlightTime;
     const double timeStep = 0.5;
     double currentTime = 0.0;
-    std::map<double, std::pair<double, double>> currentFlightTimeTable;
 
     while (currentTime <= totalFlightTime + 1e-6) {
         double distanceTraveled = speed * currentTime;
@@ -256,7 +319,7 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
         size_t nextIndex = std::distance(cumulativeDistances.begin(), it);
         size_t prevIndex = nextIndex > 0 ? nextIndex - 1 : 0;
 
-        std::pair<double, double> currentPos;
+        std::pair<double, double> currentPos; // (X, Y) 상대 좌표
         if (nextIndex >= cumulativeDistances.size()) {
             currentPos = path.back(); // 마지막 점에 도달
         }
@@ -269,37 +332,27 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
                 currentPos = path[prevIndex];
             }
             else {
-                // 선형 보간을 통해 정확한 현재 좌표 계산
+                // 선형 보간을 통해 정확한 현재 좌표 (X, Y) 계산
                 double ratio = (distanceTraveled - distPrev) / segmentDistance;
                 currentPos.first = path[prevIndex].first + ratio * (path[nextIndex].first - path[prevIndex].first);
                 currentPos.second = path[prevIndex].second + ratio * (path[nextIndex].second - path[prevIndex].second);
             }
         }
 
-        // timetable에 저장: map<시간, (X, Y)>
-        currentFlightTimeTable[currentTime] = currentPos;
+        // flightTimeTable 멤버 변수에 직접 저장: map<시간, (X, Y)>
+        flightTimeTable[currentTime] = currentPos;
 
         currentTime += timeStep;
     }
 
-    // 결과 TimeMap을 ATSManager의 timetable 멤버에 추가
-    timetable.push_back(currentFlightTimeTable);
-    std::cout << "시뮬레이션 결과가 ATSManager::timetable에 저장되었습니다 (총 이동 거리: "
+    std::cout << "시뮬레이션 결과가 ATSManager::flightTimeTable에 저장되었습니다 (총 이동 거리: "
         << std::fixed << std::setprecision(2) << totalDistance << ", 예상 비행 시간: " << totalFlightTime << "초)\n";
 
-    // 4. 전체 경로점 데이터 파일 저장 유지
-    saveFullPath(path);
-
-    // 5. key_points.csv 파일 저장
-    std::ofstream keyPointsFile("key_points.csv");
-    if (keyPointsFile.is_open()) {
-        keyPointsFile << "X,Y\n";
-        for (const auto& p : keyPoints) {
-            keyPointsFile << p.first << "," << p.second << "\n";
-        }
-        keyPointsFile.close();
-        std::cout << "키 포인트 데이터 파일 저장 완료: key_points.csv\n";
-    }
+    atsNOM = meb->getNOMInstance(name, _T("InnerRouteToComm"));
+    NString route(util::string2tstring(encodedPathString));
+    atsNOM->setValue(_T("RouteAT"), &route);
+    mec->sendMsg(atsNOM);
+    std::cout << "\n\n\n\n" << encodedPathString << "\n\n\n\n" << std::endl;
 }
 
 AirThreat* ATSManager::createAT()
@@ -317,17 +370,99 @@ void ATSManager::deleteAT()
 
 void ATSManager::sendATInfo()
 {
-    atsNOM = meb->getNOMInstance(name, _T("AirThreatInfo_ToComm"));
-    unsigned short msgID = 0x41;
-    NUShort value(msgID);
-    atsNOM->setValue(_T("Header.MessageID"), &value);
+    // 1. 공중 위협 객체 업데이트
+    if (AirThreat_ptr != nullptr && !flightTimeTable.empty()) { // <--- map이 비어있지 않은지 확인
+        // 시간표 flightTimeTable를 직접 사용
+        auto it = flightTimeTable.find(currentSimTime);
 
-    sendMsg(atsNOM);
+        if (it != flightTimeTable.end()) {
+            // 현재 위치 (curPos)
+            const auto& curPos = it->second;
+
+            // 현재 속도 (curVel)를 계산
+            std::pair<double, double> curVel = { 0.0, 0.0 };
+            double nextTime = currentSimTime + 0.5;
+
+            // flightTimeTable에서 바로 find
+            auto nextIt = flightTimeTable.find(nextTime);
+
+            if (nextIt != flightTimeTable.end()) {
+                const auto& nextPos = nextIt->second;
+
+                curVel.first = (nextPos.first - curPos.first) / 0.5;
+                curVel.second = (nextPos.second - curPos.second) / 0.5;
+            }
+
+            AirThreat_ptr->updateValue(curPos, curVel);
+            currentSimTime += 0.5;
+        }
+        else {
+            // currentSimTime이 시간표의 끝을 초과한 경우
+            // 객체는 최종 위치에 머무르며, 타이머를 해제하고 시뮬레이션을 종료할 수 있습니다.
+
+            //ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << _T("경로 끝 도달. 타이머 해제.") << std::endl;
+            // release();
+        }
+    }
+
+
+    // 2. NOM 메시지 생성 및 전송
+    atsNOM = meb->getNOMInstance(name, _T("InnerAirThreatInfoToComm"));
+
+    // AirThreat 객체에서 현재 값(업데이트된 값)을 가져옵니다.
+    auto [pos_pair, vel_pair, curState] = AirThreat_ptr->getValue();
+
+    // ObjectID는 예시로 1을 사용하거나, AirThreat 객체 내부에 ID가 있다면 사용
+    NUShort objectID(1);
+    atsNOM->setValue(_T("AirThreatInfo.ObjectID"), &objectID);
+
+    // ObjectState 설정
+    NUShort stateValue(curState);
+    atsNOM->setValue(_T("AirThreatInfo.ObjectState"), &stateValue);
+
+    // Position X, Y 설정
+    NDouble posXValue(pos_pair.first);
+    atsNOM->setValue(_T("AirThreatInfo.PositionX"), &posXValue);
+
+    NDouble posYValue(pos_pair.second);
+    atsNOM->setValue(_T("AirThreatInfo.PositionY"), &posYValue);
+
+    // Velocity X, Y 설정
+    NDouble velXValue(vel_pair.first);
+    atsNOM->setValue(_T("AirThreatInfo.VelocityX"), &velXValue);
+
+    NDouble velYValue(vel_pair.second);
+    atsNOM->setValue(_T("AirThreatInfo.VelocityY"), &velYValue);
+
+    mec->sendMsg(atsNOM);
+
+    // 3. 상태 확인 및 종료
+    // 만약 상태가 격추라면 release (BaseManager의 stop, 타이머 해제 등 포함)
+    if (curState == 1) {
+        release();
+    }
 }
 
-void ATSManager::recvDetonation()
+void ATSManager::recvDetonation(std::shared_ptr<NOM> nomMsg)
 {
+    auto [pos_pair, vel_pair, curState] = AirThreat_ptr->getValue();
+    AirThreat_ptr->setValue(pos_pair, vel_pair, 1);
+}
+void ATSManager::recvInnerStartSimulationToModel(std::shared_ptr<NOM> nomMsg)
+{
+    // 시뮬레이션 시작 시 시간 초기화
+    currentSimTime = 0.0;
 
+    AirThreat_ptr = ATSManager::createAT();
+    sendATInfo_Periodic = std::bind(&ATSManager::sendATInfo, this);
+    nTimer = &(NTimer::getInstance());
+
+    // 500ms(0.5초) 주기로 sendATInfo 호출 시작
+    timerHandle = nTimer->addPeriodicTask(500, sendATInfo_Periodic);
+}
+void ATSManager::recvInnerStopSimulationToModel(std::shared_ptr<NOM> nomMsg)
+{
+    release();
 }
 
 /************************************************************************

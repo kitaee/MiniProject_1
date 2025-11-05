@@ -1,10 +1,10 @@
 ﻿#include "AirThreat.h"
 
 // 정적 멤버 변수 초기화
-AirThreat* AirThreat::instance = nullptr;
+AirThreat* AirThreat::instance ;
 
 // private 생성자 구현
-AirThreat::AirThreat() : pos({ 0.0, 0.0 }), vel(0.0), state(0)
+AirThreat::AirThreat() : pos({ 0.0, 0.0 }), vel({ 0.0, 0.0 }), state(0)
 {
     std::cout << "[생성] AirThreat 객체가 생성되었습니다." << std::endl;
 }
@@ -36,20 +36,21 @@ void AirThreat::destroyInstance()
     }
 }
 
-void AirThreat::setValue(std::pair<double, double> newPos, double newVel, unsigned short newState)
+void AirThreat::setValue(std::pair<double, double> newPos, std::pair<double, double> newVel, unsigned short newState)
 {
     this->pos = newPos;
     this->vel = newVel;
     this->state = newState;
 }
 
-std::pair<std::pair<double, double>, std::pair<double, unsigned short>> AirThreat::getValue()
+std::tuple<std::pair<double, double>, std::pair<double, double>, unsigned short> AirThreat::getValue()
 {
     // { {pos.x, pos.y}, {vel, state} } 형태의 중첩된 pair를 반환
-    return { this->pos, { this->vel, this->state } };
+    return { this->pos, this->vel, this->state };
 }
 
-void AirThreat::updateValue()
+void AirThreat::updateValue(const std::pair<double, double>& newPos, const std::pair<double, double>& newVel)
 {
-
+    this->pos = newPos;
+    this->vel = newVel;
 }

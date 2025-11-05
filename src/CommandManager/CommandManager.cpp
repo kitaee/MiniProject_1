@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "CommandManager.h"
 #include <nFramework/util/IniHandler.h>
 
@@ -153,7 +153,7 @@ bool
 CommandManager::start()
 {
 	IniHandler iniHandler;
-	iniHandler.readIni(_T("CommandManager/CommandManager.ini")); // ¡ØÁÖÀÇ ÀÛ¾÷µğ·ºÅÍ¸®: Main.exe°¡ ÀÖ´Â °æ·Î
+	iniHandler.readIni(_T("CommandManager/CommandManager.ini")); // â€»ì£¼ì˜ ì‘ì—…ë””ë ‰í„°ë¦¬: Main.exeê°€ ìˆëŠ” ê²½ë¡œ
 
 	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
 	

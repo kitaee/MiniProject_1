@@ -63,6 +63,8 @@ UDPCommunicationManager::init()
 			commMsgHandler.setIDNameTable(nMsg->getMessageID(), nMsg->getName());
 		}
 	}
+
+	funcMapInit();
 }
 
 void
@@ -76,6 +78,8 @@ UDPCommunicationManager::release()
 	meb = nullptr;
 	delete mec;
 	mec = nullptr;
+
+	funcMap.clear();
 }
 
 /************************************************************************
@@ -146,7 +150,7 @@ UDPCommunicationManager::removeMsg(shared_ptr<NOM> nomMsg)
 void
 UDPCommunicationManager::sendMsg(shared_ptr<NOM> nomMsg)
 {
-	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	//tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
 
 	mec->sendMsg(nomMsg);
 }
@@ -154,9 +158,12 @@ UDPCommunicationManager::sendMsg(shared_ptr<NOM> nomMsg)
 void
 UDPCommunicationManager::recvMsg(shared_ptr<NOM> nomMsg)
 {
-	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	if (auto iter = funcMap.find(nomMsg->getName()); iter != funcMap.end())
+	{
+		iter->second(nomMsg);
+	}
 
-	commInterface->sendCommMsg(nomMsg);
+	//commInterface->sendCommMsg(nomMsg);
 }
 
 void
@@ -222,6 +229,142 @@ UDPCommunicationManager::setMEBComponent(IMEBComponent* realMEB)
 	mec->setMEB(meb);
 }
 
+void UDPCommunicationManager::funcMapInit()
+{
+	function<void(shared_ptr<NOM>)> msgProc;
+
+	msgProc = bind(&UDPCommunicationManager::recvSendScenario, this, placeholders::_1);
+	funcMap.insert({ _T("SendScenario"), msgProc});
+
+	msgProc = bind(&UDPCommunicationManager::recvStartSimulation, this, placeholders::_1);
+	funcMap.insert({ _T("StartSimulation"), msgProc });
+
+	msgProc = bind(&UDPCommunicationManager::recvStopSimulation, this, placeholders::_1);
+	funcMap.insert({ _T("StopSimulation"), msgProc });
+
+	msgProc = bind(&UDPCommunicationManager::recvInnerSendScenarioAck, this, placeholders::_1);
+	funcMap.insert({ _T("InnerSendScenarioAck"), msgProc });
+
+	msgProc = bind(&UDPCommunicationManager::recvInnerStartSimulationAck, this, placeholders::_1);
+	funcMap.insert({ _T("InnerStartSimulationAck"), msgProc });
+
+	msgProc = bind(&UDPCommunicationManager::recvInnerStopSimulationAck, this, placeholders::_1);
+	funcMap.insert({ _T("InnerStopSimulationAck"), msgProc });
+
+	msgProc = bind(&UDPCommunicationManager::recvInnerSimulatorStateComm, this, placeholders::_1);
+	funcMap.insert({ _T("SimulatorStateToComm"), msgProc });
+
+	msgProc = bind(&UDPCommunicationManager::recvInnerRouteToComm, this, placeholders::_1);
+	funcMap.insert({ _T("InnerRouteToComm"), msgProc });
+}
+
+void UDPCommunicationManager::recvInnerRouteToComm(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("sendRouteAT"));
+	routeString = nomMsg->getValue(_T("RouteAT"))->toString();
+	NUShort msgID(0x43);;
+	NString route(routeString);
+
+	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
+	nomMsg_new->setValue(_T("RouteAT"), &route);
+
+	commInterface->sendCommMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::recvSendScenario(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerSendScenario"));
+
+	nomMsg_new->setValue(_T("Scenario.OriginLat"), &(NDouble)(nomMsg->getValue(_T("Scenario.OriginLat"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.OriginLng"), &(NDouble)(nomMsg->getValue(_T("Scenario.OriginLng"))->toDouble()));
+
+	nomMsg_new->setValue(_T("Scenario.WayPoint0_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_X"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint0_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_X"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint0_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_Y"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint1_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_X"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint1_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_Y"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint2_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_X"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint2_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_Y"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint3_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_X"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.WayPoint3_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_Y"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.RadarPositionX"), &(NDouble)(nomMsg->getValue(_T("Scenario.RadarPositionX"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.RadarPositionY"), &(NDouble)(nomMsg->getValue(_T("Scenario.RadarPositionY"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.LauncherPositionX"), &(NDouble)(nomMsg->getValue(_T("Scenario.LauncherPositionX"))->toDouble()));
+	nomMsg_new->setValue(_T("Scenario.LauncherPositionY"), &(NDouble)(nomMsg->getValue(_T("Scenario.LauncherPositionY"))->toDouble()));
+
+	this->sendMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::recvStartSimulation(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerStartSimulation"));
+
+	this->sendMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::recvStopSimulation(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerStopSimulation"));
+
+	this->sendMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::recvInnerSendScenarioAck(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("SendScenarioAck"));
+	NUShort msgID = NUShort((ushort)ICD_MessageID::SendScenarioAck);
+	NUShort simulatorID = nomMsg->getValue(_T("SimulatorID"))->toUShort();
+
+	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
+	nomMsg_new->setValue(_T("SimulatorID"), &simulatorID);
+
+	commInterface->sendCommMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::recvInnerStartSimulationAck(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("StartSimulationAck"));
+	NUShort msgID = NUShort((ushort)ICD_MessageID::StartSimulationAck);
+	NUShort simulatorID = nomMsg->getValue(_T("SimulatorID"))->toUShort();
+
+	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
+	nomMsg_new->setValue(_T("SimulatorID"), &simulatorID);
+
+	commInterface->sendCommMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::recvInnerStopSimulationAck(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("StopSimulationAck"));
+	NUShort msgID = NUShort((ushort)ICD_MessageID::StopSimulationAck);
+	NUShort simulatorID = nomMsg->getValue(_T("SimulatorID"))->toUShort();
+
+	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
+	nomMsg_new->setValue(_T("SimulatorID"), &simulatorID);
+
+	commInterface->sendCommMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::recvInnerSimulatorStateComm(shared_ptr<NOM> nomMsg)
+{
+	auto nomMsg_new = meb->getNOMInstance(name, _T("SimulatorState"));
+	NUShort msgID = NUShort((ushort)ICD_MessageID::SimulatorState);
+	NUShort simulatorID = nomMsg->getValue(_T("SimulatorID"))->toUShort();
+
+	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
+	nomMsg_new->setValue(_T("SimulatorID"), &simulatorID);
+
+	commInterface->sendCommMsg(nomMsg_new);
+}
+
+void UDPCommunicationManager::sendInnerMsg(shared_ptr<NOM> nomMsg)
+{
+	if (auto iter = funcMap.find(nomMsg->getName()); iter != funcMap.end())
+	{
+		iter->second(nomMsg);
+	}
+}
+
 void
 UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 {
@@ -261,7 +404,8 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 			auto nomMsgCP = nomMsg->clone();
 			nomMsgCP->deserialize(data, size);
 			nomMsgCP->setOwner(name);
-			this->sendMsg(nomMsgCP);
+			sendInnerMsg(nomMsgCP);
+			//this->sendMsg(nomMsgCP);
 		}
 	}
 	else

@@ -3,6 +3,10 @@
 #include <nFramework/comm/NCommInterface.h>
 #include "CommMessageHandler.h"
 #include <nFramework/nom/NOMParser.h>
+#include <nFramework/nLineStream/NLineStreamMain.h>
+
+#include "MFRSHeader.h"
+
 using namespace std;
 using namespace nframework;
 using namespace nom;
@@ -38,6 +42,18 @@ public:
 private:
 	void init();
 	void release();
+	void sendInnerMsg(shared_ptr<NOM> nomMsg);
+	void funcMapInit();
+
+private:
+	void recvSendScenario(shared_ptr<NOM> nomMsg);
+	void recvStartSimulation(shared_ptr<NOM> nomMsg);
+	void recvStopSimulation(shared_ptr<NOM> nomMsg);
+	void recvInnerSendScenarioAck(shared_ptr<NOM> nomMsg);
+	void recvInnerStartSimulationAck(shared_ptr<NOM> nomMsg);
+	void recvInnerStopSimulationAck(shared_ptr<NOM> nomMsg);
+	void recvInnerSimulatorStateComm(shared_ptr<NOM> nomMsg);
+	void recvInnerRouteToComm(shared_ptr<NOM> nomMsg);
 	
 public:
 	std::unique_ptr<NOMParser> nomParser;
@@ -48,8 +64,11 @@ private:
 	tstring name;
 	map<unsigned int, shared_ptr<NOM>> registeredMsg;
 	map<unsigned int, shared_ptr<NOM>> discoveredMsg;
+	map<tstring, function<void(shared_ptr<NOM>)>> funcMap;
 
 	CommunicationInterface* commInterface;
 	CommunicationConfig* commConfig;
 	CommMessageHandler commMsgHandler;
+	tstring routeString;
 };
+
