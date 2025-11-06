@@ -26,7 +26,6 @@ ATSManager::initialize(void)
 	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
 
 	setUserName(_T("ATSManager"));
-    ntcout << "ATS_Initialized" << std::endl;
 
 	mec = new MECComponent;
 	mec->setUser(this);
@@ -38,7 +37,11 @@ ATSManager::initialize(void)
 void
 ATSManager::release()
 {
-    
+    delete mec;
+    mec = nullptr;
+    meb = nullptr;
+
+    msgFuncMap.clear();
 }
 
 /************************************************************************
@@ -157,13 +160,6 @@ bool
 ATSManager::stop()
 {
 	bool result = true;
-    nTimer->removeTask(timerHandle);
-    deleteAT();
-    delete mec;
-    mec = nullptr;
-    meb = nullptr;
-    
-    initialize();
 	return result;
 }
 
@@ -193,10 +189,11 @@ void ATSManager::funcMapInit()
 
 void ATSManager::pointParser(std::shared_ptr<NOM> nomMsg)
 {
+    stopSequence();
     // 초기화 프로세스
+    deleteAT();
     flightTimeTable.clear();
     encodedPathString.clear();
-    deleteAT();
     points.clear();
     latlng.clear();
     step = 0;
@@ -275,7 +272,6 @@ std::pair<double, double> interpolate_catmull_rom(const std::pair<double, double
 }
 
 void ATSManager::interpolation(const std::vector<std::pair<double, double>>& keyPoints) {
-
     // 기존 데이터 초기화
     const int segmentsPerInterval = 50;
     std::vector<std::pair<double, double>> path;
@@ -360,10 +356,7 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
         flightTimeTable[currentTime] = currentPos;
 
         currentTime += timeStep;
-
-        
     }
-
     std::cout << "시뮬레이션 결과가 ATSManager::flightTimeTable에 저장되었습니다 (총 이동 거리: "
         << std::fixed << std::setprecision(2) << totalDistance << ", 예상 비행 시간: " << totalFlightTime << "초)\n";
 }
@@ -404,76 +397,69 @@ void ATSManager::deleteAT()
 
 void ATSManager::sendATInfo()
 {
-    std::pair<double, double> p_pair;
-    std::pair<double, double> v_pair;
-    double cState;
-    if (AirThreat_ptr != nullptr) {
-        std::tie(p_pair, v_pair, cState) = AirThreat_ptr->getValue();
-    }
-    // 발사대로부터 3000Km 이상 벗어나면
-    if (p_pair.first >= -3000000 &&  p_pair.first <= 3000000 && p_pair.second >= -3000000 && p_pair.second <= 3000000 && cState != 1) {
-        // 1. 공중 위협 객체 업데이트
-        if (AirThreat_ptr != nullptr && !flightTimeTable.empty()) {
+    // 1. 공중 위협 객체 업데이트
+    if (AirThreat_ptr != nullptr && !flightTimeTable.empty()) {
 
-            // 1.1 시간표 탐색 및 현재 위치/속도 계산
-            std::pair<double, double> curPos = { 0.0, 0.0 };
-            std::pair<double, double> curVel = { 0.0, 0.0 };
-            //bool isTableTraversed = false; // 이 플래그 대신 시간표 탐색 성공 여부로 판단
+        // 1.1 시간표 탐색 및 현재 위치/속도 계산
+        std::pair<double, double> curPos = { 0.0, 0.0 };
+        std::pair<double, double> curVel = { 0.0, 0.0 };
+        //bool isTableTraversed = false; // 이 플래그 대신 시간표 탐색 성공 여부로 판단
 
-            auto it = flightTimeTable.find(currentSimTime);
-            const double timeStep = 0.5; // 시간 간격
+        auto it = flightTimeTable.find(currentSimTime);
+        const double timeStep = 0.5; // 시간 간격
 
-            if (it != flightTimeTable.end()) {
-                // **A. 시간표 탐색 성공 (경로 이동 중)**
+        if (it != flightTimeTable.end()) {
+            // **A. 시간표 탐색 성공 (경로 이동 중)**
 
-                // 현재 위치 (curPos)는 시간표에서 가져옴
-                curPos = it->second;
+            // 현재 위치 (curPos)는 시간표에서 가져옴
+            curPos = it->second;
 
-                // 다음 시간 계산 및 탐색
-                double nextTime = currentSimTime + timeStep;
-                auto nextIt = flightTimeTable.find(nextTime);
+            // 다음 시간 계산 및 탐색
+            double nextTime = currentSimTime + timeStep;
+            auto nextIt = flightTimeTable.find(nextTime);
 
-                if (nextIt != flightTimeTable.end()) {
-                    // 다음 위치가 시간표에 있을 경우: 속도 계산
-                    const auto& nextPos = nextIt->second;
+            if (nextIt != flightTimeTable.end()) {
+                // 다음 위치가 시간표에 있을 경우: 속도 계산
+                const auto& nextPos = nextIt->second;
 
-                    curVel.first = (nextPos.first - curPos.first) / timeStep;
-                    curVel.second = (nextPos.second - curPos.second) / timeStep;
+                curVel.first = (nextPos.first - curPos.first) / timeStep;
+                curVel.second = (nextPos.second - curPos.second) / timeStep;
 
-                    // 마지막 속도 저장 (경로가 끝난 후 직진에 사용)
-                    lastVelocity = curVel;
+                // 마지막 속도 저장 (경로가 끝난 후 직진에 사용)
+                lastVelocity = curVel;
 
-                }
-                else {
-                    // 현재 시간이 시간표의 마지막 엔트리일 경우: 마지막 속도를 사용
-                    curVel = lastVelocity;
-                }
-
-                // 시뮬레이션 시간 증가
-                currentSimTime += timeStep;
             }
             else {
-                // **B. 시간표 탐색 실패 (경로 이동 완료, 직진 운동 시작/유지)**
-
-                // 직전 프레임의 위치와 마지막 계산된 속도(lastVelocity)를 이용
-                curVel = lastVelocity; // 마지막 속도를 유지
-
-                // 새 위치 = 이전 위치 + (마지막 속도 * 시간 간격)
-                std::pair<double, double> pos_pair;
-                std::pair<double, double> vel_pair;
-                double curState;
-                if (AirThreat_ptr != nullptr) {
-                    std::tie(pos_pair, vel_pair, curState) = AirThreat_ptr->getValue();
-                }
-                curPos = pos_pair; // 직전 업데이트 위치를 가져옴
-                curPos.first += curVel.first * timeStep;
-                curPos.second += curVel.second * timeStep;
-
-                // 시뮬레이션 시간도 계속 증가
-                currentSimTime += timeStep;
+                // 현재 시간이 시간표의 마지막 엔트리일 경우: 마지막 속도를 사용
+                curVel = lastVelocity;
             }
 
-            // 1.2 AirThreat 객체 업데이트
+            // 시뮬레이션 시간 증가
+            currentSimTime += timeStep;
+        }
+        else {
+            // **B. 시간표 탐색 실패 (경로 이동 완료, 직진 운동 시작/유지)**
+
+            // 직전 프레임의 위치와 마지막 계산된 속도(lastVelocity)를 이용
+            curVel = lastVelocity; // 마지막 속도를 유지
+
+            // 새 위치 = 이전 위치 + (마지막 속도 * 시간 간격)
+            std::pair<double, double> pos_pair;
+            std::pair<double, double> vel_pair;
+            double curState;
+            if (AirThreat_ptr != nullptr) {
+                std::tie(pos_pair, vel_pair, curState) = AirThreat_ptr->getValue();
+            }
+            curPos = pos_pair; // 직전 업데이트 위치를 가져옴
+            curPos.first += curVel.first * timeStep;
+            curPos.second += curVel.second * timeStep;
+
+            // 시뮬레이션 시간도 계속 증가
+            currentSimTime += timeStep;
+        }
+
+        // 1.2 AirThreat 객체 업데이트
+        if (AirThreat_ptr != nullptr) {
             AirThreat_ptr->updateValue(curPos, curVel);
         }
     }
@@ -514,9 +500,8 @@ void ATSManager::sendATInfo()
     mec->sendMsg(atsNOM);
 
     // 3. 상태 확인 및 종료
-    if (curState == 1) {
-        deleteAT();
-        nTimer->removeTask(timerHandle);
+    if (curState == 1 || pos_pair.first < -3000000 || pos_pair.first > 3000000 || pos_pair.second < -3000000 || pos_pair.second > 3000000) {
+        stopSequence();
     }
 }
 
@@ -529,7 +514,7 @@ void ATSManager::recvDetonation(std::shared_ptr<NOM> nomMsg)
         std::tie(p_pair, v_pair, cState) = AirThreat_ptr->getValue();
         AirThreat_ptr->setValue(p_pair, v_pair, 1);
     }
-    //std::cout << "\n\n\n\n격추됨\n\n\n\n" << std::endl;
+    std::cout << "\n\n격추됨\n" << std::endl;
 }
 
 void ATSManager::recvInnerStartSimulationToModel(std::shared_ptr<NOM> nomMsg)
@@ -549,7 +534,11 @@ void ATSManager::recvInnerStartSimulationToModel(std::shared_ptr<NOM> nomMsg)
 
 void ATSManager::recvInnerStopSimulationToModel(std::shared_ptr<NOM> nomMsg)
 {
-    std::cout << "\n\n\n시뮬레이션 종료됨\n\n\n\n" << std::endl;
+    stopSequence();
+}
+void ATSManager::stopSequence()
+{
+    std::cout << "\n\n시뮬레이션 종료됨\n" << std::endl;
     deleteAT();
     nTimer->removeTask(timerHandle);
     flightTimeTable.clear();

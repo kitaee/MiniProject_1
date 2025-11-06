@@ -101,6 +101,7 @@ private:
 	virtual AirThreat* createAT();
 	virtual void deleteAT();
 	virtual void encodedLatLng(std::vector<std::pair<double, double>>);
+	virtual void stopSequence();
 
 	//void printFlightTimeTable(const std::map<double, std::pair<double, double>>& flightTimeTable) {
 	//	// Check if the map is empty
