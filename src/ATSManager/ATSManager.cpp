@@ -5,30 +5,30 @@
 #include <map>
 
 /************************************************************************
-	constructor / destructor
+    constructor / destructor
 ************************************************************************/
 ATSManager::ATSManager(void)
 {
-	initialize();
+    initialize();
 }
 
 ATSManager::~ATSManager(void)
 {
-	release();
+    release();
 }
 
 /************************************************************************
-	initialize / release
+    initialize / release
 ************************************************************************/
 void
 ATSManager::initialize(void)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
 
-	setUserName(_T("ATSManager"));
+    setUserName(_T("ATSManager"));
 
-	mec = new MECComponent;
-	mec->setUser(this);
+    mec = new MECComponent;
+    mec->setUser(this);
 
     funcMapInit();
 
@@ -45,43 +45,43 @@ ATSManager::release()
 }
 
 /************************************************************************
-	inherited functions
+    inherited functions
 ************************************************************************/
 std::shared_ptr<NOM>
 ATSManager::registerMsg(tstring msgName)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << msgName << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << msgName << std::endl;
 
 
-	std::shared_ptr<NOM> nomMsg = mec->registerMsg(msgName);
-	registeredMsgMap.emplace(nomMsg->getInstanceID(), nomMsg);
+    std::shared_ptr<NOM> nomMsg = mec->registerMsg(msgName);
+    registeredMsgMap.emplace(nomMsg->getInstanceID(), nomMsg);
 
-	return nomMsg;
+    return nomMsg;
 }
 
 void
 ATSManager::discoverMsg(std::shared_ptr<NOM> nomMsg)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
 
 
-	discoveredMsgMap.emplace(nomMsg->getInstanceID(), nomMsg);
+    discoveredMsgMap.emplace(nomMsg->getInstanceID(), nomMsg);
 
 }
 
 void
 ATSManager::updateMsg(std::shared_ptr<NOM> nomMsg)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
 
 
-	mec->updateMsg(nomMsg);
+    mec->updateMsg(nomMsg);
 }
 
 void
 ATSManager::reflectMsg(std::shared_ptr<NOM> nomMsg)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
 
 
 }
@@ -89,54 +89,54 @@ ATSManager::reflectMsg(std::shared_ptr<NOM> nomMsg)
 void
 ATSManager::deleteMsg(std::shared_ptr<NOM> nomMsg)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
 
 
-	mec->deleteMsg(nomMsg);
-	registeredMsgMap.erase(nomMsg->getInstanceID());
+    mec->deleteMsg(nomMsg);
+    registeredMsgMap.erase(nomMsg->getInstanceID());
 }
 
 void
 ATSManager::removeMsg(std::shared_ptr<NOM> nomMsg)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
 
 
-	discoveredMsgMap.erase(nomMsg->getInstanceID());
+    discoveredMsgMap.erase(nomMsg->getInstanceID());
 
 }
 
 void
 ATSManager::sendMsg(std::shared_ptr<NOM> nomMsg)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
 
 
-	mec->sendMsg(nomMsg);
+    mec->sendMsg(nomMsg);
 }
 
 void
 ATSManager::recvMsg(std::shared_ptr<NOM> nomMsg)
 {
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
 
 
-	if (auto itr = msgFuncMap.find(nomMsg->getName()); itr != msgFuncMap.end()) {
-		itr->second(nomMsg);
-	}
+    if (auto itr = msgFuncMap.find(nomMsg->getName()); itr != msgFuncMap.end()) {
+        itr->second(nomMsg);
+    }
 
 }
 
 void
 ATSManager::setUserName(tstring userName)
 {
-	name = userName;
+    name = userName;
 }
 
 tstring
 ATSManager::getUserName()
 {
-	return name;
+    return name;
 }
 
 void
@@ -148,26 +148,26 @@ ATSManager::setData(void* data)
 bool
 ATSManager::start()
 {
-	IniHandler iniHandler;
-	iniHandler.readIni(_T("ATSManager/ATSManager.ini"));
+    IniHandler iniHandler;
+    iniHandler.readIni(_T("ATSManager/ATSManager.ini"));
 
-	ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
 
-	return true;
+    return true;
 }
 
 bool
 ATSManager::stop()
 {
-	bool result = true;
-	return result;
+    bool result = true;
+    return result;
 }
 
 void
 ATSManager::setMEBComponent(IMEBComponent* realMEB)
 {
-	meb = realMEB;
-	mec->setMEB(meb);
+    meb = realMEB;
+    mec->setMEB(meb);
 }
 
 void ATSManager::funcMapInit()
@@ -251,24 +251,24 @@ void ATSManager::pointParser(std::shared_ptr<NOM> nomMsg)
 }
 
 double distance(const std::pair<double, double>& p1, const std::pair<double, double>& p2) {
-		return std::sqrt(std::pow(p2.first - p1.first, 2) + std::pow(p2.second - p1.second, 2));
+    return std::sqrt(std::pow(p2.first - p1.first, 2) + std::pow(p2.second - p1.second, 2));
 }
 
 std::pair<double, double> interpolate_catmull_rom(const std::pair<double, double>& p0, const std::pair<double, double>& p1, const std::pair<double, double>& p2, const std::pair<double, double>& p3, double t)
 {
-	double t2 = t * t;
-	double t3 = t2 * t;
+    double t2 = t * t;
+    double t3 = t2 * t;
 
-	// Catmull-Rom 기저 함수 (Tension=0.0)
-	double b1 = 0.5 * (-t3 + 2.0 * t2 - t);
-	double b2 = 0.5 * (3.0 * t3 - 5.0 * t2 + 2.0);
-	double b3 = 0.5 * (-3.0 * t3 + 4.0 * t2 + t);
-	double b4 = 0.5 * (t3 - t2);
+    // Catmull-Rom 기저 함수 (Tension=0.0)
+    double b1 = 0.5 * (-t3 + 2.0 * t2 - t);
+    double b2 = 0.5 * (3.0 * t3 - 5.0 * t2 + 2.0);
+    double b3 = 0.5 * (-3.0 * t3 + 4.0 * t2 + t);
+    double b4 = 0.5 * (t3 - t2);
 
-	std::pair<double, double> p;
-	p.first = p0.first * b1 + p1.first * b2 + p2.first * b3 + p3.first * b4;
-	p.second = p0.second * b1 + p1.second * b2 + p2.second * b3 + p3.second * b4;
-	return p;
+    std::pair<double, double> p;
+    p.first = p0.first * b1 + p1.first * b2 + p2.first * b3 + p3.first * b4;
+    p.second = p0.second * b1 + p1.second * b2 + p2.second * b3 + p3.second * b4;
+    return p;
 }
 
 void ATSManager::interpolation(const std::vector<std::pair<double, double>>& keyPoints) {
@@ -277,7 +277,7 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
     std::vector<std::pair<double, double>> path;
     size_t N = keyPoints.size();
 
-    // 1. Catmull-Rom 스플라인을 이용한 상대 좌표 경로 생성 (기존 로직 유지)
+    // 1. Catmull-Rom 스플라인을 이용한 상대 좌표 경로 생성
 
     // P0 -> P1 구간 (시작점 처리)
     for (int i = 0; i <= segmentsPerInterval; ++i) {
@@ -300,7 +300,7 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
         path.push_back(interpolate_catmull_rom(keyPoints[i - 1], keyPoints[i], keyPoints[i + 1], keyPoints[i + 1], t));
     }
 
-    if (path.empty()) return ;
+    if (path.empty()) return;
 
     if (step == 0) {
         encodedLatLng(path);
@@ -318,8 +318,14 @@ void ATSManager::interpolation(const std::vector<std::pair<double, double>>& key
     }
 
     // 3. 등속력 운동 시뮬레이션 및 flightTimeTable 저장 (X, Y 상대좌표를 저장)
-    double totalFlightTime = 60.0;
-    double speed = totalDistance / totalFlightTime;
+
+    // 🚀 속력 조정부 fixedSpeed 변경하기 m/s 단위
+    const double fixedSpeed = 600.0;
+    double speed = fixedSpeed;
+
+    // 총 거리를 고정된 속도로 나누어 필요한 총 비행 시간 계산
+    double totalFlightTime = totalDistance / speed;
+
     const double timeStep = 0.5;
     double currentTime = 0.0;
 
@@ -375,7 +381,7 @@ void ATSManager::encodedLatLng(std::vector<std::pair<double, double>> path)
         getLon
     );
 
-    std::cout << "\n\nPolyLine Encoded Path:\n" << encodedPathString << std::endl;
+    //std::cout << "\n\nPolyLine Encoded Path:\n" << encodedPathString << std::endl;
 
     atsNOM = meb->getNOMInstance(name, _T("InnerRouteToComm"));
     NString route(util::string2tstring(encodedPathString));
@@ -385,14 +391,14 @@ void ATSManager::encodedLatLng(std::vector<std::pair<double, double>> path)
 
 AirThreat* ATSManager::createAT()
 {
-	std::cout << "\n--- AirThreatManager::createAT() 호출 ---" << std::endl;
-	return AirThreat::getInstance();
+    std::cout << "\n--- AirThreatManager::createAT() 호출 ---" << std::endl;
+    return AirThreat::getInstance();
 }
 
 void ATSManager::deleteAT()
 {
-	std::cout << "\n--- AirThreatManager::deleteAT() 호출 ---" << std::endl;
-	AirThreat::destroyInstance();
+    std::cout << "\n--- AirThreatManager::deleteAT() 호출 ---" << std::endl;
+    AirThreat::destroyInstance();
 }
 
 void ATSManager::sendATInfo()
@@ -463,7 +469,7 @@ void ATSManager::sendATInfo()
             AirThreat_ptr->updateValue(curPos, curVel);
         }
     }
-    
+
     // 2. NOM 메시지 생성 및 전송
     atsNOM = meb->getNOMInstance(name, _T("InnerAirThreatInfoToComm"));
 
@@ -519,6 +525,8 @@ void ATSManager::recvDetonation(std::shared_ptr<NOM> nomMsg)
 
 void ATSManager::recvInnerStartSimulationToModel(std::shared_ptr<NOM> nomMsg)
 {
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
+
     nTimer = &(NTimer::getInstance());
     // 시뮬레이션 시작 시 시간 초기화
     currentSimTime = 0.0;
@@ -534,8 +542,10 @@ void ATSManager::recvInnerStartSimulationToModel(std::shared_ptr<NOM> nomMsg)
 
 void ATSManager::recvInnerStopSimulationToModel(std::shared_ptr<NOM> nomMsg)
 {
+    ntcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << std::endl;
     stopSequence();
 }
+
 void ATSManager::stopSequence()
 {
     std::cout << "\n\n시뮬레이션 종료됨\n" << std::endl;
@@ -551,16 +561,16 @@ void ATSManager::stopSequence()
 }
 
 /************************************************************************
-	Export Function
+    Export Function
 ************************************************************************/
 extern "C" BASEMGRDLL_API
 BaseManager* createObject()
 {
-	return new ATSManager;
+    return new ATSManager;
 }
 
 extern "C" BASEMGRDLL_API
 void deleteObject(BaseManager* userManager)
 {
-	delete userManager;
+    delete userManager;
 }
