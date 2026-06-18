@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="DetonationManager" date="2026-06-18" author="SimulatorSuite">
+  <NOM:objects>
+  </NOM:objects>
+  <NOM:interactions>
+    <NOM:interaction name="DetonationInfo" id="3201" semantics="유도탄→공중위협 요격 결과" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
+      <NOM:parameter name="TargetID" semantics="TargetID" dataType="uint"/>
+    </NOM:interaction>
+  </NOM:interactions>
+  <NOM:dataTypes>
+    <NOM:basicTypes/>
+    <NOM:enumerationTypes/>
+    <NOM:complexTypes/>
+  </NOM:dataTypes>
+  <NOM:notes>
+  </NOM:notes>
+</NOM:Nex1ObjectModel>

@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>TCC_GUI</RootNamespace>
+    <AssemblyName>TCC_GUI</AssemblyName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <OutputPath>$(SolutionDir)bin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <OutputPath>$(SolutionDir)bin\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="CS_NOM.Net8">
+      <HintPath Condition="'$(Configuration)'=='Debug'">$(NFW_DIR)bin\CS_NOM.Net8\Debug\net8.0\CS_NOM.Net8.dll</HintPath>
+      <HintPath Condition="'$(Configuration)'=='Release'">$(NFW_DIR)bin\CS_NOM.Net8\Release\net8.0\CS_NOM.Net8.dll</HintPath>
+    </Reference>
+    <Reference Include="NOMHandlerLib.Net8">
+      <HintPath Condition="'$(Configuration)'=='Debug'">$(NFW_DIR)bin\NOMHandlerLib.Net8\Debug\net8.0-windows\NOMHandlerLib.Net8.dll</HintPath>
+      <HintPath Condition="'$(Configuration)'=='Release'">$(NFW_DIR)bin\NOMHandlerLib.Net8\Release\net8.0-windows\NOMHandlerLib.Net8.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Target Name="CopyNFConnect" AfterTargets="Build">
+    <Copy SourceFiles="$(NFW_DIR)bin\nFConnectd.dll" DestinationFolder="$(SolutionDir)bin\" Condition="Exists('$(NFW_DIR)bin\nFConnectd.dll')" />
+    <Copy SourceFiles="$(NFW_DIR)bin\nFConnect.dll" DestinationFolder="$(SolutionDir)bin\" Condition="Exists('$(NFW_DIR)bin\nFConnect.dll')" />
+  </Target>
+</Project>

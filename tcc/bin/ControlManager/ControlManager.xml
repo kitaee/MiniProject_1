@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="ControlManager" date="2026-06-18" author="SimulatorSuite">
+  <NOM:objects>
+  </NOM:objects>
+  <NOM:interactions>
+    <NOM:interaction name="StartSimulationRequest" id="1002" semantics="통합통제기→모의기 시뮬레이션 시작" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+    </NOM:interaction>
+    <NOM:interaction name="StopSimulationRequest" id="1003" semantics="통합통제기→모의기 시뮬레이션 정지" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+    </NOM:interaction>
+    <NOM:interaction name="LaunchMissileRequest" id="1401" semantics="통합통제기→발사대 모의기 발사 명령" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+    </NOM:interaction>
+  </NOM:interactions>
+  <NOM:dataTypes>
+    <NOM:basicTypes/>
+    <NOM:enumerationTypes/>
+    <NOM:complexTypes/>
+  </NOM:dataTypes>
+  <NOM:notes>
+  </NOM:notes>
+</NOM:Nex1ObjectModel>

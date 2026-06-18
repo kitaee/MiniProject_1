@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="DataLinkManager" date="2026-06-18" author="SimulatorSuite">
+  <NOM:objects>
+    <NOM:object name="UplinkInfo_5301" id="5301" semantics="레이더→유도탄 업링크(주기)" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:attribute name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:attribute name="UplinkInfo" semantics="UplinkInfo" dataType="UplinkInfoStruct"/>
+    </NOM:object>
+    <NOM:object name="DownlinkInfo_5103" id="5103" semantics="레이더→통합통제기 유도탄 좌표(주기)" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:attribute name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:attribute name="DownlinkInfo" semantics="DownlinkInfo" dataType="DownlinkInfoStruct"/>
+    </NOM:object>
+    <NOM:object name="UplinkInfo_1501" id="1501" semantics="통합통제기→레이더 모의기 업링크(주기)" sharing="Subscribe" orderType="Receive" alignment="false">
+      <NOM:attribute name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:attribute name="UplinkInfo" semantics="UplinkInfo" dataType="UplinkInfoStruct"/>
+    </NOM:object>
+    <NOM:object name="ATInfo" id="2501" semantics="공중위협→레이더 공중위협 객체 정보(주기)" sharing="Subscribe" orderType="Receive" alignment="false">
+      <NOM:attribute name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:attribute name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+      <NOM:attribute name="AirthreatXPos" semantics="AirthreatXPos" dataType="float"/>
+      <NOM:attribute name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+      <NOM:attribute name="AirthreatZPos" semantics="AirthreatZPos" dataType="float"/>
+      <NOM:attribute name="AirthreatVelocity" semantics="AirthreatVelocity" dataType="float"/>
+    </NOM:object>
+    <NOM:object name="DownlinkInfo_3501" id="3501" semantics="유도탄→레이더 유도탄 좌표(주기)" sharing="Subscribe" orderType="Receive" alignment="false">
+      <NOM:attribute name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:attribute name="DownlinkInfo" semantics="DownlinkInfo" dataType="DownlinkInfoStruct"/>
+    </NOM:object>
+  </NOM:objects>
+  <NOM:interactions>
+  </NOM:interactions>
+  <NOM:dataTypes>
+    <NOM:basicTypes/>
+    <NOM:enumerationTypes/>
+    <NOM:complexTypes/>
+  </NOM:dataTypes>
+  <NOM:notes>
+  </NOM:notes>
+</NOM:Nex1ObjectModel>

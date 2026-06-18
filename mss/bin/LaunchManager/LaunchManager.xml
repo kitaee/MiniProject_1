@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="LaunchManager" date="2026-06-18" author="SimulatorSuite">
+  <NOM:objects>
+    <NOM:object name="DownlinkInfo" id="3501" semantics="유도탄→레이더 유도탄 좌표(주기)" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:attribute name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:attribute name="DownlinkInfo" semantics="DownlinkInfo" dataType="DownlinkInfoStruct"/>
+    </NOM:object>
+  </NOM:objects>
+  <NOM:interactions>
+    <NOM:interaction name="LaunchMissile" id="4301" semantics="발사대→유도탄 발사 정보" sharing="Subscribe" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+      <NOM:parameter name="AirthreatXpos" semantics="AirthreatXpos" dataType="float"/>
+      <NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+      <NOM:parameter name="AirthreatZPos" semantics="AirthreatZPos" dataType="float"/>
+      <NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
+      <NOM:parameter name="LCSXpos" semantics="LCSXpos" dataType="float"/>
+      <NOM:parameter name="LCSYPos" semantics="LCSYPos" dataType="float"/>
+      <NOM:parameter name="LCSZPos" semantics="LCSZPos" dataType="float"/>
+    </NOM:interaction>
+  </NOM:interactions>
+  <NOM:dataTypes>
+    <NOM:basicTypes/>
+    <NOM:enumerationTypes/>
+    <NOM:complexTypes/>
+  </NOM:dataTypes>
+  <NOM:notes>
+  </NOM:notes>
+</NOM:Nex1ObjectModel>

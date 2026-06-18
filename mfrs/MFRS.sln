@@ -1,0 +1,65 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{B1A1E001-7C4A-4E2B-9F10-000000000001}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managers", "Managers", "{B1A1E002-7C4A-4E2B-9F10-000000000002}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Communication", "Communication", "{B1A1E003-7C4A-4E2B-9F10-000000000003}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimulatorMain", "src\Main\SimulatorMain\SimulatorMain.vcxproj", "{100E3855-BDB5-4159-8EE8-6C26296D6336}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimulationManager", "src\Managers\SimulationManager\SimulationManager.vcxproj", "{D97FD16B-E48D-4B7A-B94E-3A5232BD116C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DetectManager", "src\Managers\DetectManager\DetectManager.vcxproj", "{7ECB7D9A-9F58-4AC6-9B27-98FC5B9AD238}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DataLinkManager", "src\Managers\DataLinkManager\DataLinkManager.vcxproj", "{449BBA45-F5D7-4D08-ADEA-5E8B9CC854B6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MFRSModelManager", "src\Managers\MFRSModelManager\MFRSModelManager.vcxproj", "{39C7347D-7831-48FC-B279-2D72491580BB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UDPCommunicationManager", "src\Communication\UDPCommunicationManager\UDPCommunicationManager.vcxproj", "{B661C6FE-03E9-42A2-AAFB-97F0697D70F9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{100E3855-BDB5-4159-8EE8-6C26296D6336}.Debug|x64.ActiveCfg = Debug|x64
+		{100E3855-BDB5-4159-8EE8-6C26296D6336}.Debug|x64.Build.0 = Debug|x64
+		{100E3855-BDB5-4159-8EE8-6C26296D6336}.Release|x64.ActiveCfg = Release|x64
+		{100E3855-BDB5-4159-8EE8-6C26296D6336}.Release|x64.Build.0 = Release|x64
+		{D97FD16B-E48D-4B7A-B94E-3A5232BD116C}.Debug|x64.ActiveCfg = Debug|x64
+		{D97FD16B-E48D-4B7A-B94E-3A5232BD116C}.Debug|x64.Build.0 = Debug|x64
+		{D97FD16B-E48D-4B7A-B94E-3A5232BD116C}.Release|x64.ActiveCfg = Release|x64
+		{D97FD16B-E48D-4B7A-B94E-3A5232BD116C}.Release|x64.Build.0 = Release|x64
+		{7ECB7D9A-9F58-4AC6-9B27-98FC5B9AD238}.Debug|x64.ActiveCfg = Debug|x64
+		{7ECB7D9A-9F58-4AC6-9B27-98FC5B9AD238}.Debug|x64.Build.0 = Debug|x64
+		{7ECB7D9A-9F58-4AC6-9B27-98FC5B9AD238}.Release|x64.ActiveCfg = Release|x64
+		{7ECB7D9A-9F58-4AC6-9B27-98FC5B9AD238}.Release|x64.Build.0 = Release|x64
+		{449BBA45-F5D7-4D08-ADEA-5E8B9CC854B6}.Debug|x64.ActiveCfg = Debug|x64
+		{449BBA45-F5D7-4D08-ADEA-5E8B9CC854B6}.Debug|x64.Build.0 = Debug|x64
+		{449BBA45-F5D7-4D08-ADEA-5E8B9CC854B6}.Release|x64.ActiveCfg = Release|x64
+		{449BBA45-F5D7-4D08-ADEA-5E8B9CC854B6}.Release|x64.Build.0 = Release|x64
+		{39C7347D-7831-48FC-B279-2D72491580BB}.Debug|x64.ActiveCfg = Debug|x64
+		{39C7347D-7831-48FC-B279-2D72491580BB}.Debug|x64.Build.0 = Debug|x64
+		{39C7347D-7831-48FC-B279-2D72491580BB}.Release|x64.ActiveCfg = Release|x64
+		{39C7347D-7831-48FC-B279-2D72491580BB}.Release|x64.Build.0 = Release|x64
+		{B661C6FE-03E9-42A2-AAFB-97F0697D70F9}.Debug|x64.ActiveCfg = Debug|x64
+		{B661C6FE-03E9-42A2-AAFB-97F0697D70F9}.Debug|x64.Build.0 = Debug|x64
+		{B661C6FE-03E9-42A2-AAFB-97F0697D70F9}.Release|x64.ActiveCfg = Release|x64
+		{B661C6FE-03E9-42A2-AAFB-97F0697D70F9}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{100E3855-BDB5-4159-8EE8-6C26296D6336} = {B1A1E001-7C4A-4E2B-9F10-000000000001}
+		{D97FD16B-E48D-4B7A-B94E-3A5232BD116C} = {B1A1E002-7C4A-4E2B-9F10-000000000002}
+		{7ECB7D9A-9F58-4AC6-9B27-98FC5B9AD238} = {B1A1E002-7C4A-4E2B-9F10-000000000002}
+		{449BBA45-F5D7-4D08-ADEA-5E8B9CC854B6} = {B1A1E002-7C4A-4E2B-9F10-000000000002}
+		{39C7347D-7831-48FC-B279-2D72491580BB} = {B1A1E002-7C4A-4E2B-9F10-000000000002}
+		{B661C6FE-03E9-42A2-AAFB-97F0697D70F9} = {B1A1E003-7C4A-4E2B-9F10-000000000003}
+	EndGlobalSection
+EndGlobal

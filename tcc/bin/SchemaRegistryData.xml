@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="SchemaRegistryData" date="2026-06-18" author="SimulatorSuite">
+	<NOM:dataTypes>
+		<NOM:basicTypes>
+			<NOM:basicType name="double" length="8" endian="little" type="Double" nameNotes="1 2" semantics="64bit double, little endian"/>
+			<NOM:basicType name="doubleBE" length="8" endian="big" type="Double" semantics="64bit double, big endian"/>
+			<NOM:basicType name="float" length="4" endian="little" type="Float" semantics="32bit float, little endian"/>
+			<NOM:basicType name="floatBE" length="4" endian="big" type="Float" semantics="32bit float, big endian"/>
+			<NOM:basicType name="int" length="4" endian="little" type="Integer" semantics="32bit integer, little endian"/>
+			<NOM:basicType name="intBE" length="4" endian="big" type="Integer" semantics="32bit integer, big endian"/>
+			<NOM:basicType name="uint64" length="8" endian="little" signed="false" type="Integer64" semantics="64bit integer, little endian"/>
+			<NOM:basicType name="uint64BE" length="8" endian="big" signed="false" type="Integer64" semantics="64bit unsigned integer, big endian"/>
+			<NOM:basicType name="uint" length="4" endian="little" signed="false" type="Integer" semantics="32bit integer, little endian"/>
+			<NOM:basicType name="uintBE" length="4" endian="big" signed="false" type="Integer" semantics="32bit unsigned integer, big endian"/>
+			<NOM:basicType name="short" length="2" endian="little" type="Short" semantics="16bit integer(short), little endian"/>
+			<NOM:basicType name="shortBE" length="2" endian="big" type="Short" semantics="16bit integer(short), big endian"/>
+			<NOM:basicType name="ushort" length="2" endian="little" signed="false" type="Short" semantics="16bit integer(short), little endian"/>
+			<NOM:basicType name="ushortBE" length="2" endian="big" signed="false" type="Short" semantics="16bit unsigned integer(short), big endian"/>
+			<NOM:basicType name="char" length="1" endian="none" type="Char" semantics="8bit char value"/>
+			<NOM:basicType name="uchar" length="1" endian="none" signed="false" type="Char" semantics="8bit char value"/>
+			<NOM:basicType name="byte" length="1" endian="none" signed="false" type="Byte" semantics="8bit byte value"/>
+			<NOM:basicType name="boolean" length="1" endian="little" type="Bool" semantics="8bit value"/>
+			<NOM:basicType name="string" length="0" endian="none" signed="false" type="String" semantics="String"/>
+			<NOM:basicType name="stringBE" length="0" endian="big" signed="false" type="String" semantics="String, indicator big endian"/>
+			<NOM:basicType name="var" length="0" endian="little" signed="false" type="Variable" semantics="Variable"/>
+		</NOM:basicTypes>
+		<NOM:enumerationTypes>
+			<NOM:enumerationType name="AcknowledgeFlagEnum16" length="2" nameNotes="1 2" semantics="AcknowledgeFlagEnum16">
+				<NOM:enumerator name="StartResume" value="3" nameNotes="1 2" semantics="StartResume"/>
+				<NOM:enumerator name="StopFreeze" value="4"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="ActionEnum32" length="4">
+				<NOM:enumerator name="Other" value="0"/>
+				<NOM:enumerator name="DataQuery" value="22"/>
+				<NOM:enumerator name="StatusRequest" value="23"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="CollisionTypeEnum8" length="1">
+				<NOM:enumerator name="Inelastic" value="0"/>
+				<NOM:enumerator name="Elastic" value="1"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="DatumIdentifierEnum32" length="4">
+				<NOM:enumerator name="STATUS" value="30000"/>
+				<NOM:enumerator name="LOG" value="30001"/>
+				<NOM:enumerator name="INFO" value="30002"/>
+				<NOM:enumerator name="Other" value="240000"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="DetonationResultCodeEnum8" length="1">
+				<NOM:enumerator name="AirHit" value="17"/>
+				<NOM:enumerator name="ED" value="29"/>
+				<NOM:enumerator name="SelfDetonation_FailLockOn" value="30"/>
+				<NOM:enumerator name="SelfDetonation_OverFlightTime" value="31"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="EventTypeEnum32" length="4">
+				<NOM:enumerator name="CBIT" value="101"/>
+				<NOM:enumerator name="ATSState" value="103"/>
+				<NOM:enumerator name="InterceptorState" value="104"/>
+				<NOM:enumerator name="LockOnATS" value="105"/>
+				<NOM:enumerator name="LCHRStatus" value="106"/>
+				<NOM:enumerator name="InBeamState" value="107"/>
+				<NOM:enumerator name="TrackingState" value="108"/>
+				<NOM:enumerator name="WeaponFire" value="109"/>
+				<NOM:enumerator name="JammingState" value="110"/>
+				<NOM:enumerator name="TargetInformation" value="111"/>
+				<NOM:enumerator name="MFRState" value="120"/>
+				<NOM:enumerator name="EngageState" value="121"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="ForceIdentifierEnum8" length="1">
+				<NOM:enumerator name="Other" value="0"/>
+				<NOM:enumerator name="Friend" value="1"/>
+				<NOM:enumerator name="Hostile" value="2"/>
+				<NOM:enumerator name="Neutral" value="3"/>
+				<NOM:enumerator name="SureFriend" value="4"/>
+				<NOM:enumerator name="Unknown" value="5"/>
+				<NOM:enumerator name="Suspect" value="6"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="ResponseFlagEnum16" length="2">
+				<NOM:enumerator name="Other" value="0"/>
+				<NOM:enumerator name="AbleToComply" value="1"/>
+				<NOM:enumerator name="UnableToComply" value="2"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="RequestStatusEnum32" length="4">
+				<NOM:enumerator name="Other" value="0"/>
+				<NOM:enumerator name="Pending" value="1"/>
+				<NOM:enumerator name="Executing" value="2"/>
+				<NOM:enumerator name="PartiallyComplete" value="3"/>
+				<NOM:enumerator name="Complete" value="4"/>
+				<NOM:enumerator name="RequestRejected" value="5"/>
+			</NOM:enumerationType>
+			<NOM:enumerationType name="OperationalConditionEnum8" length="1" semantics="운용조건">
+				<NOM:enumerator name="NO_STATEMENT" value="0"/>
+				<NOM:enumerator name="TACTIC" value="1"/>
+				<NOM:enumerator name="TRAINING" value="2"/>
+			</NOM:enumerationType>
+		</NOM:enumerationTypes>
+		<NOM:complexTypes>
+			<NOM:complexType name="DDSMessageHeaderStruct" nameNotes="1 2" semantics="DDSMessageHeaderStruct">
+				<NOM:fieldType name="TopicLabel" dataType="ushortBE" nameNotes="1 2" semantics="TopicLabel" />
+				<NOM:fieldType name="TopicSize" dataType="ushortBE" />
+				<NOM:fieldType name="SourceID" dataType="byte" />
+				<NOM:fieldType name="TopicClass" dataType="byte" />
+				<NOM:fieldType name="TopicNumber" dataType="ushortBE" />
+				<NOM:fieldType name="SystemTime" dataType="uint64BE" />
+			</NOM:complexType>
+			<NOM:complexType name="MessageHeaderStruct" semantics="ICD 메시지 헤더 (MessageID + MessageLength)">
+				<NOM:fieldType name="MessageID" dataType="uint"/>
+				<NOM:fieldType name="MessageLength" dataType="uint"/>
+			</NOM:complexType>
+			<NOM:complexType name="AirthreatStruct" semantics="공중 위협 시나리오 객체 (DeployScenarioRequest)">
+				<NOM:fieldType name="AirthreatID" dataType="uint"/>
+				<NOM:fieldType name="StartLatitude" dataType="float"/>
+				<NOM:fieldType name="StartLongitude" dataType="float"/>
+				<NOM:fieldType name="EndLatitude" dataType="float"/>
+				<NOM:fieldType name="EndLongitude" dataType="float"/>
+			</NOM:complexType>
+			<NOM:complexType name="UplinkInfoStruct" semantics="업링크 정보">
+				<NOM:fieldType name="AirthreatID" dataType="uint"/>
+				<NOM:fieldType name="AirthreatXpos" dataType="float"/>
+				<NOM:fieldType name="AirthreatYPos" dataType="float"/>
+				<NOM:fieldType name="AirthreatZPos" dataType="float"/>
+				<NOM:fieldType name="MissileID" dataType="uint"/>
+				<NOM:fieldType name="AirthreatVelocity" dataType="float"/>
+			</NOM:complexType>
+			<NOM:complexType name="DownlinkInfoStruct" semantics="다운링크 유도탄 좌표">
+				<NOM:fieldType name="MissleID" dataType="uint"/>
+				<NOM:fieldType name="MissileVelocity" dataType="float"/>
+				<NOM:fieldType name="MissleXPos" dataType="float"/>
+				<NOM:fieldType name="MissleYPos" dataType="float"/>
+				<NOM:fieldType name="MissleZPos" dataType="float"/>
+			</NOM:complexType>
+			<NOM:complexType name="DetectedTargetStruct" semantics="레이더 탐지 결과">
+				<NOM:fieldType name="TargetID" dataType="uint"/>
+				<NOM:fieldType name="TargetXPos" dataType="float"/>
+				<NOM:fieldType name="TargetYPos" dataType="float"/>
+				<NOM:fieldType name="TargetZPos" dataType="float"/>
+				<NOM:fieldType name="DetectedFlag" dataType="uint"/>
+				<NOM:fieldType name="TargetVelocity" dataType="float"/>
+			</NOM:complexType>
+			<NOM:complexType name="AirThreatStruct">
+				<NOM:fieldType name="ObjectID" dataType="ushortBE"/>
+				<NOM:fieldType name="ObjectType" dataType="byte"/>
+				<NOM:fieldType name="DestructionFlag" dataType="byte"/>
+				<NOM:fieldType name="PositionX" dataType="uintBE"/>
+				<NOM:fieldType name="PositionY" dataType="uintBE"/>
+				<NOM:fieldType name="PositionZ" dataType="uintBE"/>
+				<NOM:fieldType name="VelocityX" dataType="ushortBE"/>
+				<NOM:fieldType name="VelocityY" dataType="ushortBE"/>
+				<NOM:fieldType name="VelocityZ" dataType="ushortBE"/>
+				<NOM:fieldType name="AccelerationX" dataType="ushortBE"/>
+				<NOM:fieldType name="AccelerationY" dataType="ushortBE"/>
+				<NOM:fieldType name="AccelerationZ" dataType="ushortBE"/>
+				<NOM:fieldType name="MeanRCS" dataType="ushortBE"/>
+				<NOM:fieldType name="Reserved" dataType="byte"/>
+				<NOM:fieldType name="JammingType" dataType="byte"/>
+				<NOM:fieldType name="JammingPower" dataType="ushortBE"/>
+				<NOM:fieldType name="JammingPullOff" dataType="ushortBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="InterceptorStruct">
+				<NOM:fieldType name="ObjectID" dataType="ushortBE" />
+				<NOM:fieldType name="MissileType" dataType="byte" />
+				<NOM:fieldType name="DestructionFlag" dataType="byte" />
+				<NOM:fieldType name="PositionX" dataType="intBE" />
+				<NOM:fieldType name="PositionY" dataType="intBE" />
+				<NOM:fieldType name="PositionZ" dataType="intBE" />
+				<NOM:fieldType name="VelocityX" dataType="shortBE" />
+				<NOM:fieldType name="VelocityY" dataType="shortBE" />
+				<NOM:fieldType name="VelocityZ" dataType="shortBE" />
+				<NOM:fieldType name="AccelerationX" dataType="shortBE" />
+				<NOM:fieldType name="AccelerationY" dataType="shortBE" />
+				<NOM:fieldType name="AccelerationZ" dataType="shortBE" />
+				<NOM:fieldType name="MeanRCS" dataType="ushortBE" />
+				<NOM:fieldType name="Reserved" dataType="ushortBE" />
+				<NOM:fieldType name="SignalPower" dataType="ushortBE" />
+				<NOM:fieldType name="SeekerPhase" dataType="byte" />
+				<NOM:fieldType name="AddressKey" dataType="ushortBE" />
+			</NOM:complexType>
+			<NOM:complexType name="UplinkStruct">
+				<NOM:fieldType name="AddressKey" dataType="ushortBE" />
+				<NOM:fieldType name="MissileType" dataType="ushortBE" />
+				<NOM:fieldType name="Data" size="26" dataType="ushortBE" />
+			</NOM:complexType>
+			<NOM:complexType name="DownlinkStruct">
+				<NOM:fieldType name="AddressKey" dataType="ushortBE" />
+				<NOM:fieldType name="CRC" dataType="ushortBE" />
+				<NOM:fieldType name="Data" size="24" dataType="ushortBE" />
+			</NOM:complexType>
+			<NOM:complexType name="TimeTickStruct">
+				<NOM:fieldType name="SyncCycle" dataType="uintBE" />
+				<NOM:fieldType name="TimeTick" dataType="uintBE" />
+			</NOM:complexType>
+			<NOM:complexType name="MFRAttitudeStruct">
+				<NOM:fieldType name="MFRAntennaRoll" dataType="floatBE" />
+				<NOM:fieldType name="MFRAntennaPitch" dataType="floatBE" />
+				<NOM:fieldType name="MFRAntennaHeading" dataType="floatBE" />
+			</NOM:complexType>
+			<NOM:complexType name="AccelerationVectorStruct">
+				<NOM:fieldType name="XAcceleration" dataType="floatBE"/>
+				<NOM:fieldType name="YAcceleration" dataType="floatBE"/>
+				<NOM:fieldType name="ZAcceleration" dataType="floatBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="FederateIdentifierStruct">
+				<NOM:fieldType name="SiteID" dataType="ushortBE"/>
+				<NOM:fieldType name="ApplicationID" dataType="ushortBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="EntityIdentifierStruct">
+				<NOM:fieldType name="FederateIdentifier" dataType="FederateIdentifierStruct"/>
+				<NOM:fieldType name="EntityNumber" dataType="ushortBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="EntityTypeStruct">
+				<NOM:fieldType name="EntityKind" dataType="byte"/>
+				<NOM:fieldType name="Domain" dataType="byte"/>
+				<NOM:fieldType name="CountryCode" dataType="ushortBE"/>
+				<NOM:fieldType name="Category" dataType="byte"/>
+				<NOM:fieldType name="Subcategory" dataType="byte"/>
+				<NOM:fieldType name="Specific" dataType="byte"/>
+				<NOM:fieldType name="Extra" dataType="byte"/>
+			</NOM:complexType>
+			<NOM:complexType name="OrientationStruct">
+				<NOM:fieldType name="Psi" dataType="floatBE"/>
+				<NOM:fieldType name="Theta" dataType="floatBE"/>
+				<NOM:fieldType name="Phi" dataType="floatBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="RelativePositionStruct">
+				<NOM:fieldType name="BodyXDistance" dataType="floatBE"/>
+				<NOM:fieldType name="BodyYDistance" dataType="floatBE"/>
+				<NOM:fieldType name="BodyZDistance" dataType="floatBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="RTIObjectIdStruct">
+				<NOM:fieldType name="ScenarioObjectID" dataType="ushortBE"/>
+				<NOM:fieldType name="SimulationObjectID" dataType="ushortBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="VariableDatumStruct">
+				<NOM:fieldType name="DatumID" dataType="DatumIdentifierEnum32"/>
+				<NOM:fieldType name="DatumLength" dataType="uintBE"/>
+				<NOM:fieldType name="DatumValue" dataType="var"/>
+				<NOM:fieldType name="Padding" dataType="byte"/>
+			</NOM:complexType>
+			<NOM:complexType name="VariableDatumSetStruct">
+				<NOM:fieldType name="NumberOfVariableDatums" dataType="uintBE"/>
+				<NOM:fieldType name="VariableDatums" dataType="VariableDatumStruct" size="2" indicatorLength="4"/>
+			</NOM:complexType>
+			<NOM:complexType name="VariableDatumSetStructUnResizable">
+				<NOM:fieldType name="NumberOfVariableDatums" dataType="uintBE"/>
+				<NOM:fieldType name="VariableDatums" dataType="VariableDatumStruct"/>
+			</NOM:complexType>
+			<NOM:complexType name="VelocityVectorStruct">
+				<NOM:fieldType name="XVelocity" dataType="floatBE"/>
+				<NOM:fieldType name="YVelocity" dataType="floatBE"/>
+				<NOM:fieldType name="ZVelocity" dataType="floatBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="WorldLocationStruct">
+				<NOM:fieldType name="X" dataType="doubleBE"/>
+				<NOM:fieldType name="Y" dataType="doubleBE"/>
+				<NOM:fieldType name="Z" dataType="doubleBE"/>
+			</NOM:complexType>
+			<NOM:complexType name="Padding3Struct" semantics="Padding 3byte">
+				<NOM:fieldType name="PaddingA" dataType="byte"/>
+				<NOM:fieldType name="PaddingB" dataType="byte"/>
+				<NOM:fieldType name="PaddingC" dataType="byte"/>
+			</NOM:complexType>
+		</NOM:complexTypes>
+	</NOM:dataTypes>
+	<NOM:notes>
+		<NOM:note name="1" semantics="semantic"/>
+		<NOM:note name="2" semantics="semantic"/>
+	</NOM:notes>
+</NOM:Nex1ObjectModel>

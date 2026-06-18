@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="LCSModelManager" date="2026-06-18" author="SimulatorSuite">
+  <NOM:objects>
+  </NOM:objects>
+  <NOM:interactions>
+    <NOM:interaction name="MissileQuantityInfo" id="4102" semantics="발사대→통합통제기 유도탄 재고" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:parameter name="MissileQuantity" semantics="MissileQuantity" dataType="uint"/>
+    </NOM:interaction>
+  </NOM:interactions>
+  <NOM:dataTypes>
+    <NOM:basicTypes/>
+    <NOM:enumerationTypes/>
+    <NOM:complexTypes/>
+  </NOM:dataTypes>
+  <NOM:notes>
+  </NOM:notes>
+</NOM:Nex1ObjectModel>

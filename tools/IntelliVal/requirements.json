@@ -1,0 +1,45 @@
+{
+  "componentName": "IntelliVal",
+  "version": "1.4.1",
+  "os": "Windows10",
+  "platform": "x64",
+  "language": "C# 12",
+  "type": "CSC",
+  "metadata": {
+    "tools": [
+      {
+        "vendor": "Microsoft",
+        "name": "VisualStudio",
+        "version": "2022"
+      },
+      {
+        "vendor": "Microsoft",
+        "name": "MSVC",
+        "version": ">=14.3"
+      },
+      {
+        "vendor": "LIGNEX1",
+        "name": "nFramework.CS_NOM.Net8",
+        "version": "1.8.2.260225"
+      },
+      {
+        "vendor": "Microsoft",
+        "name": ".NET",
+        "version": "8"
+      }
+    ],
+    "authors": [
+      {
+        "name": "Jaehee Ha",
+        "department": "PGM통제기술연구소.4팀",
+        "email": "jaehee.ha@lignex1.com"
+      }
+    ],
+    "properties": [
+
+    ]
+  },
+  "components": [
+    
+  ]
+}

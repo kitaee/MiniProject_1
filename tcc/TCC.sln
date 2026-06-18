@@ -1,0 +1,65 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "{B1A1E001-7C4A-4E2B-9F10-000000000001}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managers", "Managers", "{B1A1E002-7C4A-4E2B-9F10-000000000002}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Communication", "Communication", "{B1A1E003-7C4A-4E2B-9F10-000000000003}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCC_GUI", "src\Main\TCC_GUI\TCC_GUI.csproj", "{F9207C6B-FE05-48E6-89EE-E25CFA1C543F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UIManager", "src\Managers\UIManager\UIManager.vcxproj", "{671ED90E-F96C-4070-8F77-744E0793AB3C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ControlManager", "src\Managers\ControlManager\ControlManager.vcxproj", "{BF2A9BF2-DA91-4099-A369-4108F370C9BF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScenarioManager", "src\Managers\ScenarioManager\ScenarioManager.vcxproj", "{AE516B11-3C21-4957-B849-78C4F14835DB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StatusManager", "src\Managers\StatusManager\StatusManager.vcxproj", "{AFB107C5-CD06-4932-AE31-89A577F400E9}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UDPCommunicationManager", "src\Communication\UDPCommunicationManager\UDPCommunicationManager.vcxproj", "{7CC8B308-D659-45E4-B135-5A7E7BA2BE15}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F9207C6B-FE05-48E6-89EE-E25CFA1C543F}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F9207C6B-FE05-48E6-89EE-E25CFA1C543F}.Debug|x64.Build.0 = Debug|Any CPU
+		{F9207C6B-FE05-48E6-89EE-E25CFA1C543F}.Release|x64.ActiveCfg = Release|Any CPU
+		{F9207C6B-FE05-48E6-89EE-E25CFA1C543F}.Release|x64.Build.0 = Release|Any CPU
+		{671ED90E-F96C-4070-8F77-744E0793AB3C}.Debug|x64.ActiveCfg = Debug|x64
+		{671ED90E-F96C-4070-8F77-744E0793AB3C}.Debug|x64.Build.0 = Debug|x64
+		{671ED90E-F96C-4070-8F77-744E0793AB3C}.Release|x64.ActiveCfg = Release|x64
+		{671ED90E-F96C-4070-8F77-744E0793AB3C}.Release|x64.Build.0 = Release|x64
+		{BF2A9BF2-DA91-4099-A369-4108F370C9BF}.Debug|x64.ActiveCfg = Debug|x64
+		{BF2A9BF2-DA91-4099-A369-4108F370C9BF}.Debug|x64.Build.0 = Debug|x64
+		{BF2A9BF2-DA91-4099-A369-4108F370C9BF}.Release|x64.ActiveCfg = Release|x64
+		{BF2A9BF2-DA91-4099-A369-4108F370C9BF}.Release|x64.Build.0 = Release|x64
+		{AE516B11-3C21-4957-B849-78C4F14835DB}.Debug|x64.ActiveCfg = Debug|x64
+		{AE516B11-3C21-4957-B849-78C4F14835DB}.Debug|x64.Build.0 = Debug|x64
+		{AE516B11-3C21-4957-B849-78C4F14835DB}.Release|x64.ActiveCfg = Release|x64
+		{AE516B11-3C21-4957-B849-78C4F14835DB}.Release|x64.Build.0 = Release|x64
+		{AFB107C5-CD06-4932-AE31-89A577F400E9}.Debug|x64.ActiveCfg = Debug|x64
+		{AFB107C5-CD06-4932-AE31-89A577F400E9}.Debug|x64.Build.0 = Debug|x64
+		{AFB107C5-CD06-4932-AE31-89A577F400E9}.Release|x64.ActiveCfg = Release|x64
+		{AFB107C5-CD06-4932-AE31-89A577F400E9}.Release|x64.Build.0 = Release|x64
+		{7CC8B308-D659-45E4-B135-5A7E7BA2BE15}.Debug|x64.ActiveCfg = Debug|x64
+		{7CC8B308-D659-45E4-B135-5A7E7BA2BE15}.Debug|x64.Build.0 = Debug|x64
+		{7CC8B308-D659-45E4-B135-5A7E7BA2BE15}.Release|x64.ActiveCfg = Release|x64
+		{7CC8B308-D659-45E4-B135-5A7E7BA2BE15}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{F9207C6B-FE05-48E6-89EE-E25CFA1C543F} = {B1A1E001-7C4A-4E2B-9F10-000000000001}
+		{671ED90E-F96C-4070-8F77-744E0793AB3C} = {B1A1E002-7C4A-4E2B-9F10-000000000002}
+		{BF2A9BF2-DA91-4099-A369-4108F370C9BF} = {B1A1E002-7C4A-4E2B-9F10-000000000002}
+		{AE516B11-3C21-4957-B849-78C4F14835DB} = {B1A1E002-7C4A-4E2B-9F10-000000000002}
+		{AFB107C5-CD06-4932-AE31-89A577F400E9} = {B1A1E002-7C4A-4E2B-9F10-000000000002}
+		{7CC8B308-D659-45E4-B135-5A7E7BA2BE15} = {B1A1E003-7C4A-4E2B-9F10-000000000003}
+	EndGlobalSection
+EndGlobal

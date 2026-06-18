@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <!-- nFramework SDK (junction: frameworks/nFramework_sdk → c:\LIG\nFrameworkv1.8.2) -->
+    <NFW_DIR>$(MSBuildThisFileDirectory)frameworks\nFramework_sdk\</NFW_DIR>
+  </PropertyGroup>
+</Project>

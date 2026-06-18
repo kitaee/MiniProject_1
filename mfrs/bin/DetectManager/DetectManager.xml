@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="DetectManager" date="2026-06-18" author="SimulatorSuite">
+  <NOM:objects>
+    <NOM:object name="RadarDetectionInfo" id="5102" semantics="레이더→통합통제기 탐지 결과(주기)" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:attribute name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:attribute name="RadarDetection" semantics="RadarDetection" dataType="DetectedTargetStruct"/>
+    </NOM:object>
+  </NOM:objects>
+  <NOM:interactions>
+  </NOM:interactions>
+  <NOM:dataTypes>
+    <NOM:basicTypes/>
+    <NOM:enumerationTypes/>
+    <NOM:complexTypes/>
+  </NOM:dataTypes>
+  <NOM:notes>
+  </NOM:notes>
+</NOM:Nex1ObjectModel>
