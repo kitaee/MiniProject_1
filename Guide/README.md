@@ -102,13 +102,14 @@ Debug 빌드에서는 Manager DLL·실행 파일 이름에 `d` 접미사가 붙�
 
 | 유형 | 실행 파일 | 비고 |
 |------|-----------|------|
-| **Headless** (ATS, LCS, MFRS, MSS) | `<sim>/bin/<SIM>d.exe` | 예: `ats/bin/ATSd.exe`, `mss/bin/Run_MSS.bat` |
+| **Headless** (ATS, LCS, MFRS, MSS) | `<sim>/bin/<SIM>d.exe` | 예: `ats/bin/ATSd.exe` |
+| **전체** | `BuildAndRun_All.bat` | 메뉴: [1] 전체 빌드, [2~6] 개별 실행, [7] 전체 실행 |
 | **TCC (GUI)** | `tcc/bin/TCC_GUI.exe` | `nFConnect.ini`, `TCC.ini`가 같은 `bin/`에 있어야 함 |
 
 **탐색기 / 배치 파일 (권장):**
 
 ```text
-mss\bin\Run_MSS.bat          # MSS (동일 패턴으로 각 팀이 Run_<SIM>.bat 추가 가능)
+BuildAndRun_All.bat        # 루트: 메뉴에서 빌드/개별·전체 실행 선택
 ```
 
 **Visual Studio 로컬 디버거 (F5):**

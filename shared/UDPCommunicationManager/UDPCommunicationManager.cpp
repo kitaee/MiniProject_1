@@ -1,8 +1,14 @@
 #include "UDPCommunicationManager.h"
 #include <filesystem>
+#include <Windows.h>
 #include "UDPCommunicationManagerIntelliVal.h"
 
 using namespace std::filesystem;
+
+static std::wstring resolveSchemaRegistryPath()
+{
+	return absolute(current_path() / L".." / L"SchemaRegistryData.xml").wstring();
+}
 
 /************************************************************************
 	Constructor / Destructor
@@ -38,8 +44,7 @@ UDPCommunicationManager::init()
 	//commInterface = new NCommInterface(this);
 
 	//NOM 메시지 등록
-	std::wstring schRegFilePath = current_path().c_str();
-	schRegFilePath += L"\\..\\SchemaRegistryData.xml";
+	const std::wstring schRegFilePath = resolveSchemaRegistryPath();
 	nomParser = std::make_unique<NOMParser>();
 	nomParser->setNOMFile(schRegFilePath);
 
@@ -48,11 +53,8 @@ UDPCommunicationManager::init()
 	nomParser->parseDataType();
 	auto dataTypeMap = nomParser->getDataTypeMap();
 
-	//NOM 파싱 
-	std::wstring nomFilePath = current_path().c_str();
-	nomFilePath += L"\\";
-	nomFilePath += getUserName();
-	nomFilePath += L".xml";
+	//NOM 파싱
+	const std::wstring nomFilePath = absolute(current_path() / (getUserName() + L".xml")).wstring();
 	nomParser->setNOMFile(nomFilePath);
 
 	if (nomParser->parse(dataTypeMap, noteMap))

@@ -74,6 +74,9 @@ ipch/
 !**/bin/**/*.ini
 !**/bin/**/*.xml
 !**/bin/**/*.xsd
+# re-ignore runtime / deployment copies under bin (after un-ignore above)
+**/bin/**/NLog/
+**/bin/*/**/SchemaRegistryData.xml
 
 # -----------------------------------------------------------------------------
 # Import libraries (per-simulator lib/ build output)
@@ -143,9 +146,16 @@ $RECYCLE.BIN/
 # Agent / automation / temporary files
 # -----------------------------------------------------------------------------
 .cursor/
+_build_tmp/
 *.tmp
 *.temp
 *.bak
+*.bak2
 *.orig
+*.backup
+*.save
+*.testbak
 *.rej
+**/*.ini.*
+**/*.xml.*
 .agent/

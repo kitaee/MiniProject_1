@@ -8,7 +8,8 @@
 
 using namespace std::filesystem;
 
-static const wchar_t* kIniFile = L"MFRS.ini";
+static const wchar_t* kIniFile = L"SIM_INI_NAME";
+static const wchar_t* kReadyMessage = L"SIM_READY_MSG";
 
 static void setWorkingDirectoryToExeDir()
 {
@@ -57,13 +58,12 @@ int main()
 
     if (iniHandler.readString(L"SchemaRegistryData", L"USE") == L"true")
     {
-        std::wstring srPath = iniHandler.readString(L"SchemaRegistryData", L"PATH");
-        std::wstring srXml = iniHandler.readString(L"SchemaRegistryData", L"XML");
+        const std::wstring srPath = iniHandler.readString(L"SchemaRegistryData", L"PATH");
+        const std::wstring srXml = iniHandler.readString(L"SchemaRegistryData", L"XML");
+        const std::wstring srFull = resolveSchemaRegistryPath(origPath, srPath, srXml);
         const bool checkDup = iniHandler.readString(L"SchemaRegistryData", L"CheckMsgIDDuplication") == L"true";
-        srPath = srPath.empty() ? L"" : srPath + L"\\";
-        srXml = srPath + srXml;
-        if (!nIntegrator->setSchemaRegistryData(srXml, checkDup)) {
-            tcerr << L"SchemaRegistryData load failed: " << srXml << L"\n";
+        if (!nIntegrator->setSchemaRegistryData(srFull, checkDup)) {
+            tcerr << L"SchemaRegistryData load failed: " << srFull << L"\n";
             return 1;
         }
     }
@@ -73,8 +73,7 @@ int main()
     for (unsigned int cnt = 1; cnt <= numOfComponents; cnt++)
     {
         const std::wstring dllIndex = L"Component_" + std::to_wstring(cnt);
-        const std::wstring power = iniHandler.readString(dllIndex, L"POWER");
-        if (power != L"on")
+        if (iniHandler.readString(dllIndex, L"POWER") != L"on")
             continue;
 
         std::wstring dllPath = iniHandler.readString(dllIndex, L"PATH");
@@ -110,7 +109,7 @@ int main()
         mgr->start();
     }
 
-    tcout << L"MFRS ready. Press Enter to exit...\n";
+    tcout << kReadyMessage << L"\n";
     waitForShutdown();
 
     for (unsigned int cnt = 1; cnt <= numOfComponents; cnt++)

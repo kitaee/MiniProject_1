@@ -2,11 +2,12 @@
 #include <nFramework/BaseManager.h>
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
+#include <nFramework/nLineStream/NLineStreamMain.h>
+#include <map>
 
 using namespace nframework;
 using namespace nom;
-
-// 역할: 시뮬레이션 상태·시나리오·Ack
+using namespace nlinestream;
 
 class BASEMGRDLL_API SimulationManager : public BaseManager
 {
@@ -30,7 +31,13 @@ public:
     void setMEBComponent(IMEBComponent*) override;
 
 private:
+    void initialize();
+    void release();
+
     IMEBComponent* meb{ nullptr };
     MECComponent* mec{ nullptr };
     tstring name;
+    std::map<unsigned int, std::shared_ptr<NOM>> registeredMsgMap;
+    std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;
+    NLineTstream ntcout{ Level::COUT };
 };

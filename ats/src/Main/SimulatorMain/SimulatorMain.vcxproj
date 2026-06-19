@@ -45,6 +45,7 @@
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
+      <SubSystem>Console</SubSystem>
       <OutputFile>$(SolutionDir)bin\ATSd.exe</OutputFile>
       <AdditionalLibraryDirectories>$(NFW_DIR)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>Log4nFd.lib;nLineStreamd.lib;nLineLogd.lib;nIntegratord.lib;NOMd.lib;utild.lib;%(AdditionalDependencies)</AdditionalDependencies>
