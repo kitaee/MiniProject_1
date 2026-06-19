@@ -45,7 +45,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(NFW_DIR)lib;$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Log4nFd.lib;nLineStreamd.lib;nLineLogd.lib;MECd.lib;NOMd.lib;NICEd.lib;utild.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Log4nFd.lib;nLineStreamd.lib;nLineLogd.lib;MECd.lib;NOMd.lib;NICEd.lib;NTimerd.lib;utild.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib\UIManagerd.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
@@ -59,19 +59,23 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(NFW_DIR)lib;$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>Log4nF.lib;nLineStream.lib;nLineLog.lib;MEC.lib;NOM.lib;util.lib;MEB.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Log4nF.lib;nLineStream.lib;nLineLog.lib;MEC.lib;NOM.lib;NTimer.lib;util.lib;MEB.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ImportLibrary>$(SolutionDir)lib\UIManager.lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="UIManager.cpp" />
+    <ClCompile Include="UITrackHandler.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="UIManager.h" />
+    <ClInclude Include="UIMessageEnum.h" />
+    <ClInclude Include="UITrackHandler.h" />
     <ClInclude Include="UIManagerIntelliVal.h" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\..\bin\UIManager\UIManager.xml" />
+    <None Include="..\..\..\bin\UIManager\NOM.xsd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\..\bin\StatusManager\StatusManager.xml" />
+    <None Include="..\..\..\bin\StatusManager\NOM.xsd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

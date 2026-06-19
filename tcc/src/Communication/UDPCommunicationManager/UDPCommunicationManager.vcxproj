@@ -76,6 +76,8 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\..\bin\UDPCommunicationManager\UDPCommunicationManager.xml" />
+    <None Include="..\..\..\bin\UDPCommunicationManager\CommLinkInfo.ini" />
+    <None Include="..\..\..\bin\UDPCommunicationManager\NOM.xsd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

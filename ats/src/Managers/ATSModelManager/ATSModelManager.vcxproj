@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\..\bin\ATSModelManager\ATSModelManager.xml" />
+    <None Include="..\..\..\bin\ATSModelManager\NOM.xsd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

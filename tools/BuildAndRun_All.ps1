@@ -1,7 +1,11 @@
-﻿# SimulatorSuite - Build & Run menu (UTF-8)
+﻿# SimulatorSuite - Build & Run menu (UTF-8 with BOM)
 # Called from BuildAndRun_All.bat at repo root
 $ErrorActionPreference = 'Stop'
-[Console]::OutputEncoding = [Text.UTF8Encoding]::UTF8
+$null = cmd /c 'chcp 65001 >nul'
+$utf8 = New-Object System.Text.UTF8Encoding $false
+[Console]::OutputEncoding = $utf8
+[Console]::InputEncoding = $utf8
+$OutputEncoding = $utf8
 
 $Root = if ($PSScriptRoot) { Split-Path $PSScriptRoot -Parent } else { Get-Location }
 $Mark = Join-Path $Root '_build_tmp'
@@ -162,9 +166,12 @@ do {
     Write-Host '  5. MFRS 실행        (MFRSd.exe)'
     Write-Host '  6. TCC 실행         (TCC_GUI.exe)'
     Write-Host '  7. 전체 실행        (5개 동시)'
+    Write-Host '  8. CommLinkInfo     (로컬 1PC - UNICAST 127.0.0.1)'
+    Write-Host '  9. CommLinkInfo     (5대 PC 멀티캐스트, 역할 선택)'
+    Write-Host '  K. 전체 모의기 종료'
     Write-Host '  0. 종료'
     Write-Host ''
-    $choice = Read-Host '선택 (0-7)'
+    $choice = (Read-Host '선택 (0-9, K)').Trim().ToUpper()
 
     switch ($choice) {
         '0' { break }
@@ -175,9 +182,18 @@ do {
         '5' { Do-RunOne 'mfrs' 'MFRSd.exe' }
         '6' { Do-RunOne 'tcc' 'TCC_GUI.exe' }
         '7' { Do-RunAll }
+        '8' {
+            & (Join-Path $Root 'tools\Configure-NetworkMode.ps1') -Mode Local
+        }
+        '9' {
+            & (Join-Path $Root 'tools\Configure-NetworkMode.ps1') -Mode Multicast5PC
+        }
+        'K' {
+            & (Join-Path $Root 'tools\Stop-AllSimulators.ps1')
+        }
         default {
             Write-Host ''
-            Write-Host '[ERROR] 잘못된 입력입니다. 0~7 중에서 선택하세요.' -ForegroundColor Red
+            Write-Host '[ERROR] 잘못된 입력입니다. 0~9 또는 K 중에서 선택하세요.' -ForegroundColor Red
             Start-Sleep -Seconds 2
             continue
         }

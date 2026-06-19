@@ -67,6 +67,7 @@
     <ClCompile Include="SimulatorMain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <Xml Include="..\..\..\bin\SchemaRegistryData.xml" />
     <None Include="..\..\..\bin\ATS.ini" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

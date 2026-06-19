@@ -26,6 +26,12 @@
       <HintPath Condition="'$(Configuration)'=='Release'">$(NFW_DIR)bin\NOMHandlerLib.Net8\Release\net8.0-windows\NOMHandlerLib.Net8.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\bin\nFConnect.ini" />
+    <None Include="..\..\..\bin\TCC.ini" />
+    <None Include="..\..\..\bin\Log4nF.ini" />
+    <None Include="..\..\..\..\common\SchemaRegistryData.xml" Link="SchemaRegistryData.xml" />
+  </ItemGroup>
   <Target Name="CopyNFConnect" AfterTargets="Build">
     <Copy SourceFiles="$(NFW_DIR)bin\nFConnectd.dll" DestinationFolder="$(SolutionDir)bin\" Condition="Exists('$(NFW_DIR)bin\nFConnectd.dll')" />
     <Copy SourceFiles="$(NFW_DIR)bin\nFConnect.dll" DestinationFolder="$(SolutionDir)bin\" Condition="Exists('$(NFW_DIR)bin\nFConnect.dll')" />

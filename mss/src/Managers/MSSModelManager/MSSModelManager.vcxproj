@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\..\bin\MSSModelManager\MSSModelManager.xml" />
+    <None Include="..\..\..\bin\MSSModelManager\NOM.xsd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\..\bin\DataLinkManager\DataLinkManager.xml" />
+    <None Include="..\..\..\bin\DataLinkManager\NOM.xsd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

@@ -1,4 +1,7 @@
 #include "SimulationManager.h"
+#include "SimulationManagerIntelliVal.h"
+
+using namespace nframework::intellival::DeployScenarioRequest;
 
 SimulationManager::SimulationManager()
 {
@@ -39,7 +42,15 @@ void SimulationManager::discoverMsg(std::shared_ptr<NOM> nomMsg)
 }
 
 void SimulationManager::updateMsg(std::shared_ptr<NOM> nomMsg) { mec->updateMsg(nomMsg); }
-void SimulationManager::reflectMsg(std::shared_ptr<NOM>) {}
+
+void SimulationManager::reflectMsg(std::shared_ptr<NOM> nomMsg)
+{
+    if (!nomMsg)
+        return;
+
+    ntcout << L"[SimulationManager] reflectMsg: " << nomMsg->getName() << std::endl;
+}
+
 void SimulationManager::deleteMsg(std::shared_ptr<NOM> nomMsg)
 {
     mec->deleteMsg(nomMsg);
@@ -52,7 +63,23 @@ void SimulationManager::removeMsg(std::shared_ptr<NOM> nomMsg)
 }
 
 void SimulationManager::sendMsg(std::shared_ptr<NOM> nomMsg) { mec->sendMsg(nomMsg); }
-void SimulationManager::recvMsg(std::shared_ptr<NOM>) {}
+
+void SimulationManager::recvMsg(std::shared_ptr<NOM> nomMsg)
+{
+    if (!nomMsg)
+        return;
+
+    ntcout << L"[SimulationManager] recvMsg: " << nomMsg->getName() << std::endl;
+
+    if (nomMsg->getName() == L"DeployScenarioRequest")
+    {
+        const auto msgId = t_MessageHeader_MessageID(nomMsg->getValue(L"MessageHeader.MessageID"));
+        const auto airId = t_Airthreat_AirthreatID(nomMsg->getValue(L"Airthreat.AirthreatID"));
+        ntcout << L"  DeployScenarioRequest received (MessageID=" << msgId
+               << L", AirthreatID=" << airId << L")" << std::endl;
+    }
+}
+
 void SimulationManager::setUserName(std::wstring userName) { name = userName; }
 tstring SimulationManager::getUserName() { return name; }
 void SimulationManager::setData(void*) {}

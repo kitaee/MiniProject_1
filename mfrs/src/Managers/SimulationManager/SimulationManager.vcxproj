@@ -72,6 +72,7 @@
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\..\bin\SimulationManager\SimulationManager.xml" />
+    <None Include="..\..\..\bin\SimulationManager\NOM.xsd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

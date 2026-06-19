@@ -170,7 +170,23 @@ function Get-ManagerVcxproj($name, $guid, $sharedUdp) {
 
 "@
     } else {
-        "    <ClInclude Include=`"$name.h`" />`r`n"
+        "    <ClInclude Include=`"$name.h`" />`r`n    <ClInclude Include=`"${name}IntelliVal.h`" />`r`n"
+    }
+    $resourceItems = if ($sharedUdp) {
+@"
+
+    <Xml Include="..\..\..\bin\$name\$name.xml" />
+    <None Include="..\..\..\bin\$name\CommLinkInfo.ini" />
+    <None Include="..\..\..\bin\$name\NOM.xsd" />
+
+"@
+    } else {
+@"
+
+    <Xml Include="..\..\..\bin\$name\$name.xml" />
+    <None Include="..\..\..\bin\$name\NOM.xsd" />
+
+"@
     }
 @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -243,8 +259,7 @@ $compileItems  </ItemGroup>
   <ItemGroup>
 $includeItems  </ItemGroup>
   <ItemGroup>
-    <Xml Include="..\..\..\bin\$name\$name.xml" />
-  </ItemGroup>
+$resourceItems  </ItemGroup>
   <Import Project="`$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
 "@
@@ -436,6 +451,7 @@ function Get-MainVcxproj($exeName, $guid, $iniName) {
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\bin\$iniName" />
+    <Xml Include="..\..\..\bin\SchemaRegistryData.xml" />
   </ItemGroup>
   <Import Project="`$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
@@ -485,18 +501,42 @@ foreach ($simKey in $simulators.Keys) {
     if ($simKey -eq "tcc") {
         $guiGuid = New-GuidBrace
     }
-    $folderMain = '{B1A1E001-7C4A-4E2B-9F10-000000000001}'
-    $folderManagers = '{B1A1E002-7C4A-4E2B-9F10-000000000002}'
-    $folderComm = '{B1A1E003-7C4A-4E2B-9F10-000000000003}'
+    $folderConsole = '{8AB46294-6251-4E0B-A535-C30AC8A5AA40}'
+    $folderPlugIn = '{190E9A0A-A577-4E01-8462-5B3DBBD41D28}'
+    $folderComm = '{0FA14B51-DE65-4B73-B867-98E01E6727D3}'
+    $folderGui = '{70EEE7C6-ED34-45F8-834E-8C87EDC155EF}'
     $sln = @"
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Main", "Main", "$folderMain"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PlugInManager", "PlugInManager", "$folderPlugIn"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Managers", "Managers", "$folderManagers"
+"@
+    if ($sim.Main) {
+        $sln += @"
+
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsoleMain", "ConsoleMain", "$folderConsole"
+	ProjectSection(SolutionItems) = preProject
+		bin\$($sim.Ini) = bin\$($sim.Ini)
+		bin\SchemaRegistryData.xml = bin\SchemaRegistryData.xml
+	EndProjectSection
 EndProject
+"@
+    }
+    if ($guiGuid) {
+        $sln += @"
+
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GUIMain", "GUIMain", "$folderGui"
+	ProjectSection(SolutionItems) = preProject
+		bin\nFConnect.ini = bin\nFConnect.ini
+		bin\$($sim.Ini) = bin\$($sim.Ini)
+	EndProjectSection
+EndProject
+"@
+    }
+    $sln += @"
+
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Communication", "Communication", "$folderComm"
 EndProject
 "@
@@ -516,10 +556,11 @@ EndProject
     }
     $sln += "`r`n`tEndGlobalSection`r`n`tGlobalSection(SolutionProperties) = preSolution`r`n`t`tHideSolutionNode = FALSE`r`n`tEndGlobalSection`r`n`tGlobalSection(NestedProjects) = preSolution"
     if ($guiGuid) {
-        $sln += "`r`n`t`t$guiGuid = $folderMain"
+        $sln += "`r`n`t`t$guiGuid = $folderGui"
+        $sln += "`r`n`t`t$folderPlugIn = $folderGui"
     }
     foreach ($p in $projects) {
-        $parent = if ($p.Name -eq 'SimulatorMain') { $folderMain } elseif ($p.SharedUdp) { $folderComm } else { $folderManagers }
+        $parent = if ($p.Name -eq 'SimulatorMain') { $folderConsole } elseif ($p.SharedUdp) { $folderComm } else { $folderPlugIn }
         $sln += "`r`n`t`t$($p.Guid) = $parent"
     }
     $sln += "`r`n`tEndGlobalSection`r`nEndGlobal`r`n"
@@ -608,3 +649,9 @@ Write-Host "Copied runtime DLLs to $dest"
 '@
 
 Write-Host "Build projects generated."
+
+# MiniProject-style filters + resource items for headless simulators
+& (Join-Path $PSScriptRoot 'Apply-MiniProjectFilters.ps1')
+
+# CommLinkInfo.ini (TCC sender + headless receivers)
+& (Join-Path $PSScriptRoot 'Sync-CommLinkInfo.ps1')

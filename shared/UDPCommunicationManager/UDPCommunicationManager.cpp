@@ -1,13 +1,45 @@
 #include "UDPCommunicationManager.h"
 #include <filesystem>
+#include <iostream>
+#include <fstream>
 #include <Windows.h>
 #include "UDPCommunicationManagerIntelliVal.h"
 
 using namespace std::filesystem;
 
+static path resolveModuleDirectory()
+{
+	wchar_t modulePath[MAX_PATH]{};
+	HMODULE module = nullptr;
+	if (GetModuleHandleExW(
+		GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+		reinterpret_cast<LPCWSTR>(&resolveModuleDirectory),
+		&module) && module != nullptr)
+	{
+		GetModuleFileNameW(module, modulePath, MAX_PATH);
+	}
+	return absolute(path(modulePath).parent_path());
+}
+
 static std::wstring resolveSchemaRegistryPath()
 {
-	return absolute(current_path() / L".." / L"SchemaRegistryData.xml").wstring();
+	return absolute(resolveModuleDirectory() / L".." / L"SchemaRegistryData.xml").wstring();
+}
+
+static std::wstring resolveCommLinkInfoPath()
+{
+	return absolute(resolveModuleDirectory() / L"CommLinkInfo.ini").wstring();
+}
+
+static std::wstring resolveNomXmlPath(const std::wstring& userName)
+{
+	return absolute(resolveModuleDirectory() / (userName + L".xml")).wstring();
+}
+
+static void appendUdpTrace(const std::wstring& line)
+{
+	std::wofstream trace(resolveModuleDirectory() / L".." / L"udp_trace.log", std::ios::app);
+	trace << line << L'\n';
 }
 
 /************************************************************************
@@ -38,7 +70,7 @@ UDPCommunicationManager::init()
 	mec->setUser(this);
 
 	commConfig = new CommunicationConfig;
-	commConfig->setIni(L"CommLinkInfo.ini");
+	commConfig->setIni(resolveCommLinkInfoPath());
 
 	//socket issue
 	//commInterface = new NCommInterface(this);
@@ -53,8 +85,8 @@ UDPCommunicationManager::init()
 	nomParser->parseDataType();
 	auto dataTypeMap = nomParser->getDataTypeMap();
 
-	//NOM 파싱
-	const std::wstring nomFilePath = absolute(current_path() / (getUserName() + L".xml")).wstring();
+	//NOM 파싱 (DLL 디렉터리 기준 — cwd 무관)
+	const std::wstring nomFilePath = resolveNomXmlPath(getUserName());
 	nomParser->setNOMFile(nomFilePath);
 
 	if (nomParser->parse(dataTypeMap, noteMap))
@@ -164,6 +196,9 @@ UDPCommunicationManager::recvMsg(shared_ptr<NOM> nomMsg)
 {
 	std::wstringstream s; s << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() ;
 	l.info(s);
+	std::wcout << L"[UDPCommunicationManager] recvMsg -> sendCommMsg: " << nomMsg->getName()
+	       << L" (id=" << nomMsg->getMessageID() << L")" << std::endl;
+	appendUdpTrace(L"recvMsg -> sendCommMsg: " + nomMsg->getName());
 
 	commInterface->sendCommMsg(nomMsg);
 }
@@ -200,13 +235,12 @@ UDPCommunicationManager::start()
 	commConfig->setMsgProcessor(msgProcessor);
 	commInterface->initNetEnv(commConfig);
 
-	//메시지 등록
+	// object만 register (interaction은 sendMsg/recvMsg 경로 — MiniProject 동일)
 	list<NMessage*> msgList = nomParser->getObjectList();
-	list<NMessage*>::iterator itr;
-	for (itr = msgList.begin(); itr != msgList.end(); itr++)
+	for (auto* nMsg : msgList)
 	{
-		NMessage* nMsg = *itr;
-		if (nMsg->getSharing() == ESharing::ENUM_SHARING_PUBLISHSUBSCRIBE || nMsg->getSharing() == ESharing::ENUM_SHARING_PUBLISH)
+		if (nMsg->getSharing() == ESharing::ENUM_SHARING_PUBLISHSUBSCRIBE
+			|| nMsg->getSharing() == ESharing::ENUM_SHARING_PUBLISH)
 		{
 			this->registerMsg(nMsg->getName());
 		}
@@ -235,6 +269,7 @@ UDPCommunicationManager::setMEBComponent(IMEBComponent* realMEB)
 void
 UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 {
+	appendUdpTrace(L"processRecvMessage called size=" + std::to_wstring(size));
 	//auto HeaderSize = commConfig->getHeaderSize();
 	auto IDPos = commConfig->getHeaderIDPos();
 	auto IDSize = commConfig->getHeaderIDSize();
@@ -260,7 +295,12 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 		return;
 	}
 
-	auto nomMsg = meb->getNOMInstance(name, commMsgHandler.getMsgName(msgID));
+	const auto msgName = commMsgHandler.getMsgName(msgID);
+	appendUdpTrace(L"msgID=" + std::to_wstring(msgID) + L" name=" + msgName);
+	std::wcout << L"[UDPCommunicationManager] processRecvMessage: msgID=" << msgID
+	       << L" name=" << msgName << L" size=" << size << std::endl;
+
+	auto nomMsg = meb->getNOMInstance(name, msgName);
 
 	if (nomMsg.get())
 	{
@@ -274,13 +314,17 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 			auto nomMsgCP = nomMsg->clone();
 			nomMsgCP->deserialize(data, size);
 			nomMsgCP->setOwner(name);
+			appendUdpTrace(L"interaction sendMsg: " + nomMsgCP->getName());
 			this->sendMsg(nomMsgCP);
 		}
 	}
 	else
 	{
-		std::wstringstream s; s << L"undefined message" ;
+		std::wstringstream s; s << L"undefined message id=" << msgID << L" name=" << msgName;
 		l.info(s);
+		std::wcout << L"[UDPCommunicationManager] undefined message id=" << msgID
+		       << L" name=" << msgName << std::endl;
+		appendUdpTrace(L"undefined message id=" + std::to_wstring(msgID) + L" name=" + msgName);
 	}
 }
 
