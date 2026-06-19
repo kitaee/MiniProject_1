@@ -33,7 +33,9 @@
     <None Include="..\..\..\..\common\SchemaRegistryData.xml" Link="SchemaRegistryData.xml" />
   </ItemGroup>
   <Target Name="CopyNFConnect" AfterTargets="Build">
-    <Copy SourceFiles="$(NFW_DIR)bin\nFConnectd.dll" DestinationFolder="$(SolutionDir)bin\" Condition="Exists('$(NFW_DIR)bin\nFConnectd.dll')" />
-    <Copy SourceFiles="$(NFW_DIR)bin\nFConnect.dll" DestinationFolder="$(SolutionDir)bin\" Condition="Exists('$(NFW_DIR)bin\nFConnect.dll')" />
+    <ItemGroup>
+      <NFrameworkRuntimeDlls Include="$(NFW_DIR)bin\*.dll" />
+    </ItemGroup>
+    <Copy SourceFiles="@(NFrameworkRuntimeDlls)" DestinationFolder="$(SolutionDir)bin\" SkipUnchangedFiles="true" />
   </Target>
 </Project>
