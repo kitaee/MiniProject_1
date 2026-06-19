@@ -113,8 +113,8 @@ LogsOfNOMParser/
 # -----------------------------------------------------------------------------
 # IntelliVal code generation (regenerated at build)
 # -----------------------------------------------------------------------------
-*IntelliVal.h
-*IntelliVal.cs
+# *IntelliVal.h
+# *IntelliVal.cs
 
 # -----------------------------------------------------------------------------
 # OS-generated files
