@@ -1,4 +1,4 @@
-﻿# Configure CommLinkInfo.ini for local (5 sims on one PC) or multicast 5-PC deployment.
+# Configure CommLinkInfo.ini for local (5 sims on one PC) or multicast 5-PC deployment.
 # UTF-8 with BOM; idempotent - safe to run repeatedly.
 param(    [Parameter(Mandatory = $true)]
     [ValidateSet('Local', 'Multicast5PC')]

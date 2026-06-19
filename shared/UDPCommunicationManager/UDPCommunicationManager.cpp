@@ -276,19 +276,19 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 
 	unsigned long msgID = 0;
 
-	//ID 형식이 ushort인 경우 처리
+	// Wire header matches NOM serialize / sendCommMsg (little-endian on Windows x86).
+	// Do NOT use ntohl/ntohs here — LE 0x000003E9 (1001) becomes 0xE9030000 with ntohl.
 	if (IDSize == 2)
 	{
 		unsigned short tmpMsgID = 0;
 		memcpy(&tmpMsgID, data + IDPos, IDSize);
-		msgID = static_cast<unsigned long>(ntohs(tmpMsgID));
+		msgID = static_cast<unsigned long>(tmpMsgID);
 	}
-	//ID 형식이 ulong인 경우 처리
 	else if (IDSize == 4)
 	{
 		unsigned long tmpMsgID = 0;
 		memcpy(&tmpMsgID, data + IDPos, IDSize);
-		msgID = ntohl(tmpMsgID);
+		msgID = tmpMsgID;
 	}
 	else
 	{
@@ -299,6 +299,15 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 	appendUdpTrace(L"msgID=" + std::to_wstring(msgID) + L" name=" + msgName);
 	std::wcout << L"[UDPCommunicationManager] processRecvMessage: msgID=" << msgID
 	       << L" name=" << msgName << L" size=" << size << std::endl;
+
+	if (msgName.empty())
+	{
+		std::wstringstream s; s << L"undefined message id=" << msgID;
+		l.info(s);
+		std::wcout << L"[UDPCommunicationManager] undefined message id=" << msgID << std::endl;
+		appendUdpTrace(L"undefined message id=" + std::to_wstring(msgID) + L" (no name)");
+		return;
+	}
 
 	auto nomMsg = meb->getNOMInstance(name, msgName);
 
@@ -320,11 +329,9 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 	}
 	else
 	{
-		std::wstringstream s; s << L"undefined message id=" << msgID << L" name=" << msgName;
+		std::wstringstream s; s << L"getNOMInstance failed for " << msgName;
 		l.info(s);
-		std::wcout << L"[UDPCommunicationManager] undefined message id=" << msgID
-		       << L" name=" << msgName << std::endl;
-		appendUdpTrace(L"undefined message id=" + std::to_wstring(msgID) + L" name=" + msgName);
+		appendUdpTrace(L"getNOMInstance failed: " + msgName);
 	}
 }
 

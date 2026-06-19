@@ -7,7 +7,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConsoleMain", "ConsoleMain", "{8AB46294-6251-4E0B-A535-C30AC8A5AA40}"
 	ProjectSection(SolutionItems) = preProject
 		bin\LCS.ini = bin\LCS.ini
-		bin\SchemaRegistryData.xml = bin\SchemaRegistryData.xml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Communication", "Communication", "{0FA14B51-DE65-4B73-B867-98E01E6727D3}"

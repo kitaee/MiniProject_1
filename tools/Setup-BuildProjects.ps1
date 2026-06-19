@@ -2,8 +2,9 @@
 # UTF-8
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
-$nfwSource = "c:\LIG\nFrameworkv1.8.2"
-$miniProject = "c:\LIG\nFrameworkv1.8.2\examples\MiniProject_x64_vc143"
+. (Join-Path $PSScriptRoot 'Get-NFrameworkRoot.ps1')
+$nfwSource = Get-NFrameworkRoot
+$miniProject = Join-Path $nfwSource 'examples\MiniProject_x64_vc143'
 
 function New-GuidBrace { return "{" + [guid]::NewGuid().ToString().ToUpper() + "}" }
 
@@ -13,12 +14,8 @@ function Write-Utf8($path, $content) {
     [System.IO.File]::WriteAllText($path, $content, [System.Text.UTF8Encoding]::new($false))
 }
 
-# nFramework junction (README 폴더가 있으면 _sdk 이름 사용)
-$nfwLink = Join-Path $root "frameworks\nFramework_sdk"
-if (-not (Test-Path (Join-Path $nfwLink "include"))) {
-    New-Item -ItemType Directory -Force -Path (Split-Path $nfwLink) | Out-Null
-    cmd /c mklink /J "$nfwLink" "$nfwSource" | Out-Null
-}
+# nFramework SDK — optional junction (NFW_DIR now points to C:\LIG\nFrameworkv1.8.2 directly)
+# Legacy: frameworks\nFramework_sdk junction is not required.
 
 # shared UDPCommunicationManager (MiniProject에서 복사)
 $udpSrc = Join-Path $root "shared\UDPCommunicationManager"
@@ -640,12 +637,14 @@ public partial class MainWindow : System.Windows.Window
 # Copy nFramework runtime DLLs helper script
 Write-Utf8 (Join-Path $root "tools\Copy-NFrameworkBin.ps1") @'
 param([string]$Simulator = "ats")
-$root = Split-Path -Parent $PSScriptRoot
-$nfw = Join-Path $root "frameworks\nFramework_sdk\bin"
+$ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Get-NFrameworkRoot.ps1')
+$root = Split-Path $PSScriptRoot -Parent
+$nfwBin = Join-Path (Get-NFrameworkRoot) 'bin'
 $dest = Join-Path $root "$Simulator\bin"
-if (-not (Test-Path $nfw)) { Write-Error "nFramework bin not found: $nfw"; exit 1 }
-Copy-Item "$nfw\*.dll" $dest -Force -ErrorAction SilentlyContinue
-Write-Host "Copied runtime DLLs to $dest"
+if (-not (Test-Path $nfwBin)) { Write-Error "nFramework bin not found: $nfwBin"; exit 1 }
+Copy-Item "$nfwBin\*.dll" $dest -Force -ErrorAction SilentlyContinue
+Write-Host "Copied runtime DLLs from $nfwBin to $dest"
 '@
 
 Write-Host "Build projects generated."

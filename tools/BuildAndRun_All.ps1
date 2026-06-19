@@ -146,9 +146,12 @@ if (-not $msbuild) {
     exit 1
 }
 
-if (-not (Test-Path (Join-Path $Root 'frameworks\nFramework_sdk\include'))) {
-    Write-Host '[WARN] nFramework SDK junction missing.'
-    Write-Host '       mklink /J frameworks\nFramework_sdk c:\LIG\nFrameworkv1.8.2'
+. (Join-Path $Root 'tools\Get-NFrameworkRoot.ps1')
+$nfwRoot = Get-NFrameworkRoot
+if (-not (Test-Path (Join-Path $nfwRoot 'include'))) {
+    Write-Host "[WARN] nFramework SDK not found at: $nfwRoot" -ForegroundColor Yellow
+    Write-Host '       Install to C:\LIG\nFrameworkv1.8.2 or edit frameworks\nFramework.path'
+    Write-Host '       Run: powershell -File tools\Test-NFrameworkSdk.ps1'
     Write-Host ''
 }
 

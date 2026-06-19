@@ -1,10 +1,12 @@
 param([string]$Simulator = "ats")
-$root = Split-Path -Parent $PSScriptRoot
-$nfw = Join-Path $root "frameworks\nFramework_sdk\bin"
+$ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'Get-NFrameworkRoot.ps1')
+$root = Split-Path $PSScriptRoot -Parent
+$nfwBin = Join-Path (Get-NFrameworkRoot) 'bin'
 $dest = Join-Path $root "$Simulator\bin"
-if (-not (Test-Path $nfw)) { Write-Error "nFramework bin not found: $nfw"; exit 1 }
-Copy-Item "$nfw\*.dll" $dest -Force -ErrorAction SilentlyContinue
-$log4nf = Join-Path $nfw "Log4nF.ini"
+if (-not (Test-Path $nfwBin)) { Write-Error "nFramework bin not found: $nfwBin"; exit 1 }
+Copy-Item "$nfwBin\*.dll" $dest -Force -ErrorAction SilentlyContinue
+$log4nf = Join-Path $nfwBin "Log4nF.ini"
 if (Test-Path $log4nf) {
     Copy-Item $log4nf (Join-Path $dest "Log4nF.ini") -Force
 }
@@ -16,6 +18,6 @@ if (Test-Path $commonSr) {
     }
 }
 Get-ChildItem $dest -Directory | ForEach-Object {
-    Copy-Item "$nfw\*.dll" $_.FullName -Force -ErrorAction SilentlyContinue
+    Copy-Item "$nfwBin\*.dll" $_.FullName -Force -ErrorAction SilentlyContinue
 }
-Write-Host "Copied runtime DLLs to $dest and manager subfolders"
+Write-Host "Copied runtime DLLs from $nfwBin to $dest and manager subfolders"

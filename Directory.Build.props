@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
   <PropertyGroup>
-    <!-- nFramework SDK (junction: frameworks/nFramework_sdk → c:\LIG\nFrameworkv1.8.2) -->
-    <NFW_DIR>$(MSBuildThisFileDirectory)frameworks\nFramework_sdk\</NFW_DIR>
+    <!-- Team SDK path: frameworks/nFramework.path (default C:\LIG\nFrameworkv1.8.2) -->
+    <NFW_DIR>C:\LIG\nFrameworkv1.8.2\</NFW_DIR>
+    <!-- Optional per-machine override: create Directory.Build.props.user with your own NFW_DIR -->
   </PropertyGroup>
+  <Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user" Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
 </Project>
