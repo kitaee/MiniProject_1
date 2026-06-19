@@ -1,12 +1,36 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="SimulationManager" date="2026-06-18" author="SimulatorSuite">
   <NOM:objects>
   </NOM:objects>
   <NOM:interactions>
-    <NOM:interaction name="ScenarioACK" id="3101" semantics="유도탄→통합통제기 시나리오 ACK" sharing="Publish" orderType="Receive" alignment="false">
+    <NOM:interaction name="DownlinkInfo" id="3501" semantics="MSS to MFRS missile downlink at 1Hz" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:parameter name="DownlinkInfo" semantics="DownlinkInfo" dataType="DownlinkInfoStruct"/>
+    </NOM:interaction>
+    <NOM:interaction name="UplinkInfo_5301" id="5301" semantics="MFRS to MSS uplink guidance at 1Hz" sharing="Subscribe" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:parameter name="UplinkInfo" semantics="UplinkInfo" dataType="UplinkInfoStruct"/>
+    </NOM:interaction>
+    <NOM:interaction name="ScenarioACK" id="3101" semantics="MSS to TCC scenario ACK" sharing="Publish" orderType="Receive" alignment="false">
       <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
     </NOM:interaction>
-    <NOM:interaction name="DeployScenarioRequest" id="1001" semantics="통합통제기→모의기 시나리오 배포" sharing="Subscribe" orderType="Receive" alignment="false">
+    <NOM:interaction name="DetonationInfo" id="3201" semantics="MSS detonation result" sharing="Publish" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
+      <NOM:parameter name="TargetID" semantics="TargetID" dataType="uint"/>
+    </NOM:interaction>
+    <NOM:interaction name="LaunchMissile" id="4301" semantics="LCS to MSS launch information" sharing="Subscribe" orderType="Receive" alignment="false">
+      <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+      <NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+      <NOM:parameter name="AirthreatXpos" semantics="AirthreatXpos" dataType="float"/>
+      <NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+      <NOM:parameter name="AirthreatZPos" semantics="AirthreatZPos" dataType="float"/>
+      <NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
+      <NOM:parameter name="LCSXpos" semantics="LCSXpos" dataType="float"/>
+      <NOM:parameter name="LCSYPos" semantics="LCSYPos" dataType="float"/>
+      <NOM:parameter name="LCSZPos" semantics="LCSZPos" dataType="float"/>
+    </NOM:interaction>
+    <NOM:interaction name="DeployScenarioRequest" id="1001" semantics="TCC to simulators scenario deploy" sharing="Subscribe" orderType="Receive" alignment="false">
       <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
       <NOM:parameter name="Airthreat" semantics="Airthreat" dataType="AirthreatStruct"/>
       <NOM:parameter name="RadarPositionLatitude" semantics="RadarPositionLatitude" dataType="float"/>
@@ -14,10 +38,10 @@
       <NOM:parameter name="LauncherPositionLatitude" semantics="LauncherPositionLatitude" dataType="float"/>
       <NOM:parameter name="LauncherPositionLongitude" semantics="LauncherPositionLongitude" dataType="float"/>
     </NOM:interaction>
-    <NOM:interaction name="StartSimulationRequest" id="1002" semantics="통합통제기→모의기 시뮬레이션 시작" sharing="Subscribe" orderType="Receive" alignment="false">
+    <NOM:interaction name="StartSimulationRequest" id="1002" semantics="TCC to simulators simulation start" sharing="Subscribe" orderType="Receive" alignment="false">
       <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
     </NOM:interaction>
-    <NOM:interaction name="StopSimulationRequest" id="1003" semantics="통합통제기→모의기 시뮬레이션 정지" sharing="Subscribe" orderType="Receive" alignment="false">
+    <NOM:interaction name="StopSimulationRequest" id="1003" semantics="TCC to simulators simulation stop" sharing="Subscribe" orderType="Receive" alignment="false">
       <NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
     </NOM:interaction>
   </NOM:interactions>
@@ -29,3 +53,4 @@
   <NOM:notes>
   </NOM:notes>
 </NOM:Nex1ObjectModel>
+

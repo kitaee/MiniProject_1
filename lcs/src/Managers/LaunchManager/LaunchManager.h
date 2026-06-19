@@ -30,6 +30,8 @@ public:
     void setMEBComponent(IMEBComponent*) override;
 
 private:
+    void sendLaunchMissile();
+
     IMEBComponent* meb{ nullptr };
     MECComponent* mec{ nullptr };
     tstring name;

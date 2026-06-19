@@ -4,11 +4,19 @@
 #include "CommMessageHandler.h"
 #include <nFramework/nom/NOMParser.h>
 #include <nFramework/Log4nF/Loggable.h>
+#include <string>
+#include <vector>
 using namespace std;
 using namespace nframework;
 using namespace nom;
 using namespace ncomm;
 using namespace log4nf;
+
+struct UdpRouteEndpoint
+{
+	std::string ip;
+	uint16_t port{ 0 };
+};
 
 class BASEMGRDLL_API UDPCommunicationManager : public BaseManager
 {
@@ -40,6 +48,8 @@ public:
 private:
 	void init();
 	void release();
+	void loadRouteInfo();
+	bool sendRoutedUdp(shared_ptr<NOM> nomMsg);
 	
 public:
 	std::unique_ptr<NOMParser> nomParser;
@@ -50,6 +60,7 @@ private:
 	tstring name;
 	map<unsigned int, shared_ptr<NOM>> registeredMsg;
 	map<unsigned int, shared_ptr<NOM>> discoveredMsg;
+	map<unsigned int, vector<UdpRouteEndpoint>> routeTable;
 
 	CommunicationInterface* commInterface;
 	CommunicationConfig* commConfig;

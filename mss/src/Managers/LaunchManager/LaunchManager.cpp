@@ -1,4 +1,5 @@
 #include "LaunchManager.h"
+#include <iostream>
 
 // 역할: 발사 제어
 // BaseManager MEC 위임만 구현. 업무 로직은 추후 reflectMsg/recvMsg/start 에 추가.
@@ -24,7 +25,15 @@ void LaunchManager::reflectMsg(std::shared_ptr<NOM>) {}
 void LaunchManager::deleteMsg(std::shared_ptr<NOM> nomMsg) { mec->deleteMsg(nomMsg); }
 void LaunchManager::removeMsg(std::shared_ptr<NOM> nomMsg) { mec->removeMsg(nomMsg); }
 void LaunchManager::sendMsg(std::shared_ptr<NOM> nomMsg) { mec->sendMsg(nomMsg); }
-void LaunchManager::recvMsg(std::shared_ptr<NOM>) {}
+void LaunchManager::recvMsg(std::shared_ptr<NOM> nomMsg)
+{
+    if (!nomMsg)
+        return;
+
+    std::wcout << L"[LaunchManager] recvMsg: " << nomMsg->getName() << std::endl;
+    if (nomMsg->getName() == L"LaunchMissile")
+        std::wcout << L"[LaunchManager] LaunchMissile received. Missile state=LAUNCHED" << std::endl;
+}
 void LaunchManager::setUserName(std::wstring userName) { name = userName; }
 tstring LaunchManager::getUserName() { return name; }
 void LaunchManager::setData(void*) {}

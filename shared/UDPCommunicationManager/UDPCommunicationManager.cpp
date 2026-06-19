@@ -1,9 +1,19 @@
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include "UDPCommunicationManager.h"
 #include <filesystem>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <algorithm>
+#include <cctype>
 #include <Windows.h>
 #include "UDPCommunicationManagerIntelliVal.h"
+
+#pragma comment(lib, "Ws2_32.lib")
 
 using namespace std::filesystem;
 
@@ -31,6 +41,11 @@ static std::wstring resolveCommLinkInfoPath()
 	return absolute(resolveModuleDirectory() / L"CommLinkInfo.ini").wstring();
 }
 
+static path resolveRouteInfoPath()
+{
+	return absolute(resolveModuleDirectory() / L"RouteInfo.ini");
+}
+
 static std::wstring resolveNomXmlPath(const std::wstring& userName)
 {
 	return absolute(resolveModuleDirectory() / (userName + L".xml")).wstring();
@@ -40,6 +55,20 @@ static void appendUdpTrace(const std::wstring& line)
 {
 	std::wofstream trace(resolveModuleDirectory() / L".." / L"udp_trace.log", std::ios::app);
 	trace << line << L'\n';
+}
+
+static std::string trimCopy(const std::string& value)
+{
+	const auto first = std::find_if_not(value.begin(), value.end(), [](unsigned char ch) { return std::isspace(ch); });
+	const auto last = std::find_if_not(value.rbegin(), value.rend(), [](unsigned char ch) { return std::isspace(ch); }).base();
+	if (first >= last)
+		return {};
+	return std::string(first, last);
+}
+
+static std::wstring widenAscii(const std::string& value)
+{
+	return std::wstring(value.begin(), value.end());
 }
 
 /************************************************************************
@@ -71,6 +100,7 @@ UDPCommunicationManager::init()
 
 	commConfig = new CommunicationConfig;
 	commConfig->setIni(resolveCommLinkInfoPath());
+	loadRouteInfo();
 
 	//socket issue
 	//commInterface = new NCommInterface(this);
@@ -106,6 +136,7 @@ void
 UDPCommunicationManager::release()
 {
 	delete commConfig;
+	commConfig = nullptr;
 
 	//socket issue
 	//delete commInterface;
@@ -113,6 +144,158 @@ UDPCommunicationManager::release()
 	meb = nullptr;
 	delete mec;
 	mec = nullptr;
+}
+
+void
+UDPCommunicationManager::loadRouteInfo()
+{
+	routeTable.clear();
+
+	const auto routePath = resolveRouteInfoPath();
+	std::ifstream routeFile(routePath);
+	if (!routeFile.is_open())
+	{
+		appendUdpTrace(L"RouteInfo.ini not found: " + routePath.wstring());
+		return;
+	}
+
+	std::string line;
+	while (std::getline(routeFile, line))
+	{
+		const auto commentPos = line.find_first_of(";#");
+		if (commentPos != std::string::npos)
+			line = line.substr(0, commentPos);
+
+		line = trimCopy(line);
+		if (line.empty())
+			continue;
+
+		const auto equalsPos = line.find('=');
+		if (equalsPos == std::string::npos)
+			continue;
+
+		const auto idText = trimCopy(line.substr(0, equalsPos));
+		const auto endpointsText = trimCopy(line.substr(equalsPos + 1));
+		if (idText.empty() || endpointsText.empty())
+			continue;
+
+		unsigned int messageId = 0;
+		try
+		{
+			messageId = static_cast<unsigned int>(std::stoul(idText));
+		}
+		catch (...)
+		{
+			continue;
+		}
+
+		std::stringstream endpointStream(endpointsText);
+		std::string endpointText;
+		while (std::getline(endpointStream, endpointText, ','))
+		{
+			endpointText = trimCopy(endpointText);
+			const auto colonPos = endpointText.rfind(':');
+			if (colonPos == std::string::npos)
+				continue;
+
+			auto ip = trimCopy(endpointText.substr(0, colonPos));
+			auto portText = trimCopy(endpointText.substr(colonPos + 1));
+			if (ip.empty() || portText.empty())
+				continue;
+
+			try
+			{
+				const auto port = static_cast<uint16_t>(std::stoul(portText));
+				routeTable[messageId].push_back({ ip, port });
+			}
+			catch (...)
+			{
+				continue;
+			}
+		}
+	}
+
+	appendUdpTrace(L"RouteInfo.ini loaded routes=" + std::to_wstring(routeTable.size()));
+}
+
+bool
+UDPCommunicationManager::sendRoutedUdp(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg)
+		return false;
+
+	const auto routeItr = routeTable.find(nomMsg->getMessageID());
+	if (routeItr == routeTable.end() || routeItr->second.empty())
+		return false;
+
+	const auto messageId = nomMsg->getMessageID();
+	uint32_t payloadLength = nomMsg->getLength();
+	if (payloadLength == 0)
+	{
+		appendUdpTrace(L"routed send skipped: zero length id=" + std::to_wstring(messageId));
+		return false;
+	}
+
+	std::vector<uint8_t> payload(payloadLength);
+	if (!nomMsg->serialize(payload.data(), payloadLength))
+	{
+		appendUdpTrace(L"routed send serialize failed id=" + std::to_wstring(messageId));
+		return false;
+	}
+
+	WSADATA wsaData{};
+	if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0)
+	{
+		appendUdpTrace(L"routed send WSAStartup failed id=" + std::to_wstring(messageId));
+		return false;
+	}
+
+	SOCKET udpSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+	if (udpSocket == INVALID_SOCKET)
+	{
+		appendUdpTrace(L"routed send socket failed id=" + std::to_wstring(messageId));
+		WSACleanup();
+		return false;
+	}
+
+	for (const auto& endpoint : routeItr->second)
+	{
+		sockaddr_in remoteAddress{};
+		remoteAddress.sin_family = AF_INET;
+		remoteAddress.sin_port = htons(endpoint.port);
+
+		if (inet_pton(AF_INET, endpoint.ip.c_str(), &remoteAddress.sin_addr) != 1)
+		{
+			appendUdpTrace(L"routed send invalid endpoint " + widenAscii(endpoint.ip) + L":" + std::to_wstring(endpoint.port));
+			continue;
+		}
+
+		const int sentBytes = sendto(
+			udpSocket,
+			reinterpret_cast<const char*>(payload.data()),
+			static_cast<int>(payload.size()),
+			0,
+			reinterpret_cast<sockaddr*>(&remoteAddress),
+			sizeof(remoteAddress));
+
+		if (sentBytes == SOCKET_ERROR)
+		{
+			appendUdpTrace(L"routed send failed id=" + std::to_wstring(messageId)
+				+ L" to " + widenAscii(endpoint.ip) + L":" + std::to_wstring(endpoint.port)
+				+ L" wsa=" + std::to_wstring(WSAGetLastError()));
+			continue;
+		}
+
+		appendUdpTrace(L"routed send id=" + std::to_wstring(messageId)
+			+ L" name=" + nomMsg->getName()
+			+ L" to " + widenAscii(endpoint.ip) + L":" + std::to_wstring(endpoint.port)
+			+ L" bytes=" + std::to_wstring(sentBytes));
+	}
+
+	closesocket(udpSocket);
+	WSACleanup();
+
+	return true;
 }
 
 /************************************************************************
@@ -155,6 +338,8 @@ UDPCommunicationManager::reflectMsg(shared_ptr<NOM> nomMsg)
 {
 	std::wstringstream s; s << L"UDPCommunicationManager::Message is reflected." ;
 	l.info(s);
+	if (sendRoutedUdp(nomMsg))
+		return;
 	commInterface->updateCommMsg(nomMsg);
 }
 
@@ -199,6 +384,9 @@ UDPCommunicationManager::recvMsg(shared_ptr<NOM> nomMsg)
 	std::wcout << L"[UDPCommunicationManager] recvMsg -> sendCommMsg: " << nomMsg->getName()
 	       << L" (id=" << nomMsg->getMessageID() << L")" << std::endl;
 	appendUdpTrace(L"recvMsg -> sendCommMsg: " + nomMsg->getName());
+
+	if (sendRoutedUdp(nomMsg))
+		return;
 
 	commInterface->sendCommMsg(nomMsg);
 }
@@ -316,6 +504,10 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 		if (nomMsg->getType() == nframework::nom::ENOMType::NOM_TYPE_OBJECT)
 		{
 			nomMsg->deserialize(data, size);
+			auto nomMsgCP = nomMsg->clone();
+			nomMsgCP->setOwner(name);
+			appendUdpTrace(L"object sendMsg: " + nomMsgCP->getName());
+			this->sendMsg(nomMsgCP);
 			this->updateMsg(nomMsg);
 		}
 		else

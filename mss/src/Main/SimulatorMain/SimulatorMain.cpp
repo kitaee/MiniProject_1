@@ -4,6 +4,7 @@
 #include <nFramework/util/IniHandler.h>
 #include <nFramework/nLineStream/NLineStreamMain.h>
 #include <filesystem>
+#include <string>
 #include <Windows.h>
 
 using namespace std::filesystem;
@@ -21,14 +22,26 @@ static void setWorkingDirectoryToExeDir()
 static void waitForShutdown()
 {
     HANDLE stdinHandle = GetStdHandle(STD_INPUT_HANDLE);
-    if (stdinHandle != nullptr && stdinHandle != INVALID_HANDLE_VALUE) {
-        DWORD mode = 0;
-        if (GetConsoleMode(stdinHandle, &mode))
-            tcin.get();
-        else
-            Sleep(INFINITE);
-    } else {
+    if (stdinHandle == nullptr || stdinHandle == INVALID_HANDLE_VALUE) {
         Sleep(INFINITE);
+        return;
+    }
+
+    DWORD mode = 0;
+    if (!GetConsoleMode(stdinHandle, &mode)) {
+        Sleep(INFINITE);
+        return;
+    }
+
+    while (true) {
+        std::wstring command;
+        if (!std::getline(tcin, command)) {
+            Sleep(INFINITE);
+            return;
+        }
+
+        if (command == L"q" || command == L"Q" || command == L"exit" || command == L"EXIT")
+            return;
     }
 }
 
@@ -109,7 +122,7 @@ int main()
         mgr->start();
     }
 
-    tcout << L"MSS ready. Press Enter to exit...\n";
+    tcout << L"MSS ready. Type q then Enter to exit...\n";
     waitForShutdown();
 
     for (unsigned int cnt = 1; cnt <= numOfComponents; cnt++)

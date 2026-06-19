@@ -111,6 +111,7 @@
 				<NOM:fieldType name="StartLongitude" dataType="float"/>
 				<NOM:fieldType name="EndLatitude" dataType="float"/>
 				<NOM:fieldType name="EndLongitude" dataType="float"/>
+				<NOM:fieldType name="AirthreatVelocity" dataType="float"/>
 			</NOM:complexType>
 			<NOM:complexType name="UplinkInfoStruct" semantics="업링크 정보">
 				<NOM:fieldType name="AirthreatID" dataType="uint"/>
