@@ -22,6 +22,7 @@ namespace MiniProject_GUI.Views
 
         private readonly Dictionary<string, GMapMarker> markers = new Dictionary<string, GMapMarker>();
         private GMapPolygon radarCoverage;
+        private GMapRoute airthreatRoute;
 
         public ScenarioControl()
         {
@@ -66,6 +67,7 @@ namespace MiniProject_GUI.Views
 
             viewModel.SetMapCoordinate(coordinate.Lat, coordinate.Lng);
             SetMarker(target, label, coordinate);
+            RefreshAirthreatRoute();
 
             if (target == "Radar")
                 SetRadarCoverage(coordinate);
@@ -78,7 +80,7 @@ namespace MiniProject_GUI.Views
 
             var marker = new GMapMarker(coordinate)
             {
-                Offset = new Point(-17, -17),
+                Offset = new Point(-14, -14),
                 Shape = CreateMarkerShape(key, label)
             };
 
@@ -104,6 +106,39 @@ namespace MiniProject_GUI.Views
             };
 
             ScenarioMap.Markers.Add(radarCoverage);
+        }
+
+        private void RefreshAirthreatRoute()
+        {
+            if (airthreatRoute != null)
+            {
+                ScenarioMap.Markers.Remove(airthreatRoute);
+                airthreatRoute = null;
+            }
+
+            if (!markers.TryGetValue("AirthreatStart", out GMapMarker startMarker) ||
+                !markers.TryGetValue("AirthreatEnd", out GMapMarker endMarker))
+            {
+                return;
+            }
+
+            airthreatRoute = new GMapRoute(new List<PointLatLng>
+            {
+                startMarker.Position,
+                endMarker.Position
+            })
+            {
+                ZIndex = -900,
+                Shape = new Path
+                {
+                    Stroke = new SolidColorBrush(Color.FromRgb(0xFF, 0x5B, 0x7F)),
+                    StrokeThickness = 2.5,
+                    StrokeDashArray = new DoubleCollection { 6, 3 },
+                    IsHitTestVisible = false
+                }
+            };
+
+            ScenarioMap.Markers.Add(airthreatRoute);
         }
 
         private List<PointLatLng> CreateRadarCoveragePoints(PointLatLng center)
@@ -148,18 +183,18 @@ namespace MiniProject_GUI.Views
         {
             return new Border
             {
-                Width = 34,
-                Height = 34,
-                CornerRadius = new CornerRadius(17),
+                Width = 28,
+                Height = 28,
+                CornerRadius = new CornerRadius(14),
                 Background = new SolidColorBrush(GetMarkerColor(key)),
                 BorderBrush = Brushes.White,
-                BorderThickness = new Thickness(2),
+                BorderThickness = new Thickness(1.5),
                 ToolTip = label,
                 Child = new PackIcon
                 {
                     Kind = GetMarkerIcon(key),
-                    Width = 20,
-                    Height = 20,
+                    Width = 16,
+                    Height = 16,
                     Foreground = Brushes.White,
                     HorizontalAlignment = HorizontalAlignment.Center,
                     VerticalAlignment = VerticalAlignment.Center

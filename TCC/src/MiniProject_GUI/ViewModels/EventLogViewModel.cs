@@ -40,6 +40,7 @@ namespace MiniProject_GUI.ViewModels
 
             // ── 현재 구독 중인 이벤트 ──
             // ScenarioSendAck: ATS 연동 확인 시 ACK 수신 로그
+            EventAggregator.Instance.Subscribe<ScenarioSend>(OnScenarioSend);
             EventAggregator.Instance.Subscribe<ScenarioSendAck>(OnScenarioSendAck);
 
             // ── [확장 가이드] 아래 구독을 활성화하여 기능 확장 가능 ──
@@ -107,9 +108,15 @@ namespace MiniProject_GUI.ViewModels
         // 정리 (IDisposable)
         // ────────────────────────────────────────────
 
+        private void OnScenarioSend(ScenarioSend scenario)
+        {
+            AddLog("[Request] TCC -> ALL ID " + ScenarioSend.MessageId + " DeployScenarioRequest 전송");
+        }
+
         public void Dispose()
         {
             // Subscribe와 쌍으로 반드시 Unsubscribe 해야 메모리 누수를 방지할 수 있다.
+            EventAggregator.Instance.Unsubscribe<ScenarioSend>(OnScenarioSend);
             EventAggregator.Instance.Unsubscribe<ScenarioSendAck>(OnScenarioSendAck);
         }
     }
