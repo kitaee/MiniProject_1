@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="xxxManager" date="2025-11-03" author="Miniproject_example">
+
+	<NOM:objects/>
+
+	<NOM:interactions>
+
+		<NOM:interaction name="SendScenario" id="0x01" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="Scenario" dataType="ScenarioStruct"/>
+        </NOM:interaction>
+
+		<NOM:interaction name="SendScenarioAck" id="0x02" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="SimulatorID" dataType="ushortBE"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="StartSimulation" id="0x03" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="StartSimulationAck" id="0x04" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="SimulatorID" dataType="ushortBE"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="StopSimulation" id="0x05" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="StopSimulationAck" id="0x06" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="SimulatorID" dataType="ushortBE"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="FireMissileToLCS" id="0x07" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="InstanceID" dataType="ushortBE"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="FireMissileAckToTCC" id="0x08" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="InstanceID" dataType="ushortBE"/>
+		</NOM:interaction>
+		
+		<NOM:interaction name="SimulatorState" id="0x0b" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="SimulatorID" dataType="ushortBE"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="SendMissileInfo" id="0x0c" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="InstanceID" dataType="ushortBE"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="RadarDetectionInfo" id="0x10" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="RadarDetectionInfo" dataType="TrackInfoStruct"/>
+			<NOM:parameter name="Detection" dataType="ushortBE"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="AirThreatDetonation" id="0x12" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name ="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="InstanceID" dataType="ushortBE"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="sendRouteAT" id="0x43" sharing="Subscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="Header" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="RouteAT" dataType="stringBE"/>
+		</NOM:interaction>
+	</NOM:interactions>
+
+	<NOM:dataTypes>
+		<NOM:basicTypes/>
+		<NOM:enumerationTypes/>
+		<NOM:complexTypes/>
+	</NOM:dataTypes>
+
+	<NOM:notes/>
+
+</NOM:Nex1ObjectModel>
