@@ -38,6 +38,7 @@ namespace MiniProject_GUI.Infrastructure
 
             try
             {
+                nomInstance.owner = "UIManager";
                 nomInstance.setValue("MessageHeader.MessageID", new NUInteger(ScenarioSend.MessageId));
                 nomInstance.setValue("MessageHeader.MessageLength", new NUInteger(ScenarioSend.MessageLengthBytes));
 

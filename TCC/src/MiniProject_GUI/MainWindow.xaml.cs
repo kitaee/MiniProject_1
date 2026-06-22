@@ -61,7 +61,6 @@ namespace MiniProject_GUI
             List<string> nomFilePaths = new List<string>
             {
                 Environment.CurrentDirectory + @"\SchemaRegistryData.xml",
-                Environment.CurrentDirectory + @"\UDPCommunicationManager\UDPCommunicationManager.xml",
                 Environment.CurrentDirectory + @"\UIManager\UIManager.xml"
             };
 
