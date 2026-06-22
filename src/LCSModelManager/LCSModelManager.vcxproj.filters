@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="LCSModelManager.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="LCSModelManager.h" />
+    <ClInclude Include="LCS_STRUCT.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="..\..\bin\LCSModelManager\LCSModelManager.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\bin\LCSModelManager\LCSModelManager.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{87368f55-97b7-4a8f-8011-4fcd73566fdb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

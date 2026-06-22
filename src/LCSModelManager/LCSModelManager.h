@@ -3,6 +3,16 @@
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
 
+#include <nFramework/BaseManager.h>
+#include <nFramework/mec/MECComponent.h>
+#include <nFramework/nom/NOMMain.h>
+#include <nFramework/nLineStream/NLineStreamMain.h>
+#include <nFramework/nTimer/NTimer.h>
+#include <sstream>
+#include <functional>
+
+#include "LCS_STRUCT.h"
+
 using namespace nframework;
 using namespace nom;
 
@@ -39,5 +49,15 @@ private:
 	tstring name;
 	std::map<unsigned int, std::shared_ptr<NOM>> registeredMsgMap;
 	std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;
+
+	std::map<tstring, std::function<void(std::shared_ptr<NOM>)>> msgFuncMap;
+
+	/*
+		Handler Method
+	*/
+	void recvScenario(std::shared_ptr<NOM> nomMsg);
+
+private:
+	std::shared_ptr<LCS_MODEL> launcherModel;
 };
 

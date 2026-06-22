@@ -105,7 +105,10 @@ LCSModelManager::sendMsg(std::shared_ptr < NOM > nomMsg)
 void
 LCSModelManager::recvMsg(std::shared_ptr < NOM > nomMsg)
 {
-	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	if (auto itr = msgFuncMap.find(nomMsg->getName()); itr != msgFuncMap.end())
+	{
+		itr->second(nomMsg);
+	}
 }
 
 void
@@ -128,10 +131,12 @@ LCSModelManager::setData(void * data)
 bool
 LCSModelManager::start()
 {
-	IniHandler iniHandler;
-	iniHandler.readIni(_T("LCSModelManager/LCSModelManager.ini")); // ※주의 작업디렉터리: Main.exe가 있는 경로
+	// recvMsg에서 호출될 메서드 등록
+	std::function<void(std::shared_ptr<NOM>)> msgProcessor;
 
-	tcout << "[" << __FUNCTIONT__ << "] " << std::endl;
+	msgProcessor = std::bind(&LCSModelManager::recvScenario, this, std::placeholders::_1);
+	msgFuncMap.insert(make_pair(_T("DeployScenarioInnerManager"), msgProcessor));
+
 	return true;
 }
 
@@ -147,6 +152,31 @@ LCSModelManager::setMEBComponent(IMEBComponent * realMEB)
 {
 	meb = realMEB;
 	mec->setMEB(meb);
+}
+
+/*
+	Handler Method
+*/
+
+void
+LCSModelManager::recvScenario(std::shared_ptr<NOM> nomMsg)
+{
+	float launcherLatitude = nomMsg->getValue(_T("LauncherPositionLatitude"))->toFloat();
+	float launcherLongitude = nomMsg->getValue(_T("LauncherPositionLongitude"))->toFloat();
+
+	// 발사대 모델 세팅
+	launcherModel = std::make_shared<LCS_MODEL>();
+	launcherModel->launcherPosition.x = launcherLatitude;
+	launcherModel->launcherPosition.y = launcherLongitude;
+
+	// ACK 송신
+	auto InnerNOMInstance = meb->getNOMInstance(name, _T("ScenarioACKInnerManager"));
+
+	// ACK 헤더 세팅
+	InnerNOMInstance->setValue(_T("MessageHeader.MessageID"), &NUInteger(4101));
+	
+	std::cout << "발사대 모의기 LCSModelManager ACK 송신\n" << std::endl;
+	this->sendMsg(InnerNOMInstance);
 }
 
 /************************************************************************

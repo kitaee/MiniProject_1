@@ -46,16 +46,18 @@ private:
 	void funcMapInit();
 
 private:
-	void recvSendScenario(shared_ptr<NOM> nomMsg);
-	void recvStartSimulation(shared_ptr<NOM> nomMsg);
+	//void recvSendScenario(shared_ptr<NOM> nomMsg);
+	void deployScenario(shared_ptr<NOM> nomMsg);
+	void sendScenarioAck(shared_ptr<NOM> nomMsg);
+	/*void recvStartSimulation(shared_ptr<NOM> nomMsg);
 	void recvStopSimulation(shared_ptr<NOM> nomMsg);
 	void recvInnerSendScenarioAck(shared_ptr<NOM> nomMsg);
 	void recvInnerStartSimulationAck(shared_ptr<NOM> nomMsg);
 	void recvInnerStopSimulationAck(shared_ptr<NOM> nomMsg);
 	void recvInnerSimulatorStateComm(shared_ptr<NOM> nomMsg);
-	void recvInnerRouteToComm(shared_ptr<NOM> nomMsg);
 	void recvInnerAirThreatInfo(shared_ptr<NOM> nomMsg);
-	void recvMissileDetonation(shared_ptr<NOM> nomMsg);
+	void recvMissileDetonation(shared_ptr<NOM> nomMsg);*/
+	void recvInnerRouteToComm(shared_ptr<NOM> nomMsg);
 	
 public:
 	std::unique_ptr<NOMParser> nomParser;
