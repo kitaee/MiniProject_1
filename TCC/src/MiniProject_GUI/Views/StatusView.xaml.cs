@@ -14,7 +14,7 @@ namespace MiniProject_GUI.Views
         public StatusView()
         {
             InitializeComponent();
-            DataContext = ViewModelLocator.Status;
+            DataContext = ViewModelLocator.AckStatus;
         }
     }
 }

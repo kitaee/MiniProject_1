@@ -24,7 +24,7 @@
                     <Setter Property="Fill" Value="#34C759"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding}" Value="False">
-                    <Setter Property="Fill" Value="#FF453A"/>
+                    <Setter Property="Fill" Value="#657080"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -32,9 +32,14 @@
         <Style x:Key="StatusIconStyle" TargetType="materialDesign:PackIcon">
             <Setter Property="Width" Value="22"/>
             <Setter Property="Height" Value="22"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="#657080"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,0,0,6"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding}" Value="True">
+                    <Setter Property="Foreground" Value="#34C759"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
     </UserControl.Resources>
 
@@ -47,12 +52,12 @@
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"
-                       Text="모의기 연결"
+                       Text="시나리오 ACK"
                        FontWeight="SemiBold"
                        Margin="0,0,0,8"/>
 
             <UniformGrid Grid.Row="1" Columns="2" Rows="2">
-                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsLauncherConnected}">
+                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsLcsScenarioAckReceived}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="BowArrow" Style="{StaticResource StatusIconStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -62,7 +67,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsMissileConnected}">
+                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsMssScenarioAckReceived}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="RocketLaunch" Style="{StaticResource StatusIconStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -72,7 +77,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsRadarConnected}">
+                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsMfrsScenarioAckReceived}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="Radar" Style="{StaticResource StatusIconStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -82,7 +87,7 @@
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsAirThreatConnected}">
+                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsAtsScenarioAckReceived}">
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="Airplane" Style="{StaticResource StatusIconStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
