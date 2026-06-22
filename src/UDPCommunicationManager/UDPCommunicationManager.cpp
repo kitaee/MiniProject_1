@@ -233,6 +233,10 @@ void UDPCommunicationManager::funcMapInit()
 {
 	function<void(shared_ptr<NOM>)> msgProc;
 
+	msgProc = bind(&UDPCommunicationManager::recvInnerSendScenarioAck, this, placeholders::_1);
+	funcMap.insert({ _T("InnerSendScenarioAck"), msgProc });
+
+
 	msgProc = bind(&UDPCommunicationManager::recvSendScenario, this, placeholders::_1);
 	funcMap.insert({ _T("SendScenario"), msgProc});
 
@@ -241,9 +245,6 @@ void UDPCommunicationManager::funcMapInit()
 
 	msgProc = bind(&UDPCommunicationManager::recvStopSimulation, this, placeholders::_1);
 	funcMap.insert({ _T("StopSimulation"), msgProc });
-
-	msgProc = bind(&UDPCommunicationManager::recvInnerSendScenarioAck, this, placeholders::_1);
-	funcMap.insert({ _T("InnerSendScenarioAck"), msgProc });
 
 	msgProc = bind(&UDPCommunicationManager::recvInnerStartSimulationAck, this, placeholders::_1);
 	funcMap.insert({ _T("InnerStartSimulationAck"), msgProc });
@@ -414,6 +415,7 @@ void UDPCommunicationManager::sendInnerMsg(shared_ptr<NOM> nomMsg)
 void
 UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 {
+	// 외부통신 진입점
 	//auto HeaderSize = commConfig->getHeaderSize();
 	auto IDPos = commConfig->getHeaderIDPos();
 	auto IDSize = commConfig->getHeaderIDSize();
