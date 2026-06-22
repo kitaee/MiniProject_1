@@ -6,97 +6,92 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d">
 
-    <!--
-        DataContext = StatusViewModel (code-behind에서 설정)
-        이전: DataContext=this → {Binding StatusVM.IsLauncherConnected}
-        현재: DataContext=StatusViewModel → {Binding IsLauncherConnected}
-    -->
-
     <UserControl.Resources>
-        <Style x:Key="CircleWithIconStyle" TargetType="Grid">
-            <Setter Property="Width" Value="55"/>
-            <Setter Property="Height" Value="55"/>
-            <Setter Property="Margin" Value="8,0"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+        <Style x:Key="StatusCardStyle" TargetType="Border">
+            <Setter Property="Margin" Value="4"/>
+            <Setter Property="Padding" Value="9"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderBrush" Value="#555"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
-        <!--
-              DataTrigger with {Binding}
-            DataContext가 bool 값 자체인 경우 {Binding}만으로도 값에 바인딩된다.
-            Grid의 DataContext를 ViewModel의 bool 속성으로 설정했기 때문이다.
-        -->
         <Style x:Key="StatusCircleStyle" TargetType="Ellipse">
-            <Setter Property="Stroke" Value="White"/>
-            <Setter Property="StrokeThickness" Value="0.5"/>
-            <Setter Property="Fill" Value="Gray"/>
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Fill" Value="#777"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding}" Value="True">
-                    <Setter Property="Fill" Value="Green"/>
+                    <Setter Property="Fill" Value="#34C759"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding}" Value="False">
-                    <Setter Property="Fill" Value="Red"/>
+                    <Setter Property="Fill" Value="#FF453A"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="StatusIconStyle" TargetType="materialDesign:PackIcon">
-            <Setter Property="Width" Value="35"/>
-            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="22"/>
+            <Setter Property="Height" Value="22"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
     </UserControl.Resources>
 
-    <GroupBox Header="상태 정보" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+    <GroupBox Header="상태" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{StaticResource MaterialDesignCardGroupBox}">
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+        <Grid Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-                <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="White" HorizontalAlignment="Center"
-                               VerticalAlignment="Top" Text="발사대"/>
-                    <!-- Grid의 DataContext를 bool 속성으로 설정 → StatusCircleStyle의 {Binding}이 이 값을 참조 -->
-                    <Grid Style="{StaticResource CircleWithIconStyle}"
-                          DataContext="{Binding IsLauncherConnected}">
-                        <Ellipse Style="{StaticResource StatusCircleStyle}"/>
+            <TextBlock Grid.Row="0"
+                       Text="모의기 연결"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,8"/>
+
+            <UniformGrid Grid.Row="1" Columns="2" Rows="2">
+                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsLauncherConnected}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="BowArrow" Style="{StaticResource StatusIconStyle}"/>
-                    </Grid>
-                </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Text="발사대" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
 
-                <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="White" HorizontalAlignment="Center" Text="유도탄"/>
-                    <Grid Style="{StaticResource CircleWithIconStyle}"
-                          DataContext="{Binding IsMissileConnected}">
-                        <Ellipse Style="{StaticResource StatusCircleStyle}"/>
+                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsMissileConnected}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="RocketLaunch" Style="{StaticResource StatusIconStyle}"/>
-                    </Grid>
-                </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Text="유도탄" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
 
-                <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="White" HorizontalAlignment="Center" Text="레이다"/>
-                    <Grid Style="{StaticResource CircleWithIconStyle}"
-                          DataContext="{Binding IsRadarConnected}">
-                        <Ellipse Style="{StaticResource StatusCircleStyle}"/>
-                        <materialDesign:PackIcon Kind="Radar" Style="{StaticResource StatusIconStyle}" Margin="0,0,0,10" VerticalAlignment="Bottom"/>
-                    </Grid>
-                </StackPanel>
+                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsRadarConnected}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="Radar" Style="{StaticResource StatusIconStyle}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Text="레이다" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
 
-                <StackPanel HorizontalAlignment="Center">
-                    <TextBlock Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                               Foreground="White" HorizontalAlignment="Center" Text="공중위협"/>
-                    <Grid Style="{StaticResource CircleWithIconStyle}"
-                          DataContext="{Binding IsAirThreatConnected}">
-                        <Ellipse Style="{StaticResource StatusCircleStyle}"/>
+                <Border Style="{StaticResource StatusCardStyle}" DataContext="{Binding IsAirThreatConnected}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                         <materialDesign:PackIcon Kind="Airplane" Style="{StaticResource StatusIconStyle}"/>
-                    </Grid>
-                </StackPanel>
-
-            </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Text="공중위협" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
         </Grid>
     </GroupBox>
 </UserControl>

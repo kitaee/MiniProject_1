@@ -60,6 +60,8 @@ namespace MiniProject_GUI
             // UIManager.xml: TCC가 송수신할 NOM 메시지 스키마가 정의된 설정 파일
             List<string> nomFilePaths = new List<string>
             {
+                Environment.CurrentDirectory + @"\SchemaRegistryData.xml",
+                Environment.CurrentDirectory + @"\UDPCommunicationManager\UDPCommunicationManager.xml",
                 Environment.CurrentDirectory + @"\UIManager\UIManager.xml"
             };
 

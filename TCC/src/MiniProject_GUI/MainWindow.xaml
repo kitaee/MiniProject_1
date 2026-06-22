@@ -4,7 +4,8 @@
         xmlns:views="clr-namespace:MiniProject_GUI.Views"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         Title="운용통제기 (TCC)"
-        Width="700" Height="650"
+        Width="1400" Height="820"
+        MinWidth="1200" MinHeight="720"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         TextElement.FontWeight="Regular"
         TextElement.FontSize="13"
@@ -13,40 +14,22 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
 
-    <!--
-    ┌──────────────────────────────────────────────────────────────────────────┐
-    │    예제 프로젝트 레이아웃                                  │
-    │                                                                          │
-    │  Row 0 — StatusView                                                      │
-    │    SimulatorState 하트비트 기반 연결 상태 표시                              │
-    │    (ATS가 1초 주기로 상태 메시지를 보내면 초록불 유지)                       │
-    │                                                                          │
-    │  Row 1 — ScenarioControl                                                 │
-    │    "ATS 연동 확인" 버튼 + SendScenarioAck 기반 표시등                      │
-    │    (버튼 클릭 → SendScenario 송신 → ATS ACK 수신 → 초록불)               │
-    │                                                                          │
-    │  Row 2 — EventLogControl                                                 │
-    │    수신된 이벤트 이력 표시 (디버깅·학습용)                                   │
-    │                                                                          │
-    │  [확장 가이드]                                                        │
-    │  기능을 추가하려면 새 UserControl을 만들고 이 Grid에 Row를 추가하면 된다.    │
-    │  예: SimulationControl (시뮬레이션 시작·종료 버튼)                         │
-    └──────────────────────────────────────────────────────────────────────────┘
-    -->
     <Grid Margin="10">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="150"/>  <!-- StatusView -->
-            <RowDefinition Height="170"/>  <!-- ScenarioControl -->
-            <RowDefinition Height="*"/>    <!-- EventLogControl -->
-        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="260"/>
+        </Grid.ColumnDefinitions>
 
-        <!-- SimulatorState 하트비트 기반 연결 상태 표시 -->
-        <views:StatusView x:Name="StatusView" Grid.Row="0"/>
+        <views:ScenarioControl x:Name="ScenarioControl" Grid.Column="0"/>
 
-        <!-- ATS 연동 확인 버튼 + SendScenarioAck 표시등 -->
-        <views:ScenarioControl x:Name="ScenarioControl" Grid.Row="1"/>
+        <Grid Grid.Column="1" Margin="12,0,0,0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="230"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <!-- 이벤트 로그 (ACK 수신 이력) -->
-        <views:EventLogControl x:Name="EventLogControl" Grid.Row="2"/>
+            <views:StatusView x:Name="StatusView" Grid.Row="0"/>
+            <views:EventLogControl x:Name="EventLogControl" Grid.Row="1" Margin="0,12,0,0"/>
+        </Grid>
     </Grid>
 </Window>
