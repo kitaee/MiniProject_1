@@ -2,6 +2,8 @@
 #include <nFramework/BaseManager.h>
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
+#include <functional>
+#include <map>
 
 using namespace nframework;
 using namespace nom;
@@ -32,6 +34,18 @@ public:
 private:
 	void initialize();
 	void release();
+	void funcMapInit();
+
+private:
+	// 내부 연동(수신 후 모델로 보냄)
+	void recvDeployScenarioRequest(std::shared_ptr<NOM> nomMsg);
+	void recvStartSimulationRequest(std::shared_ptr<NOM> nomMsg);
+	void recvStopSimulationRequest(std::shared_ptr<NOM> nomMsg);
+	void recvDetonationInfo(std::shared_ptr<NOM> nomMsg);
+
+	// 내부 연동(송신 - UDP로 보냄)
+	void sendScenarioACK(std::shared_ptr<NOM> srcMsg); // srcMsg로 함
+	void forwardToModel(tstring msgName, std::shared_ptr<NOM> srcMsg);
 
 private:
 	IMEBComponent* meb;
@@ -39,5 +53,7 @@ private:
 	tstring name;
 	std::map<unsigned int, std::shared_ptr<NOM>> registeredMsgMap;
 	std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;
+
+	std::map<tstring, std::function<void(std::shared_ptr<NOM>)>> funcMap;
 };
 

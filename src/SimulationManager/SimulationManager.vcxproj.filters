@@ -23,13 +23,15 @@
     <ClInclude Include="SimulationManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="MFRSHeader.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Xml Include="..\..\bin\SimulationManager\SimulationManager.xml">
       <Filter>리소스 파일</Filter>
     </Xml>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\bin\SimulationManager\SimulationManager.ini">
+      <Filter>리소스 파일</Filter>
+    </None>
   </ItemGroup>
 </Project>

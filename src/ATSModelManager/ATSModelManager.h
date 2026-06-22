@@ -2,6 +2,8 @@
 #include <nFramework/BaseManager.h>
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
+#include <functional>
+#include <map>
 
 using namespace nframework;
 using namespace nom;
@@ -32,6 +34,14 @@ public:
 private:
 	void initialize();
 	void release();
+	void funcMapInit();
+
+private:
+	void recvDeployScenarioToModel(std::shared_ptr<NOM> nomMsg);
+	void recvStartSimulationToModel(std::shared_ptr<NOM> nomMsg);
+	void recvStopSimulationToModel(std::shared_ptr<NOM> nomMsg);
+	void recvDetonationInfoToModel(std::shared_ptr<NOM> nomMsg);
+	void sendATInfo();
 
 private:
 	IMEBComponent* meb;
@@ -39,5 +49,11 @@ private:
 	tstring name;
 	std::map<unsigned int, std::shared_ptr<NOM>> registeredMsgMap;
 	std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;
+	std::map<tstring, std::function<void(std::shared_ptr<NOM>)>> funcMap;
+
+private:
+	bool scenarioLoaded = false;
+	bool simulationRunning = false;
+	bool airThreatDetonated = false;
 };
 

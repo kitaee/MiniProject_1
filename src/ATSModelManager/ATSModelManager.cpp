@@ -37,6 +37,8 @@ ATSModelManager::initialize(void)
 	// design by contract
 	mec = new MECComponent;
 	mec->setUser(this);
+
+	funcMapInit();
 }
 
 void
@@ -106,6 +108,12 @@ void
 ATSModelManager::recvMsg(std::shared_ptr < NOM > nomMsg)
 {
 	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	auto iter = funcMap.find(nomMsg->getName());
+	if (iter != funcMap.end())
+	{
+		iter->second(nomMsg);
+	}
 }
 
 void
@@ -147,6 +155,70 @@ ATSModelManager::setMEBComponent(IMEBComponent * realMEB)
 {
 	meb = realMEB;
 	mec->setMEB(meb);
+}
+
+void
+ATSModelManager::funcMapInit()
+{
+	std::function<void(std::shared_ptr<NOM>)> msgProc;
+
+	msgProc = std::bind(&ATSModelManager::recvDeployScenarioToModel, this, std::placeholders::_1);
+	funcMap.insert({ _T("DeployScenarioToModel"), msgProc });
+
+	msgProc = std::bind(&ATSModelManager::recvStartSimulationToModel, this, std::placeholders::_1);
+	funcMap.insert({ _T("StartSimulationToModel"), msgProc });
+
+	msgProc = std::bind(&ATSModelManager::recvStopSimulationToModel, this, std::placeholders::_1);
+	funcMap.insert({ _T("StopSimulationToModel"), msgProc });
+
+	msgProc = std::bind(&ATSModelManager::recvDetonationInfoToModel, this, std::placeholders::_1);
+	funcMap.insert({ _T("DetonationInfoToModel"), msgProc });
+}
+
+void
+ATSModelManager::recvDeployScenarioToModel(std::shared_ptr<NOM> nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+}
+
+void
+ATSModelManager::recvStartSimulationToModel(std::shared_ptr<NOM> nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	simulationRunning = true;
+}
+
+void
+ATSModelManager::recvStopSimulationToModel(std::shared_ptr<NOM> nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	simulationRunning = false;
+}
+
+void
+ATSModelManager::recvDetonationInfoToModel(std::shared_ptr<NOM> nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	simulationRunning = false;
+}
+
+void
+ATSModelManager::sendATInfo()
+{
+	auto atInfoMsg = meb->getNOMInstance(name, _T("ATInfo"));
+
+	if (!atInfoMsg.get())
+	{
+		tcout << _T("[ATSModelManager] failed to create ATInfo.") << std::endl;
+		return;
+	}
+
+	// TODO: MessageHeader, AirThreat 상태/좌표/속도 설정
+	this->sendMsg(atInfoMsg);
 }
 
 /************************************************************************

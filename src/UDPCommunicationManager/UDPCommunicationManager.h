@@ -42,20 +42,19 @@ public:
 private:
 	void init();
 	void release();
-	void sendInnerMsg(shared_ptr<NOM> nomMsg);
+	void sendInnerMsg(shared_ptr<NOM> nomMsg); // <- 안 쓰는듯?
 	void funcMapInit();
 
 private:
-	void recvSendScenario(shared_ptr<NOM> nomMsg);
-	void recvStartSimulation(shared_ptr<NOM> nomMsg);
-	void recvStopSimulation(shared_ptr<NOM> nomMsg);
-	void recvInnerSendScenarioAck(shared_ptr<NOM> nomMsg);
-	void recvInnerStartSimulationAck(shared_ptr<NOM> nomMsg);
-	void recvInnerStopSimulationAck(shared_ptr<NOM> nomMsg);
-	void recvInnerSimulatorStateComm(shared_ptr<NOM> nomMsg);
-	void recvInnerRouteToComm(shared_ptr<NOM> nomMsg);
-	void recvInnerAirThreatInfo(shared_ptr<NOM> nomMsg);
-	void recvMissileDetonation(shared_ptr<NOM> nomMsg);
+	// 외부 연동(수신)
+	void recvDeployScenarioRequest(shared_ptr<NOM> nomMsg);
+	void recvStartSimulationRequest(shared_ptr<NOM> nomMsg);
+	void recvStopSimulationRequest(shared_ptr<NOM> nomMsg);
+	void recvDetonationInfo(shared_ptr<NOM> nomMsg);
+
+	// 내부 연동(수신)
+	void recvScenarioACK(shared_ptr<NOM> nomMsg);
+	void recvATInfo(shared_ptr<NOM> nomMsg);
 	
 public:
 	std::unique_ptr<NOMParser> nomParser;

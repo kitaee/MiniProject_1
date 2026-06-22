@@ -37,6 +37,8 @@ SimulationManager::initialize(void)
 	// design by contract
 	mec = new MECComponent;
 	mec->setUser(this);
+
+	funcMapInit();
 }
 
 void
@@ -106,6 +108,12 @@ void
 SimulationManager::recvMsg(std::shared_ptr < NOM > nomMsg)
 {
 	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	auto iter = funcMap.find(nomMsg->getName());
+	if (iter != funcMap.end())
+	{
+		iter->second(nomMsg);
+	}
 }
 
 void
@@ -147,6 +155,116 @@ SimulationManager::setMEBComponent(IMEBComponent * realMEB)
 {
 	meb = realMEB;
 	mec->setMEB(meb);
+}
+
+void
+SimulationManager::funcMapInit()
+{
+	std::function<void(std::shared_ptr<NOM>)> msgProc;
+
+	msgProc = std::bind(&SimulationManager::recvDeployScenarioRequest, this, std::placeholders::_1);
+	funcMap.insert({ _T("DeployScenarioRequest"), msgProc });
+
+	msgProc = std::bind(&SimulationManager::recvStartSimulationRequest, this, std::placeholders::_1);
+	funcMap.insert({ _T("StartSimulationRequest"), msgProc });
+
+	msgProc = std::bind(&SimulationManager::recvStopSimulationRequest, this, std::placeholders::_1);
+	funcMap.insert({ _T("StopSimulationRequest"), msgProc });
+
+	msgProc = std::bind(&SimulationManager::recvDetonationInfo, this, std::placeholders::_1);
+	funcMap.insert({ _T("DetonationInfo"), msgProc });
+}
+
+void
+SimulationManager::recvDeployScenarioRequest(std::shared_ptr<NOM> nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	forwardToModel(_T("DeployScenarioToModel"), nomMsg);
+
+	sendScenarioACK(nomMsg);
+}
+
+void
+SimulationManager::recvStartSimulationRequest(std::shared_ptr<NOM> nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	forwardToModel(_T("StartSimulationToModel"), nomMsg);
+}
+
+void
+SimulationManager::recvStopSimulationRequest(std::shared_ptr<NOM> nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	forwardToModel(_T("StopSimulationToModel"), nomMsg);
+}
+
+void
+SimulationManager::recvDetonationInfo(std::shared_ptr<NOM> nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	forwardToModel(_T("DetonationInfoToModel"), nomMsg);
+}
+
+// 모델로 보내는 내부 연동 메시지 4개 이름 다르게 해서 추가해야 됨
+void
+SimulationManager::forwardToModel(tstring msgName, std::shared_ptr<NOM> srcMsg)
+{
+	auto modelMsg = meb->getNOMInstance(name, msgName);
+
+	if (!modelMsg.get())
+	{
+		tcout << _T("[SimulationManager] failed to create model message: ") << msgName << std::endl;
+		return;
+	}
+
+	NUInteger msgID(0);
+	NUInteger msgLength(8);
+
+	if (msgName == _T("DeployScenarioToModel"))
+	{
+		msgID = 2201;
+	}
+	else if (msgName == _T("StartSimulationToModel"))
+	{
+		msgID = 2202;
+	}
+	else if (msgName == _T("StopSimulationToModel"))
+	{
+		msgID = 2203;
+	}
+	else if (msgName == _T("DetonationInfoToModel"))
+	{
+		msgID = 2204;
+	}
+
+	modelMsg->setValue(_T("MessageHeader.MessageID"), &msgID);
+	modelMsg->setValue(_T("MessageHeader.MessageLength"), &msgLength);
+	this->sendMsg(modelMsg);
+}
+
+void
+SimulationManager::sendScenarioACK(std::shared_ptr<NOM> srcMsg)
+{
+	auto ackMsg = meb->getNOMInstance(name, _T("ScenarioACK"));
+
+	if (!ackMsg.get())
+	{
+		tcout << _T("[SimulationManager] failed to create ScenarioACK.") << std::endl;
+		return;
+	}
+
+	NUInteger msgID(2101);
+	NUInteger msgLength(8);
+
+	ackMsg->setValue(_T("MessageHeader.MessageID"), &msgID);
+	ackMsg->setValue(_T("MessageHeader.MessageLength"), &msgLength);
+
+
+	this->sendMsg(ackMsg);
 }
 
 /************************************************************************

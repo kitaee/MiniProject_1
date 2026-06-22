@@ -16,9 +16,10 @@ CommMessageHandler::~CommMessageHandler()
 void
 CommMessageHandler::initialize()
 {
-	// if need be, write your code
-	//setIDNameTable(20512, _T("LTE_SEND_MESSAGE_UDP"));
-	//setIDNameTable(20528, _T("RTI_SEND_MESSAGE_UDP"));
+	setIDNameTable(1001, _T("DeployScenarioRequest"));
+	setIDNameTable(1002, _T("StartSimulationRequest"));
+	setIDNameTable(1003, _T("StopSimulationRequest"));
+	setIDNameTable(3201, _T("DetonationInfo"));
 }
 
 void
