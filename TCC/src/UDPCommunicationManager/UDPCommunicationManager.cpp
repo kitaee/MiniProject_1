@@ -231,11 +231,11 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 	auto msgID = 0;
 
 	//ID 형식이 short 또는 int인 경우만 처리
-	if (IDSize == 2)
+	if (IDSize == 4)
 	{
-		unsigned short tmpMsgID = 0;
+		unsigned int tmpMsgID = 0;
 		memcpy(&tmpMsgID, data + IDPos, IDSize);
-		msgID = ntohs(tmpMsgID);
+		msgID = ntohl(tmpMsgID);
 	}
 	else
 	{

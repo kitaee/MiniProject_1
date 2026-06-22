@@ -57,7 +57,7 @@
                         <materialDesign:PackIcon Kind="BowArrow" Style="{StaticResource StatusIconStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
-                            <TextBlock Text="발사대" FontWeight="SemiBold"/>
+                            <TextBlock Text="LCS" FontWeight="SemiBold"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -67,7 +67,7 @@
                         <materialDesign:PackIcon Kind="RocketLaunch" Style="{StaticResource StatusIconStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
-                            <TextBlock Text="유도탄" FontWeight="SemiBold"/>
+                            <TextBlock Text="MSS" FontWeight="SemiBold"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -77,7 +77,7 @@
                         <materialDesign:PackIcon Kind="Radar" Style="{StaticResource StatusIconStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
-                            <TextBlock Text="레이다" FontWeight="SemiBold"/>
+                            <TextBlock Text="MFRS" FontWeight="SemiBold"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -87,7 +87,7 @@
                         <materialDesign:PackIcon Kind="Airplane" Style="{StaticResource StatusIconStyle}"/>
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                             <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
-                            <TextBlock Text="공중위협" FontWeight="SemiBold"/>
+                            <TextBlock Text="ATS" FontWeight="SemiBold"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>

@@ -74,6 +74,17 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="ScenarioAckIndicatorStyle" TargetType="Ellipse">
+            <Setter Property="Width" Value="9"/>
+            <Setter Property="Height" Value="9"/>
+            <Setter Property="Fill" Value="#657080"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding}" Value="True">
+                    <Setter Property="Fill" Value="#34C759"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
 
     <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -187,6 +198,7 @@
 
                         <Grid.RowDefinitions>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
@@ -304,6 +316,28 @@
                                 Content="배포"
                                 Command="{Binding DeployScenarioCommand}"
                                 Style="{StaticResource MaterialDesignRaisedSecondaryButton}"/>
+
+                        <UniformGrid Grid.Row="2"
+                                     Columns="4"
+                                     Margin="0,16,0,0">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Ellipse DataContext="{Binding IsAtsScenarioAckReceived}" Style="{StaticResource ScenarioAckIndicatorStyle}" Margin="0,0,5,0"/>
+                                <TextBlock Text="ATS"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Ellipse DataContext="{Binding IsMssScenarioAckReceived}" Style="{StaticResource ScenarioAckIndicatorStyle}" Margin="0,0,5,0"/>
+                                <TextBlock Text="MSS"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Ellipse DataContext="{Binding IsLcsScenarioAckReceived}" Style="{StaticResource ScenarioAckIndicatorStyle}" Margin="0,0,5,0"/>
+                                <TextBlock Text="LCS"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <Ellipse DataContext="{Binding IsMfrsScenarioAckReceived}" Style="{StaticResource ScenarioAckIndicatorStyle}" Margin="0,0,5,0"/>
+                                <TextBlock Text="MFRS"/>
+                            </StackPanel>
+                        </UniformGrid>
+
                     </Grid>
                 </Grid>
             </Border>

@@ -21,6 +21,10 @@ namespace MiniProject_GUI.ViewModels
         private bool _isEditMode;
         private bool _hasUnsavedChanges;
         private bool _isScenarioDeployed;
+        private bool _isAtsScenarioAckReceived;
+        private bool _isMssScenarioAckReceived;
+        private bool _isLcsScenarioAckReceived;
+        private bool _isMfrsScenarioAckReceived;
         private bool _isLoadingInputs;
         private ScenarioSend _savedScenario;
         private string _selectedMapTarget = "Radar";
@@ -111,6 +115,36 @@ namespace MiniProject_GUI.ViewModels
             HasSavedScenario && !HasUnsavedChanges ? "완료" : "대기";
 
         public string DeploymentStatusText => IsScenarioDeployed ? "배포" : "미배포";
+
+        public bool IsAtsScenarioAckReceived
+        {
+            get => _isAtsScenarioAckReceived;
+            private set => SetScenarioAckState(ref _isAtsScenarioAckReceived, value);
+        }
+
+        public bool IsMssScenarioAckReceived
+        {
+            get => _isMssScenarioAckReceived;
+            private set => SetScenarioAckState(ref _isMssScenarioAckReceived, value);
+        }
+
+        public bool IsLcsScenarioAckReceived
+        {
+            get => _isLcsScenarioAckReceived;
+            private set => SetScenarioAckState(ref _isLcsScenarioAckReceived, value);
+        }
+
+        public bool IsMfrsScenarioAckReceived
+        {
+            get => _isMfrsScenarioAckReceived;
+            private set => SetScenarioAckState(ref _isMfrsScenarioAckReceived, value);
+        }
+
+        public bool AreAllScenarioAcksReceived =>
+            IsAtsScenarioAckReceived &&
+            IsMssScenarioAckReceived &&
+            IsLcsScenarioAckReceived &&
+            IsMfrsScenarioAckReceived;
 
         public bool HasRadarLocation => HasCoordinate(RadarLatitudeText, RadarLongitudeText);
 
@@ -313,6 +347,7 @@ namespace MiniProject_GUI.ViewModels
             _savedScenario = scenario;
             HasUnsavedChanges = false;
             IsScenarioDeployed = false;
+            ResetScenarioAcks();
 
             OnPropertyChanged(nameof(HasSavedScenario));
             OnPropertyChanged(nameof(SimulationStatusText));
@@ -324,6 +359,7 @@ namespace MiniProject_GUI.ViewModels
         {
             if (_savedScenario == null) return;
 
+            ResetScenarioAcks();
             ScenarioService.SendSendScenario(_savedScenario);
             IsScenarioDeployed = true;
         }
@@ -465,6 +501,7 @@ namespace MiniProject_GUI.ViewModels
 
             HasUnsavedChanges = true;
             IsScenarioDeployed = false;
+            ResetScenarioAcks();
             OnScenarioInputChanged();
         }
 
@@ -487,7 +524,38 @@ namespace MiniProject_GUI.ViewModels
 
         private void OnScenarioSendAck(ScenarioSendAck ack)
         {
-            if ((SimulatorID)ack.SimulatorID != SimulatorID.ATS) return;
+            switch ((SimulatorID)ack.SimulatorID)
+            {
+                case SimulatorID.ATS:
+                    IsAtsScenarioAckReceived = true;
+                    break;
+                case SimulatorID.MSS:
+                    IsMssScenarioAckReceived = true;
+                    break;
+                case SimulatorID.LCS:
+                    IsLcsScenarioAckReceived = true;
+                    break;
+                case SimulatorID.MFRS:
+                    IsMfrsScenarioAckReceived = true;
+                    break;
+            }
+        }
+
+        private void ResetScenarioAcks()
+        {
+            IsAtsScenarioAckReceived = false;
+            IsMssScenarioAckReceived = false;
+            IsLcsScenarioAckReceived = false;
+            IsMfrsScenarioAckReceived = false;
+        }
+
+        private void SetScenarioAckState(ref bool storage, bool value, [CallerMemberName] string propertyName = null)
+        {
+            if (storage == value) return;
+
+            storage = value;
+            OnPropertyChanged(propertyName);
+            OnPropertyChanged(nameof(AreAllScenarioAcksReceived));
         }
 
         private void RefreshCommandState() => CommandManager.InvalidateRequerySuggested();
