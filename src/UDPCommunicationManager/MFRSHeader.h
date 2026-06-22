@@ -1,26 +1,30 @@
 ﻿#pragma once
 
-enum class ICD_MessageID
+#include <cstdint>
+
+enum class ICD_MessageID : std::uint32_t
 {
-	// 모의기 간 ICD
-	SendScenario = 0x01,
-	SendScenarioAck,
-	StartSimulation,
-	StartSimulationAck,
-	StopSimulation,
-	StopSimulationAck,
-	FireMissileToLCS,
-	FireMissileAckToTCC,
-	FireMissileToMSS,
-	FireMissileAckToLCS = 0x0A,
-	SimulatorState,
-	SendMissileInfo,
-	AirThreatInfo,
-	MissileInfo,
-	MissileDetonation,
-	RadarDetectionInfo,
-	UplinkInfo,
-	AirThreatDetonation = 0x12,
+	DeployScenarioRequest = 1001,
+	StartSimulationRequest = 1002,
+	StopSimulationRequest = 1003,
+	LaunchMissileRequest = 1401,
+	UplinkInfo_TCC_MFRS = 1501,
+
+	ScenarioACK_ATS = 2101,
+	ATInfo = 2501,
+
+	ScenarioACK_MSS = 3101,
+	DetonationInfo = 3201,
+	DownlinkInfo_MSS_MFRS = 3501,
+
+	ScenarioACK_LCS = 4101,
+	MissileQuantityInfo = 4102,
+	LaunchMissile = 4301,
+
+	ScenarioACK = 5101,
+	RadarDetectionInfo = 5102,
+	DownlinkInfo_MFRS_TCC = 5103,
+	UplinkInfo_MFRS_MSS = 5301
 };
 
 enum class InnerICD_MessageID

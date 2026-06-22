@@ -1,10 +1,16 @@
 #pragma once
+
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/comm/NCommInterface.h>
-#include "CommMessageHandler.h"
 #include <nFramework/nom/NOMParser.h>
 #include <nFramework/nLineStream/NLineStreamMain.h>
 
+#include <cstdint>
+#include <functional>
+#include <map>
+#include <memory>
+
+#include "CommMessageHandler.h"
 #include "MFRSHeader.h"
 
 using namespace std;
@@ -19,7 +25,6 @@ public:
 	~UDPCommunicationManager(void);
 
 public:
-	// inherited from the BaseManager class
 	virtual shared_ptr<NOM> registerMsg(tstring) override;
 	virtual void discoverMsg(shared_ptr<NOM>) override;
 	virtual void updateMsg(shared_ptr<NOM>) override;
@@ -34,11 +39,11 @@ public:
 	virtual bool start() override;
 	virtual bool stop() override;
 	virtual void setMEBComponent(IMEBComponent*) override;
-	
+
 public:
 	void processRecvMessage(unsigned char* data, int size);
 	unsigned int getObjectInstanceID(shared_ptr<NOM> nomMsg);
-	
+
 private:
 	void init();
 	void release();
@@ -46,31 +51,20 @@ private:
 	void funcMapInit();
 
 private:
-	void recvSendScenario(shared_ptr<NOM> nomMsg);
-	void recvStartSimulation(shared_ptr<NOM> nomMsg);
-	void recvStopSimulation(shared_ptr<NOM> nomMsg);
-	void recvInnerSendScenarioAck(shared_ptr<NOM> nomMsg);
-	void recvInnerStartSimulationAck(shared_ptr<NOM> nomMsg);
-	void recvInnerStopSimulationAck(shared_ptr<NOM> nomMsg);
-	void recvInnerSimulatorStateComm(shared_ptr<NOM> nomMsg);
-	void recvInnerRouteToComm(shared_ptr<NOM> nomMsg);
-	void recvInnerAirThreatInfo(shared_ptr<NOM> nomMsg);
-	void recvMissileDetonation(shared_ptr<NOM> nomMsg);
-	
+	void deployScenario(shared_ptr<NOM> nomMsg);
+	void sendScenarioAck(shared_ptr<NOM> nomMsg);
+
 public:
 	std::unique_ptr<NOMParser> nomParser;
 
 private:
-	IMEBComponent* meb;
-	MECComponent* mec;
+	IMEBComponent* meb = nullptr;
+	MECComponent* mec = nullptr;
 	tstring name;
 	map<unsigned int, shared_ptr<NOM>> registeredMsg;
 	map<unsigned int, shared_ptr<NOM>> discoveredMsg;
 	map<tstring, function<void(shared_ptr<NOM>)>> funcMap;
-
-	CommunicationInterface* commInterface;
-	CommunicationConfig* commConfig;
+	CommunicationInterface* commInterface = nullptr;
+	CommunicationConfig* commConfig = nullptr;
 	CommMessageHandler commMsgHandler;
-	tstring routeString;
 };
-

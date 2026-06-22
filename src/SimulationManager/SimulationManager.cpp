@@ -42,6 +42,10 @@ SimulationManager::initialize(void)
 void
 SimulationManager::release(void)
 {
+	msgFuncMap.clear();
+	registeredMsgMap.clear();
+	discoveredMsgMap.clear();
+
 	delete mec;
 	mec = nullptr;
 	meb = nullptr;
@@ -105,7 +109,14 @@ SimulationManager::sendMsg(std::shared_ptr < NOM > nomMsg)
 void
 SimulationManager::recvMsg(std::shared_ptr < NOM > nomMsg)
 {
-	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	if (!nomMsg)
+		return;
+
+	const auto iter = msgFuncMap.find(nomMsg->getName());
+	if (iter == msgFuncMap.end())
+		return;
+
+	iter->second(nomMsg);
 }
 
 void
@@ -131,6 +142,24 @@ SimulationManager::start()
 	IniHandler iniHandler;
 	iniHandler.readIni(_T("SimulationManager/SimulationManager.ini")); // ※주의 작업디렉터리: Main.exe가 있는 경로
 
+	msgFuncMap.clear();
+
+	msgFuncMap.emplace(
+		_T("DeployScenarioInnerManager"),
+		std::bind(
+			&SimulationManager::
+			recvDeployScenarioInnerManager,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("ScenarioACKInnerManager"),
+		std::bind(
+			&SimulationManager::
+			recvScenarioACKInnerManager,
+			this,
+			std::placeholders::_1));
+
 	tcout << "[" << __FUNCTIONT__ << "] " << std::endl;
 	return true;
 }
@@ -138,8 +167,8 @@ SimulationManager::start()
 bool
 SimulationManager::stop()
 {
-	bool result = true;
-	return result;
+	msgFuncMap.clear();
+	return true;
 }
 
 void
@@ -147,6 +176,30 @@ SimulationManager::setMEBComponent(IMEBComponent * realMEB)
 {
 	meb = realMEB;
 	mec->setMEB(meb);
+}
+
+void SimulationManager::
+recvDeployScenarioInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("MFRSModelManager"));
+}
+
+void SimulationManager::
+recvScenarioACKInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("MFRSCommManager"));
 }
 
 /************************************************************************

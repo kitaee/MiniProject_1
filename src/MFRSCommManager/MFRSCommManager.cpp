@@ -2,6 +2,7 @@
 # include <nFramework/util/IniHandler.h>
 # include "MFRSCommManager.h"
 # include <map>
+# include <functional>
 
 /**
 * @ class: MFRSCommManager
@@ -42,6 +43,10 @@ MFRSCommManager::initialize(void)
 void
 MFRSCommManager::release(void)
 {
+	msgFuncMap.clear();
+	registeredMsgMap.clear();
+	discoveredMsgMap.clear();
+
 	delete mec;
 	mec = nullptr;
 	meb = nullptr;
@@ -103,9 +108,19 @@ MFRSCommManager::sendMsg(std::shared_ptr < NOM > nomMsg)
 }
 
 void
-MFRSCommManager::recvMsg(std::shared_ptr < NOM > nomMsg)
+MFRSCommManager::recvMsg(
+	std::shared_ptr<NOM> nomMsg)
 {
-	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	if (!nomMsg)
+		return;
+
+	const auto iter =
+		msgFuncMap.find(nomMsg->getName());
+
+	if (iter == msgFuncMap.end())
+		return;
+
+	iter->second(nomMsg);
 }
 
 void
@@ -129,17 +144,35 @@ bool
 MFRSCommManager::start()
 {
 	IniHandler iniHandler;
-	iniHandler.readIni(_T("MFRSCommManager/MFRSCommManager.ini")); // ※주의 작업디렉터리: Main.exe가 있는 경로
+	iniHandler.readIni(
+		_T("MFRSCommManager/MFRSCommManager.ini"));
 
-	tcout << "[" << __FUNCTIONT__ << "] " << std::endl;
+	msgFuncMap.clear();
+
+	msgFuncMap.emplace(
+		_T("DeployScenarioInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvDeployScenarioInnerManager,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("ScenarioACKInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvScenarioACKInnerManager,
+			this,
+			std::placeholders::_1));
+
 	return true;
 }
 
 bool
 MFRSCommManager::stop()
 {
-	bool result = true;
-	return result;
+	msgFuncMap.clear();
+	return true;
 }
 
 void
@@ -147,6 +180,29 @@ MFRSCommManager::setMEBComponent(IMEBComponent * realMEB)
 {
 	meb = realMEB;
 	mec->setMEB(meb);
+}
+void MFRSCommManager::
+recvDeployScenarioInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("SimulationManager"));
+}
+
+void MFRSCommManager::
+recvScenarioACKInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("UDPCommunicationManager"));
 }
 
 /************************************************************************

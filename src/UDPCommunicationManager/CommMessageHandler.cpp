@@ -30,24 +30,20 @@ CommMessageHandler::release()
 /************************************************************************
 	ID_Name table management
 ************************************************************************/
-void
-CommMessageHandler::setIDNameTable(unsigned short msgID, tstring msgName)
+void CommMessageHandler::setIDNameTable(
+	std::uint32_t msgID,
+	const tstring& msgName)
 {
-	idNameTable.insert(pair<unsigned short, tstring>(msgID, msgName));
+	idNameTable[msgID] = msgName;
 }
 
-tstring
-CommMessageHandler::getMsgName(unsigned short msgID)
+tstring CommMessageHandler::getMsgName(
+	std::uint32_t msgID) const
 {
-	tstring msgName;
-	if (auto itr = idNameTable.find(msgID); itr != idNameTable.end())
-	{
-		msgName = itr->second;
-	}
-	else
-	{
-		msgName = _T("");
-	}
+	const auto itr = idNameTable.find(msgID);
 
-	return msgName;
+	if (itr == idNameTable.end())
+		return _T("");
+
+	return itr->second;
 }

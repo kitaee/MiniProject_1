@@ -2,6 +2,8 @@
 #include <nFramework/BaseManager.h>
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
+#include <functional>
+#include <map>
 
 using namespace nframework;
 using namespace nom;
@@ -34,8 +36,21 @@ private:
 	void release();
 
 private:
-	IMEBComponent* meb;
-	MECComponent* mec;
+	void recvDeployScenarioInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
+	void recvScenarioACKInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
+private:
+	std::map<
+		tstring,
+		std::function<void(std::shared_ptr<NOM>)>
+	> msgFuncMap;
+
+private:
+	IMEBComponent* meb = nullptr;
+	MECComponent* mec = nullptr;
 	tstring name;
 	std::map<unsigned int, std::shared_ptr<NOM>> registeredMsgMap;
 	std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;

@@ -1,21 +1,25 @@
 ﻿#pragma once
+
+#include <cstdint>
 #include <map>
 #include <nFramework/util/util.h>
-using namespace std;
+
 class CommMessageHandler
 {
 public:
-	CommMessageHandler();
-	~CommMessageHandler();
+    CommMessageHandler();
+    ~CommMessageHandler();
 
-	tstring getMsgName(unsigned short msgID);
-	void setIDNameTable(unsigned short msgID, tstring msgName);
+    tstring getMsgName(std::uint32_t msgID) const;
+
+    void setIDNameTable(
+        std::uint32_t msgID,
+        const tstring& msgName);
 
 private:
-	void initialize();
-	void release();
+    void initialize();
+    void release();
 
 private:
-	map<unsigned short, tstring> idNameTable;
+    std::map<std::uint32_t, tstring> idNameTable;
 };
-

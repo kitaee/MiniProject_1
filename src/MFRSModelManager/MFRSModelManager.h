@@ -3,6 +3,12 @@
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
 
+#include <functional>
+#include <map>
+#include <memory>
+
+#include "MFRS_STRUCT.h"
+
 using namespace nframework;
 using namespace nom;
 
@@ -33,9 +39,19 @@ private:
 	void initialize();
 	void release();
 
+	void recvScenario(std::shared_ptr<NOM> nomMsg);
+
 private:
-	IMEBComponent* meb;
-	MECComponent* mec;
+	std::map<
+		tstring,
+		std::function<void(std::shared_ptr<NOM>)>
+	> msgFuncMap;
+
+	std::shared_ptr<MFRS_MODEL> MFRSModel;
+
+private:
+	IMEBComponent* meb = nullptr;
+	MECComponent* mec = nullptr;
 	tstring name;
 	std::map<unsigned int, std::shared_ptr<NOM>> registeredMsgMap;
 	std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;

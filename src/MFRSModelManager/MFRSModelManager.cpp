@@ -37,11 +37,19 @@ MFRSModelManager::initialize(void)
 	// design by contract
 	mec = new MECComponent;
 	mec->setUser(this);
+
+	MFRSModel.reset();
+	msgFuncMap.clear();
+	registeredMsgMap.clear();
+	discoveredMsgMap.clear();
 }
 
 void
 MFRSModelManager::release(void)
 {
+	MFRSModel.reset();
+	msgFuncMap.clear();
+
 	delete mec;
 	mec = nullptr;
 	meb = nullptr;
@@ -103,9 +111,18 @@ MFRSModelManager::sendMsg(std::shared_ptr < NOM > nomMsg)
 }
 
 void
-MFRSModelManager::recvMsg(std::shared_ptr < NOM > nomMsg)
+MFRSModelManager::recvMsg(std::shared_ptr<NOM> nomMsg)
 {
-	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	if (!nomMsg)
+		return;
+
+	const auto iter =
+		msgFuncMap.find(nomMsg->getName());
+
+	if (iter == msgFuncMap.end())
+		return;
+
+	iter->second(nomMsg);
 }
 
 void
@@ -129,17 +146,26 @@ bool
 MFRSModelManager::start()
 {
 	IniHandler iniHandler;
-	iniHandler.readIni(_T("MFRSModelManager/MFRSModelManager.ini")); // ※주의 작업디렉터리: Main.exe가 있는 경로
+	iniHandler.readIni(
+		_T("MFRSModelManager/MFRSModelManager.ini"));
 
-	tcout << "[" << __FUNCTIONT__ << "] " << std::endl;
+	msgFuncMap.clear();
+
+	msgFuncMap.emplace(
+		_T("DeployScenarioInnerManager"),
+		std::bind(
+			&MFRSModelManager::recvScenario,
+			this,
+			std::placeholders::_1));
+
 	return true;
 }
 
 bool
 MFRSModelManager::stop()
 {
-	bool result = true;
-	return result;
+	msgFuncMap.clear();
+	return true;
 }
 
 void
@@ -147,6 +173,59 @@ MFRSModelManager::setMEBComponent(IMEBComponent * realMEB)
 {
 	meb = realMEB;
 	mec->setMEB(meb);
+}
+
+void MFRSModelManager::recvScenario(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb)
+		return;
+
+	const auto latitudeValue =
+		nomMsg->getValue(_T("RadarPositionLatitude"));
+	const auto longitudeValue =
+		nomMsg->getValue(_T("RadarPositionLongitude"));
+
+	if (!latitudeValue || !longitudeValue)
+		return;
+
+	const float latitude = latitudeValue->toFloat();
+	const float longitude = longitudeValue->toFloat();
+
+	MFRSModel =
+		std::make_shared<MFRS_MODEL>();
+
+	MFRSModel->position.latitude =
+		latitude;
+
+	MFRSModel->position.longitude =
+		longitude;
+
+	MFRSModel->position.altitude =
+		0.0F;
+
+	auto ackMsg =
+		meb->getNOMInstance(
+			name,
+			_T("ScenarioACKInnerManager"));
+
+	if (!ackMsg)
+		return;
+
+	NUInteger messageID(5101);
+	NUInteger messageLength(8);
+
+	ackMsg->setValue(
+		_T("MessageHeader.MessageID"),
+		&messageID);
+
+	ackMsg->setValue(
+		_T("MessageHeader.MessageLength"),
+		&messageLength);
+
+	mec->sendMsg(
+		ackMsg,
+		_T("SimulationManager"));
 }
 
 /************************************************************************
