@@ -1,231 +1,157 @@
-﻿#include "SimulationManager.h"
+#pragma once
+# include <nFramework/util/IniHandler.h>
+# include "SimulationManager.h"
+# include <map>
 
-SimulationManager::SimulationManager()
+/**
+* @ class: SimulationManager
+* @ author: 
+* @ version: 
+* @ see also: 
+* @ description: 
+* @ date: 
+**/
+
+/************************************************************************
+	constructor / destructor
+************************************************************************/
+SimulationManager::SimulationManager(void)
 {
 	initialize();
 }
 
-SimulationManager::~SimulationManager()
+SimulationManager::~SimulationManager(void)
 {
 	release();
 }
 
-std::shared_ptr<NOM> SimulationManager::registerMsg(tstring str)
+/************************************************************************
+	initialize / release
+************************************************************************/
+void
+SimulationManager::initialize(void)
 {
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << str << "\n";
-
-	std::shared_ptr<NOM> nomMsg = mec->registerMsg(str);
-	registeredMsgMap.emplace(nomMsg->getInstanceID(), nomMsg);
-	return nomMsg;
-}
-
-void SimulationManager::discoverMsg(std::shared_ptr<NOM> nomMsg)
-{
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << "\n";
-}
-
-void SimulationManager::updateMsg(std::shared_ptr<NOM> nomMsg)
-{
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << "\n";
-}
-
-void SimulationManager::reflectMsg(std::shared_ptr<NOM> nomMsg)
-{
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << "\n";
-}
-
-void SimulationManager::deleteMsg(std::shared_ptr<NOM> nomMsg)
-{
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << "\n";
-}
-
-void SimulationManager::removeMsg(std::shared_ptr<NOM> nomMsg)
-{
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << "\n";
-}
-
-void SimulationManager::sendMsg(std::shared_ptr<NOM> nomMsg)
-{
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << nomMsg->getName() << "\n";
-}
-
-void SimulationManager::recvMsg(std::shared_ptr<NOM> nomMsg)
-{
-	if (auto iter = funcMap.find(nomMsg->getName()); iter != funcMap.end())
-	{
-		iter->second(nomMsg);
-	}
-}
-
-void SimulationManager::setUserName(tstring userName)
-{
-	name = userName;
-}
-
-tstring SimulationManager::getUserName()
-{
-	return name;
-}
-
-void SimulationManager::setData(void* data)
-{
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << "\n";
-}
-
-bool SimulationManager::start()
-{
-	IniHandler iniHandler;
-	iniHandler.readIni(_T("SimulationManager/SimulationManager.ini")); // ※주의 작업디렉터리: Main.exe가 있는 경로
-
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
-
-	return true;
-}
-
-bool SimulationManager::stop()
-{
-	return true;
-}
-
-void SimulationManager::setMEBComponent(IMEBComponent* realMEB)
-{
-	meb = realMEB;
-	mec->setMEB(meb);
-}
-
-void SimulationManager::initialize()
-{
-	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << std::endl;
-
+	tcout << "[" << __FUNCTIONT__ << "] " << std::endl;
 	setUserName(_T("SimulationManager"));
 
 	// design by contract
 	mec = new MECComponent;
 	mec->setUser(this);
-
-	funcMapInit();
 }
 
-void SimulationManager::release()
+void
+SimulationManager::release(void)
 {
 	delete mec;
 	mec = nullptr;
 	meb = nullptr;
-
-	funcMap.clear();
 }
 
-void SimulationManager::funcMapInit()
+/************************************************************************
+	inherited functions
+************************************************************************/
+std::shared_ptr<NOM>
+SimulationManager::registerMsg(tstring msgName)
 {
-	function<void(shared_ptr<NOM>)> msgProc;
+	tcout << "[" << __FUNCTIONT__ << "] " << msgName << std::endl;
+	std::shared_ptr<NOM> nomMsg = mec->registerMsg(msgName);
+	registeredMsgMap.emplace(nomMsg->getInstanceID(), nomMsg);
 
-	msgProc = bind(&SimulationManager::recvInnerSendScenario, this, placeholders::_1);
-	funcMap.insert({ _T("InnerSendScenario"), msgProc });
-
-	msgProc = bind(&SimulationManager::recvInnerStartSimulation, this, placeholders::_1);
-	funcMap.insert({ _T("InnerStartSimulation"), msgProc });
-
-	msgProc = bind(&SimulationManager::recvInnerStopSimulation, this, placeholders::_1);
-	funcMap.insert({ _T("InnerStopSimulation"), msgProc });
+	return nomMsg;
 }
 
-
-void SimulationManager::recvInnerSendScenario(std::shared_ptr<NOM> nomMsg)
+void
+SimulationManager::discoverMsg(std::shared_ptr < NOM > nomMsg)
 {
-	auto nomMsgToModel = meb->getNOMInstance(name, _T("InnerSendScenarioToModel"));
-
-	NDouble temp = nomMsg->getValue(_T("Scenario.WayPoint0_X"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint0_X"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.WayPoint0_Y"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint0_Y"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.WayPoint1_X"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint1_X"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.WayPoint1_Y"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint1_Y"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.WayPoint2_X"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint2_X"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.WayPoint2_Y"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint2_Y"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.WayPoint3_X"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint3_X"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.WayPoint3_Y"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint3_Y"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.OriginLat"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.OriginLat"), &temp);
-	temp = nomMsg->getValue(_T("Scenario.OriginLng"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.OriginLng"), &temp);
-
-	temp = nomMsg->getValue(_T("Scenario.WayPoint0_Lat"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint0_Lat"), &temp);
-
-
-	temp = nomMsg->getValue(_T("Scenario.WayPoint0_Lng"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint0_Lng"), &temp);
-
-
-	temp = nomMsg->getValue(_T("Scenario.WayPoint1_Lat"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint1_Lat"), &temp);
-
-
-	temp = nomMsg->getValue(_T("Scenario.WayPoint1_Lng"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint1_Lng"), &temp);
-
-
-	temp = nomMsg->getValue(_T("Scenario.WayPoint2_Lat"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint2_Lat"), &temp);
-
-
-	temp = nomMsg->getValue(_T("Scenario.WayPoint2_Lng"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint2_Lng"), &temp);
-
-
-	temp = nomMsg->getValue(_T("Scenario.WayPoint3_Lat"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint3_Lat"), &temp);
-
-
-	temp = nomMsg->getValue(_T("Scenario.WayPoint3_Lng"))->toDouble();
-	nomMsgToModel->setValue(_T("Scenario.WayPoint3_Lng"), &temp);
-
-
-	mec->sendMsg(nomMsgToModel);
-
-	auto nomMsgAck = meb->getNOMInstance(name, _T("InnerSendScenarioAck"));
-	NUShort simulatorID = NUShort((ushort)SimulatorID::ATS);
-	nomMsgAck->setValue(_T("SimulatorID"), &simulatorID);
-
-	mec->sendMsg(nomMsgAck);
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	discoveredMsgMap.emplace(nomMsg->getInstanceID(), nomMsg);
 }
 
-void SimulationManager::recvInnerStartSimulation(std::shared_ptr<NOM> nomMsg)
+void
+SimulationManager::updateMsg(std::shared_ptr < NOM > nomMsg)
 {
-	auto nomMsgToModel = meb->getNOMInstance(name, _T("InnerStartSimulationToModel"));
-
-	mec->sendMsg(nomMsgToModel);
-
-
-	auto nomMsgAck = meb->getNOMInstance(name, _T("InnerStartSimulationAck"));
-	NUShort simulatorID = NUShort((ushort)SimulatorID::ATS);
-
-	nomMsgAck->setValue(_T("SimulatorID"), &simulatorID);
-
-	mec->sendMsg(nomMsgAck);
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	mec->updateMsg(nomMsg);
 }
 
-void SimulationManager::recvInnerStopSimulation(std::shared_ptr<NOM> nomMsg)
+void
+SimulationManager::reflectMsg(std::shared_ptr < NOM > nomMsg)
 {
-	auto nomMsgToModel = meb->getNOMInstance(name, _T("InnerStopSimulationToModel"));
-
-	mec->sendMsg(nomMsgToModel);
-
-
-	auto nomMsgAck = meb->getNOMInstance(name, _T("InnerStopSimulationAck"));
-	NUShort simulatorID = NUShort((ushort)SimulatorID::ATS);
-
-	nomMsgAck->setValue(_T("SimulatorID"), &simulatorID);
-
-	mec->sendMsg(nomMsgAck);
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
 }
 
+void
+SimulationManager::deleteMsg(std::shared_ptr < NOM > nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	mec->deleteMsg(nomMsg);
+	registeredMsgMap.erase(nomMsg->getInstanceID());
+}
+
+void
+SimulationManager::removeMsg(std::shared_ptr < NOM > nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	discoveredMsgMap.erase(nomMsg->getInstanceID());
+}
+
+void
+SimulationManager::sendMsg(std::shared_ptr < NOM > nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	mec->sendMsg(nomMsg);
+}
+
+void
+SimulationManager::recvMsg(std::shared_ptr < NOM > nomMsg)
+{
+	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+}
+
+void
+SimulationManager::setUserName(tstring userName)
+{
+	name = userName;
+}
+
+tstring
+SimulationManager::getUserName()
+{
+	return name;
+}
+
+void
+SimulationManager::setData(void * data)
+{
+}
+
+bool
+SimulationManager::start()
+{
+	IniHandler iniHandler;
+	iniHandler.readIni(_T("SimulationManager/SimulationManager.ini")); // ※주의 작업디렉터리: Main.exe가 있는 경로
+
+	tcout << "[" << __FUNCTIONT__ << "] " << std::endl;
+	return true;
+}
+
+bool
+SimulationManager::stop()
+{
+	bool result = true;
+	return result;
+}
+
+void
+SimulationManager::setMEBComponent(IMEBComponent * realMEB)
+{
+	meb = realMEB;
+	mec->setMEB(meb);
+}
+
+/************************************************************************
+	Export Function
+************************************************************************/
 extern "C" BASEMGRDLL_API
 BaseManager* createObject()
 {
