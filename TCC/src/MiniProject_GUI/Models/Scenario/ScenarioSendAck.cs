@@ -26,8 +26,6 @@ namespace MiniProject_GUI.Models.Scenario
         {
             MessageId = Convert.ToUInt32(nom.msgID);
             SimulatorID = GetSimulatorId(MessageId);
-            if (SimulatorID == 0)
-                SimulatorID = GetSimulatorId(nom.name);
         }
 
         public static bool IsScenarioAckMessage(uint messageId)
@@ -36,11 +34,6 @@ namespace MiniProject_GUI.Models.Scenario
                    messageId == MssMessageId ||
                    messageId == LcsMessageId ||
                    messageId == MfrsMessageId;
-        }
-
-        public static bool IsScenarioAckName(string messageName)
-        {
-            return GetSimulatorId(messageName) != 0;
         }
 
         private static ushort GetSimulatorId(uint messageId)
@@ -60,21 +53,5 @@ namespace MiniProject_GUI.Models.Scenario
             }
         }
 
-        private static ushort GetSimulatorId(string messageName)
-        {
-            switch (messageName)
-            {
-                case "ScenarioACK_ATS":
-                    return (ushort)Simulator.ATS;
-                case "ScenarioACK_MSS":
-                    return (ushort)Simulator.MSS;
-                case "ScenarioACK_LCS":
-                    return (ushort)Simulator.LCS;
-                case "ScenarioACK_MFRS":
-                    return (ushort)Simulator.MFRS;
-                default:
-                    return 0;
-            }
-        }
     }
 }
