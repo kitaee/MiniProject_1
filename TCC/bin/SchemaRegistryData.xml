@@ -94,78 +94,78 @@
 		</NOM:enumerationTypes>
 		<NOM:complexTypes>
 			<NOM:complexType name="DDSMessageHeaderStruct" nameNotes="1 2" semantics="DDSMessageHeaderStruct">
-				<NOM:fieldType name="TopicLabel" dataType="ushortBE" nameNotes="1 2" semantics="TopicLabel" />
-				<NOM:fieldType name="TopicSize" dataType="ushortBE" />
-				<NOM:fieldType name="SourceID" dataType="byte" />
-				<NOM:fieldType name="TopicClass" dataType="byte" />
-				<NOM:fieldType name="TopicNumber" dataType="ushortBE" />
-				<NOM:fieldType name="SystemTime" dataType="uint64BE" />
+				<NOM:fieldType name="TopicLabel" dataType="ushortBE" nameNotes="1 2" semantics="TopicLabel"/>
+				<NOM:fieldType name="TopicSize" dataType="ushortBE"/>
+				<NOM:fieldType name="SourceID" dataType="byte"/>
+				<NOM:fieldType name="TopicClass" dataType="byte"/>
+				<NOM:fieldType name="TopicNumber" dataType="ushortBE"/>
+				<NOM:fieldType name="SystemTime" dataType="uint64BE"/>
 			</NOM:complexType>
 			<NOM:complexType name="MessageHeaderStruct" semantics="ICD 메시지 헤더 (MessageID + MessageLength)">
-				<NOM:fieldType name="MessageID" dataType="uint"/>
-				<NOM:fieldType name="MessageLength" dataType="uint"/>
+				<NOM:fieldType name="MessageID" dataType="uintBE"/>
+				<NOM:fieldType name="MessageLength" dataType="uintBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="AirthreatStruct" semantics="공중 위협 시나리오 객체 (DeployScenarioRequest)">
-				<NOM:fieldType name="AirthreatID" dataType="uint"/>
-				<NOM:fieldType name="AirthreatVelocity" dataType="float"/>
-				<NOM:fieldType name="StartLatitude" dataType="float"/>
-				<NOM:fieldType name="StartLongitude" dataType="float"/>
-				<NOM:fieldType name="EndLatitude" dataType="float"/>
-				<NOM:fieldType name="EndLongitude" dataType="float"/>
+				<NOM:fieldType name="AirthreatID" dataType="uintBE"/>
+				<NOM:fieldType name="AirthreatVelocity" dataType="floatBE"/>
+				<NOM:fieldType name="StartLatitude" dataType="floatBE"/>
+				<NOM:fieldType name="StartLongitude" dataType="floatBE"/>
+				<NOM:fieldType name="EndLatitude" dataType="floatBE"/>
+				<NOM:fieldType name="EndLongitude" dataType="floatBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="UplinkInfoStruct" semantics="업링크 정보">
-				<NOM:fieldType name="AirthreatID" dataType="uint"/>
-				<NOM:fieldType name="AirthreatXpos" dataType="float"/>
-				<NOM:fieldType name="AirthreatYPos" dataType="float"/>
-				<NOM:fieldType name="AirthreatZPos" dataType="float"/>
-				<NOM:fieldType name="MissileID" dataType="uint"/>
-				<NOM:fieldType name="AirthreatVelocity" dataType="float"/>
+				<NOM:fieldType name="AirthreatID" dataType="uintBE"/>
+				<NOM:fieldType name="AirthreatXpos" dataType="floatBE"/>
+				<NOM:fieldType name="AirthreatYPos" dataType="floatBE"/>
+				<NOM:fieldType name="AirthreatZPos" dataType="floatBE"/>
+				<NOM:fieldType name="MissileID" dataType="uintBE"/>
+				<NOM:fieldType name="AirthreatVelocity" dataType="floatBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="DownlinkInfoStruct" semantics="다운링크 유도탄 좌표">
-				<NOM:fieldType name="MissleID" dataType="uint"/>
-				<NOM:fieldType name="MissileVelocity" dataType="float"/>
-				<NOM:fieldType name="MissleXPos" dataType="float"/>
-				<NOM:fieldType name="MissleYPos" dataType="float"/>
-				<NOM:fieldType name="MissleZPos" dataType="float"/>
+				<NOM:fieldType name="MissileID" dataType="uintBE"/>
+				<NOM:fieldType name="MissileVelocity" dataType="floatBE"/>
+				<NOM:fieldType name="MissileXPos" dataType="floatBE"/>
+				<NOM:fieldType name="MissileYPos" dataType="floatBE"/>
+				<NOM:fieldType name="MissileZPos" dataType="floatBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="DetectedTargetStruct" semantics="레이더 탐지 결과">
-				<NOM:fieldType name="TargetID" dataType="uint"/>
-				<NOM:fieldType name="TargetXPos" dataType="float"/>
-				<NOM:fieldType name="TargetYPos" dataType="float"/>
-				<NOM:fieldType name="TargetZPos" dataType="float"/>
-				<NOM:fieldType name="DetectedFlag" dataType="uint"/>
-				<NOM:fieldType name="TargetVelocity" dataType="float"/>
+				<NOM:fieldType name="TargetID" dataType="uintBE"/>
+				<NOM:fieldType name="TargetXPos" dataType="floatBE"/>
+				<NOM:fieldType name="TargetYPos" dataType="floatBE"/>
+				<NOM:fieldType name="TargetZPos" dataType="floatBE"/>
+				<NOM:fieldType name="DetectedFlag" dataType="uintBE"/>
+				<NOM:fieldType name="TargetVelocity" dataType="floatBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="LaunchMissileRequestStruct" semantics="TCC to LCS launch request">
-				<NOM:fieldType name="AirthreatID" dataType="uint"/>
-				<NOM:fieldType name="AirthreatLatitude" dataType="float"/>
-				<NOM:fieldType name="AirthreatLongitude" dataType="float"/>
-				<NOM:fieldType name="MissleID" dataType="uint"/>
+				<NOM:fieldType name="AirthreatID" dataType="uintBE"/>
+				<NOM:fieldType name="AirthreatLatitude" dataType="floatBE"/>
+				<NOM:fieldType name="AirthreatLongitude" dataType="floatBE"/>
+				<NOM:fieldType name="MissileID" dataType="uintBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="ATInfoStruct" semantics="ATS to MFRS air threat information">
-				<NOM:fieldType name="AirthreatID" dataType="uint"/>
-				<NOM:fieldType name="AirthreatStatus" dataType="uint"/>
-				<NOM:fieldType name="AirthreatXPos" dataType="float"/>
-				<NOM:fieldType name="AirthreatYPos" dataType="float"/>
-				<NOM:fieldType name="AirthreatZPos" dataType="float"/>
-				<NOM:fieldType name="AirthreatVelocity" dataType="float"/>
+				<NOM:fieldType name="AirthreatID" dataType="uintBE"/>
+				<NOM:fieldType name="AirthreatStatus" dataType="uintBE"/>
+				<NOM:fieldType name="AirthreatXPos" dataType="floatBE"/>
+				<NOM:fieldType name="AirthreatYPos" dataType="floatBE"/>
+				<NOM:fieldType name="AirthreatZPos" dataType="floatBE"/>
+				<NOM:fieldType name="AirthreatVelocity" dataType="floatBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="DetonationInfoStruct" semantics="MSS to ATS detonation result">
-				<NOM:fieldType name="MissleID" dataType="uint"/>
-				<NOM:fieldType name="TargetID" dataType="uint"/>
+				<NOM:fieldType name="MissileID" dataType="uintBE"/>
+				<NOM:fieldType name="TargetID" dataType="uintBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="LaunchMissileStruct" semantics="LCS to MSS launch command">
-				<NOM:fieldType name="AirthreatID" dataType="uint"/>
-				<NOM:fieldType name="AirthreatXpos" dataType="float"/>
-				<NOM:fieldType name="AirthreatYPos" dataType="float"/>
-				<NOM:fieldType name="AirthreatZPos" dataType="float"/>
-				<NOM:fieldType name="MissleID" dataType="uint"/>
-				<NOM:fieldType name="LCSXpos" dataType="float"/>
-				<NOM:fieldType name="LCSYPos" dataType="float"/>
-				<NOM:fieldType name="LCSZPos" dataType="float"/>
+				<NOM:fieldType name="AirthreatID" dataType="uintBE"/>
+				<NOM:fieldType name="AirthreatXpos" dataType="floatBE"/>
+				<NOM:fieldType name="AirthreatYPos" dataType="floatBE"/>
+				<NOM:fieldType name="AirthreatZPos" dataType="floatBE"/>
+				<NOM:fieldType name="MissileID" dataType="uintBE"/>
+				<NOM:fieldType name="LCSXpos" dataType="floatBE"/>
+				<NOM:fieldType name="LCSYPos" dataType="floatBE"/>
+				<NOM:fieldType name="LCSZPos" dataType="floatBE"/>
 			</NOM:complexType>
 			<NOM:complexType name="MissileQuantityInfoStruct" semantics="LCS to TCC missile quantity information">
-				<NOM:fieldType name="MissileQuantity" dataType="uint"/>
+				<NOM:fieldType name="MissileQuantity" dataType="uintBE"/>
 			</NOM:complexType>
 		</NOM:complexTypes>
 	</NOM:dataTypes>
