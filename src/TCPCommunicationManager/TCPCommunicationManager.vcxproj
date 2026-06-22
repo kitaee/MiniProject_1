@@ -123,7 +123,7 @@
       <SubSystem>Console</SubSystem>
       <OutputFile>$(SolutionDir)bin/$(ProjectName)/$(ProjectName)d.dll</OutputFile>
       <AdditionalLibraryDirectories>$(NFW_DIR)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>MECd.lib;NOMd.lib;utild.lib;NICEd.lib</AdditionalDependencies>
+      <AdditionalDependencies>MECd.lib;NOMd.lib;utild.lib;NICEd.lib;Log4nFd.lib</AdditionalDependencies>
       <ProgramDatabaseFile>Debug/$(ProjectName)d.pdb</ProgramDatabaseFile>
       <ImportLibrary>$(SolutionDir)lib/$(ProjectName)d.lib</ImportLibrary>
       <GenerateDebugInformation>true</GenerateDebugInformation>

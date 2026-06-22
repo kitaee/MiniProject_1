@@ -157,11 +157,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AirThreat.cpp" />
     <ClCompile Include="ATSManager.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AirThreat.h" />
     <ClInclude Include="ATSManager.h" />
     <ClInclude Include="polylineencoder.h" />
   </ItemGroup>

@@ -14,7 +14,9 @@ std::shared_ptr<NOM> SimulationManager::registerMsg(tstring str)
 {
 	tcout << _T("[") << _T(__FUNCTION__) << _T("] ") << str << "\n";
 
-	return std::shared_ptr<NOM>();
+	std::shared_ptr<NOM> nomMsg = mec->registerMsg(str);
+	registeredMsgMap.emplace(nomMsg->getInstanceID(), nomMsg);
+	return nomMsg;
 }
 
 void SimulationManager::discoverMsg(std::shared_ptr<NOM> nomMsg)

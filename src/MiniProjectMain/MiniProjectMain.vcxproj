@@ -133,7 +133,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OutputFile>$(SolutionDir)bin\$(ProjectName)d.exe</OutputFile>
       <AdditionalLibraryDirectories>$(NFW_DIR)\lib;$(SolutionDir)lib\;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>nLineStreamd.lib;nLineLogd.lib;nIntegratord.lib;NOMd.lib;utild.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Log4nFd.lib;nLineStreamd.lib;nLineLogd.lib;nIntegratord.lib;NOMd.lib;utild.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ProgramDatabaseFile>Debug\$(ProjectName)d.pdb</ProgramDatabaseFile>
       <ImportLibrary>$(SolutionDir)lib</ImportLibrary>
     </Link>
