@@ -2,7 +2,7 @@
 using MiniProject_GUI.Models.Converter;
 using MiniProject_GUI.Models.Scenario;
 using nframework.nom;
-
+    
 namespace MiniProject_GUI.Services
 {
     internal class ScenarioService

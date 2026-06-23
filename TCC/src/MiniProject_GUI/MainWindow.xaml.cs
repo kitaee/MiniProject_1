@@ -199,6 +199,7 @@ namespace MiniProject_GUI
 
                             if (ScenarioSendAck.IsScenarioAckMessage(Convert.ToUInt32(innerNom.msgID)))
                             {
+                                ScenarioService.ReceiveSendScenarioAck(innerNom);
                                 // ATS → TCC: 시나리오 배포 ACK
                                 // → ScenarioService → EventAggregator.Publish<ScenarioSendAck>
                                 // → AckStatusViewModel.OnScenarioSendAck() → 표시등 초록색

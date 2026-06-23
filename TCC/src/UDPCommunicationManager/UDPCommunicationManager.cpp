@@ -235,7 +235,7 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 	{
 		unsigned int tmpMsgID = 0;
 		memcpy(&tmpMsgID, data + IDPos, IDSize);
-		msgID = ntohl(tmpMsgID);
+		msgID = tmpMsgID;
 	}
 	else
 	{
