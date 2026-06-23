@@ -27,6 +27,10 @@
 			<NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
 			<NOM:parameter name="MissileID" semantics="MissileID" dataType="uint"/>
 		</NOM:interaction>
+		<NOM:interaction name="UplinkInfo" id="1501" semantics="TCC to MFRS uplink information" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="UplinkInfo" semantics="UplinkInfo" dataType="UplinkInfoStruct"/>
+		</NOM:interaction>
 		<NOM:interaction name="ScenarioACK" id="2101" semantics="simulator to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 		</NOM:interaction>
@@ -37,6 +41,10 @@
 		<NOM:interaction name="MissileQuantityInfo" id="4102" semantics="LCS to TCC missile quantity information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 			<NOM:parameter name="MissileQuantity" semantics="MissileQuantity" dataType="uint"/>
+		</NOM:interaction>
+		<NOM:interaction name="DownlinkInfo" id="5103" semantics="MFRS to TCC missile downlink information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="DownlinkInfo" semantics="DownlinkInfo" dataType="DownlinkInfoStruct"/>
 		</NOM:interaction>
 	</NOM:interactions>
 

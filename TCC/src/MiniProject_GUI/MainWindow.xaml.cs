@@ -98,6 +98,7 @@ namespace MiniProject_GUI
             EventAggregator.Instance.Subscribe<SimulationStart>(nomEventHandler.StartSimulation);
             EventAggregator.Instance.Subscribe<SimulationStop>(nomEventHandler.StopSimulation);
             EventAggregator.Instance.Subscribe<LaunchMissileRequest>(nomEventHandler.LaunchMissile);
+            EventAggregator.Instance.Subscribe<UplinkInfo>(nomEventHandler.SendUplinkInfo);
 
             InitializeComponent();
         }
@@ -221,6 +222,10 @@ namespace MiniProject_GUI
                             else if (innerNom.name == "MissileQuantityInfo")
                             {
                                 SimulationService.ReceiveMissileQuantityInfo(innerNom);
+                            }
+                            else if (innerNom.name == "DownlinkInfo")
+                            {
+                                SimulationService.ReceiveDownlinkInfo(innerNom);
                             }
                             else if (innerNom.name == "StartSimulationAck")
                             {

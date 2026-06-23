@@ -46,8 +46,10 @@ namespace MiniProject_GUI.ViewModels
             EventAggregator.Instance.Subscribe<SimulationStart>(OnSimulationStart);
             EventAggregator.Instance.Subscribe<SimulationStop>(OnSimulationStop);
             EventAggregator.Instance.Subscribe<LaunchMissileRequest>(OnLaunchMissileRequest);
+            EventAggregator.Instance.Subscribe<UplinkInfo>(OnUplinkInfo);
             EventAggregator.Instance.Subscribe<MissileQuantityInfo>(OnMissileQuantityInfo);
             EventAggregator.Instance.Subscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
+            EventAggregator.Instance.Subscribe<DownlinkInfo>(OnDownlinkInfo);
 
             // ── [확장 가이드] 아래 구독을 활성화하여 기능 확장 가능 ──
             // 시뮬레이션 시작·종료 ACK 로그:
@@ -144,6 +146,15 @@ namespace MiniProject_GUI.ViewModels
             AddLog("[Request] TCC -> LCS ID " + LaunchMissileRequest.MessageId + " LaunchMissileRequest");
         }
 
+        private void OnUplinkInfo(UplinkInfo uplinkInfo)
+        {
+            AddLog(
+                "[Request] TCC -> MFRS ID " + UplinkInfo.MessageId +
+                " UplinkInfo Tgt=" + uplinkInfo.AirthreatID +
+                " Msl=" + uplinkInfo.MissileID +
+                " Spd=" + uplinkInfo.AirthreatVelocity.ToString("0.##"));
+        }
+
         private void OnMissileQuantityInfo(MissileQuantityInfo missileQuantityInfo)
         {
             AddLog("[Response] LCS -> TCC ID " + MissileQuantityInfo.MessageId + " MissileQuantityInfo Qty=" + missileQuantityInfo.MissileQuantity);
@@ -158,6 +169,14 @@ namespace MiniProject_GUI.ViewModels
                 " Spd=" + radarDetectionInfo.TargetVelocity.ToString("0.##"));
         }
 
+        private void OnDownlinkInfo(DownlinkInfo downlinkInfo)
+        {
+            AddLog(
+                "[Response] MFRS -> TCC ID " + DownlinkInfo.MessageId +
+                " DownlinkInfo Msl=" + downlinkInfo.MissileID +
+                " Spd=" + downlinkInfo.MissileVelocity.ToString("0.##"));
+        }
+
         public void Dispose()
         {
             // Subscribe와 쌍으로 반드시 Unsubscribe 해야 메모리 누수를 방지할 수 있다.
@@ -166,8 +185,10 @@ namespace MiniProject_GUI.ViewModels
             EventAggregator.Instance.Unsubscribe<SimulationStart>(OnSimulationStart);
             EventAggregator.Instance.Unsubscribe<SimulationStop>(OnSimulationStop);
             EventAggregator.Instance.Unsubscribe<LaunchMissileRequest>(OnLaunchMissileRequest);
+            EventAggregator.Instance.Unsubscribe<UplinkInfo>(OnUplinkInfo);
             EventAggregator.Instance.Unsubscribe<MissileQuantityInfo>(OnMissileQuantityInfo);
             EventAggregator.Instance.Unsubscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
+            EventAggregator.Instance.Unsubscribe<DownlinkInfo>(OnDownlinkInfo);
         }
     }
 }

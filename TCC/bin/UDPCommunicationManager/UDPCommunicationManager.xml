@@ -46,7 +46,7 @@
 			<NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
 			<NOM:parameter name="TargetID" semantics="TargetID" dataType="uint"/>
 		</NOM:interaction>
-		<NOM:interaction name="DownlinkInfo" id="3501" semantics="유도탄(레이다)→레이더(TCC) 유도탄 좌표(주기)" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+		<NOM:interaction name="DownlinkInfo" id="5103" semantics="레이다모의기에서 운용통제기로 유도탄 좌표 송신" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 			<NOM:parameter name="DownlinkInfo" semantics="DownlinkInfo" dataType="DownlinkInfoStruct"/>
 		</NOM:interaction>

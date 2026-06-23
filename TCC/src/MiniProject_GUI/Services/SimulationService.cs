@@ -49,6 +49,11 @@ namespace MiniProject_GUI.Services
             EventAggregator.Instance.Publish(launchMissileRequest);
         }
 
+        public static void SendUplinkInfo(UplinkInfo uplinkInfo)
+        {
+            EventAggregator.Instance.Publish(uplinkInfo);
+        }
+
         // ────────────────────────────────────────────
         // 수신 (모의기 → TCC)
         // ────────────────────────────────────────────
@@ -101,6 +106,13 @@ namespace MiniProject_GUI.Services
         {
             EventAggregator.Instance.Publish(
                 NOMConverter.Import<MissileQuantityInfo>(nomMsg)
+            );
+        }
+
+        public static void ReceiveDownlinkInfo(NOM nomMsg)
+        {
+            EventAggregator.Instance.Publish(
+                NOMConverter.Import<DownlinkInfo>(nomMsg)
             );
         }
     }

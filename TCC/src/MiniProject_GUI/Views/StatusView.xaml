@@ -48,7 +48,8 @@
         <Grid Margin="8">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="*" MinHeight="130"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -59,7 +60,7 @@
                        FontWeight="SemiBold"
                        Margin="0,0,0,8"/>
 
-            <UniformGrid Grid.Row="1" Columns="2" Rows="2">
+            <UniformGrid Grid.Row="1" Columns="2" Rows="2" MinHeight="130">
                 <Border Style="{StaticResource StatusCardStyle}"
                         DataContext="{Binding IsLcsScenarioAckReceived}"
                         Tag="LCS"
@@ -155,7 +156,63 @@
                 </Border>
             </UniformGrid>
 
-            <StackPanel Grid.Row="4"
+            <Border Grid.Row="4"
+                    Style="{StaticResource StatusCardStyle}"
+                    Margin="3,8,3,0"
+                    MinHeight="92"
+                    TextElement.FontSize="11">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="54"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Grid.ColumnSpan="2"
+                               Text="MSS DownLink"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,4"/>
+
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="0"
+                               Text="ID"
+                               Foreground="#B7C7D9"/>
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="1"
+                               Text="{Binding DownlinkMissileIDText}"
+                               HorizontalAlignment="Right"/>
+
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="0"
+                               Text="Pos"
+                               Foreground="#B7C7D9"/>
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="1"
+                               Text="{Binding DownlinkMissilePositionText}"
+                               TextWrapping="NoWrap"
+                               TextAlignment="Right"
+                               HorizontalAlignment="Right"/>
+
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="0"
+                               Text="Vel"
+                               Foreground="#B7C7D9"/>
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="1"
+                               Text="{Binding DownlinkMissileVelocityText}"
+                               TextWrapping="NoWrap"
+                               TextAlignment="Right"
+                               HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="5"
                         Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Margin="0,8,0,0">

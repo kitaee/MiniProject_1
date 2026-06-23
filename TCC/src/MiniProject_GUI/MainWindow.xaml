@@ -18,14 +18,14 @@
     <Grid Margin="10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="300"/>
         </Grid.ColumnDefinitions>
 
         <views:ScenarioControl x:Name="ScenarioControl" Grid.Column="0"/>
 
         <Grid Grid.Column="1" Margin="12,0,0,0">
             <Grid.RowDefinitions>
-                <RowDefinition Height="330"/>
+                <RowDefinition Height="390"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>

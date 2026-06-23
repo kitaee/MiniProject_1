@@ -31,12 +31,19 @@ namespace MiniProject_GUI.ViewModels
         private bool _isSimulationRunning;
         private bool _isScenarioEditAllowedAfterStop;
         private bool _hasRadarDetection;
+        private bool _isUplinkEnabled;
         private uint _detectedFlag;
         private uint _detectedTargetID;
         private float _detectedTargetXPos;
         private float _detectedTargetYPos;
         private float _detectedTargetLatitude;
         private float _detectedTargetLongitude;
+        private uint _activeMissileID;
+        private bool _hasDownlinkInfo;
+        private uint _downlinkMissileID;
+        private float _downlinkMissileVelocity;
+        private float _downlinkMissileXPos;
+        private float _downlinkMissileYPos;
         private int _remainingMissileCount = 4;
         private uint _nextMissileID = 1;
         private ScenarioSend _savedScenario;
@@ -57,6 +64,7 @@ namespace MiniProject_GUI.ViewModels
             EventAggregator.Instance.Subscribe<ScenarioSendAck>(OnScenarioSendAck);
             EventAggregator.Instance.Subscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
             EventAggregator.Instance.Subscribe<MissileQuantityInfo>(OnMissileQuantityInfo);
+            EventAggregator.Instance.Subscribe<DownlinkInfo>(OnDownlinkInfo);
 
             EditScenarioCommand = new RelayCommand(EnterEditMode, () => !IsEditMode && !IsScenarioLocationLocked);
             SwitchToSimulationModeCommand = new RelayCommand(EnterSimulationMode, () => IsEditMode && !IsSimulationRunning);
@@ -213,6 +221,25 @@ namespace MiniProject_GUI.ViewModels
         public float DetectedTargetLatitude => _detectedTargetLatitude;
 
         public float DetectedTargetLongitude => _detectedTargetLongitude;
+
+        public bool HasDownlinkInfo => _hasDownlinkInfo;
+
+        public uint DownlinkMissileID => _downlinkMissileID;
+
+        public float DownlinkMissileLatitude => _downlinkMissileYPos;
+
+        public float DownlinkMissileLongitude => _downlinkMissileXPos;
+
+        public string DownlinkMissileIDText =>
+            HasDownlinkInfo ? DownlinkMissileID.ToString(CultureInfo.CurrentCulture) : "-";
+
+        public string DownlinkMissilePositionText =>
+            HasDownlinkInfo
+                ? Format(DownlinkMissileLatitude) + ", " + Format(DownlinkMissileLongitude)
+                : "-";
+
+        public string DownlinkMissileVelocityText =>
+            HasDownlinkInfo ? Format(_downlinkMissileVelocity) + " m/s" : "-";
 
         public int RemainingMissileCount
         {
@@ -502,14 +529,18 @@ namespace MiniProject_GUI.ViewModels
         {
             if (!CanFireMissile) return;
 
+            uint missileID = _nextMissileID;
+
             SimulationService.SendLaunchMissile(new LaunchMissileRequest
             {
                 AirthreatID = _detectedTargetID,
                 AirthreatXPos = _detectedTargetXPos,
                 AirthreatYPos = _detectedTargetYPos,
-                MissileID = _nextMissileID
+                MissileID = missileID
             });
 
+            _activeMissileID = missileID;
+            _isUplinkEnabled = true;
             _nextMissileID++;
             RemainingMissileCount = Math.Max(0, RemainingMissileCount - 1);
         }
@@ -732,6 +763,23 @@ namespace MiniProject_GUI.ViewModels
             OnPropertyChanged(nameof(CanFireMissile));
             OnPropertyChanged(nameof(FireMissileButtonText));
             RefreshCommandState();
+
+            SendUplinkInfoFromRadarDetection(radarDetection);
+        }
+
+        private void SendUplinkInfoFromRadarDetection(RadarDetectionInfo radarDetection)
+        {
+            if (!IsSimulationRunning || !_isUplinkEnabled || _activeMissileID == 0)
+                return;
+
+            SimulationService.SendUplinkInfo(new UplinkInfo
+            {
+                AirthreatID = radarDetection.TargetID,
+                AirthreatXPos = radarDetection.TargetXPos,
+                AirthreatYPos = radarDetection.TargetYPos,
+                MissileID = _activeMissileID,
+                AirthreatVelocity = radarDetection.TargetVelocity
+            });
         }
 
         private void OnMissileQuantityInfo(MissileQuantityInfo missileQuantityInfo)
@@ -741,15 +789,39 @@ namespace MiniProject_GUI.ViewModels
                 : (int)missileQuantityInfo.MissileQuantity;
         }
 
+        private void OnDownlinkInfo(DownlinkInfo downlinkInfo)
+        {
+            _hasDownlinkInfo = true;
+            _downlinkMissileID = downlinkInfo.MissileID;
+            _downlinkMissileVelocity = downlinkInfo.MissileVelocity;
+            _downlinkMissileXPos = downlinkInfo.MissileXPos;
+            _downlinkMissileYPos = downlinkInfo.MissileYPos;
+
+            OnPropertyChanged(nameof(HasDownlinkInfo));
+            OnPropertyChanged(nameof(DownlinkMissileID));
+            OnPropertyChanged(nameof(DownlinkMissileLatitude));
+            OnPropertyChanged(nameof(DownlinkMissileLongitude));
+            OnPropertyChanged(nameof(DownlinkMissileIDText));
+            OnPropertyChanged(nameof(DownlinkMissilePositionText));
+            OnPropertyChanged(nameof(DownlinkMissileVelocityText));
+        }
+
         private void ResetTacticalStatus()
         {
             _hasRadarDetection = false;
+            _isUplinkEnabled = false;
             _detectedFlag = 0;
             _detectedTargetID = 0;
             _detectedTargetXPos = 0;
             _detectedTargetYPos = 0;
             _detectedTargetLatitude = 0;
             _detectedTargetLongitude = 0;
+            _activeMissileID = 0;
+            _hasDownlinkInfo = false;
+            _downlinkMissileID = 0;
+            _downlinkMissileVelocity = 0;
+            _downlinkMissileXPos = 0;
+            _downlinkMissileYPos = 0;
 
             OnPropertyChanged(nameof(HasRadarDetection));
             OnPropertyChanged(nameof(DetectedFlag));
@@ -757,6 +829,13 @@ namespace MiniProject_GUI.ViewModels
             OnPropertyChanged(nameof(IsTargetDestroyed));
             OnPropertyChanged(nameof(DetectedTargetLatitude));
             OnPropertyChanged(nameof(DetectedTargetLongitude));
+            OnPropertyChanged(nameof(HasDownlinkInfo));
+            OnPropertyChanged(nameof(DownlinkMissileID));
+            OnPropertyChanged(nameof(DownlinkMissileLatitude));
+            OnPropertyChanged(nameof(DownlinkMissileLongitude));
+            OnPropertyChanged(nameof(DownlinkMissileIDText));
+            OnPropertyChanged(nameof(DownlinkMissilePositionText));
+            OnPropertyChanged(nameof(DownlinkMissileVelocityText));
             OnPropertyChanged(nameof(RadarDetectionStatusText));
             OnPropertyChanged(nameof(CanFireMissile));
             OnPropertyChanged(nameof(FireMissileButtonText));
@@ -804,6 +883,7 @@ namespace MiniProject_GUI.ViewModels
             EventAggregator.Instance.Unsubscribe<ScenarioSendAck>(OnScenarioSendAck);
             EventAggregator.Instance.Unsubscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
             EventAggregator.Instance.Unsubscribe<MissileQuantityInfo>(OnMissileQuantityInfo);
+            EventAggregator.Instance.Unsubscribe<DownlinkInfo>(OnDownlinkInfo);
         }
     }
 }

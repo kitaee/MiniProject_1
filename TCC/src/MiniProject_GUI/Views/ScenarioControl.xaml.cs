@@ -74,6 +74,13 @@ namespace MiniProject_GUI.Views
             {
                 RefreshDetectedTargetMarker();
             }
+
+            if (e.PropertyName == nameof(AckStatusViewModel.HasDownlinkInfo) ||
+                e.PropertyName == nameof(AckStatusViewModel.DownlinkMissileLatitude) ||
+                e.PropertyName == nameof(AckStatusViewModel.DownlinkMissileLongitude))
+            {
+                RefreshMissileMarker();
+            }
         }
 
         private void RefreshDetectedTargetMarker()
@@ -90,6 +97,22 @@ namespace MiniProject_GUI.Views
                 "DetectedTarget",
                 viewModel.RadarDetectionStatusText,
                 new PointLatLng(viewModel.DetectedTargetLatitude, viewModel.DetectedTargetLongitude));
+        }
+
+        private void RefreshMissileMarker()
+        {
+            if (!(DataContext is AckStatusViewModel viewModel)) return;
+
+            if (!viewModel.HasDownlinkInfo)
+            {
+                RemoveMarker("Missile");
+                return;
+            }
+
+            SetMarker(
+                "Missile",
+                "MSS",
+                new PointLatLng(viewModel.DownlinkMissileLatitude, viewModel.DownlinkMissileLongitude));
         }
 
         private void ScenarioMap_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -287,6 +310,8 @@ namespace MiniProject_GUI.Views
                     return PackIconKind.Target;
                 case "DetectedTarget":
                     return GetDetectedTargetIcon();
+                case "Missile":
+                    return PackIconKind.RocketLaunch;
                 default:
                     return PackIconKind.MapMarker;
             }
@@ -321,6 +346,8 @@ namespace MiniProject_GUI.Views
                     return Color.FromRgb(0xE9, 0x1E, 0x63);
                 case "DetectedTarget":
                     return GetDetectedTargetColor();
+                case "Missile":
+                    return Color.FromRgb(0xAB, 0x47, 0xBC);
                 default:
                     return Color.FromRgb(0x90, 0xA4, 0xAE);
             }

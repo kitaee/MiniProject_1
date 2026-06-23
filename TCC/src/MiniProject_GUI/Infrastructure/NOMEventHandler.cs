@@ -120,5 +120,28 @@ namespace MiniProject_GUI.Infrastructure
                 MessageBox.Show(ex.ToString());
             }
         }
+
+        public void SendUplinkInfo(UplinkInfo uplinkInfo)
+        {
+            var nomInstance = nomHandler.GetNMessage("UplinkInfo")?.createNOMInstance();
+            if (nomInstance == null) return;
+
+            try
+            {
+                nomInstance.owner = "UIManager";
+                nomInstance.setValue("MessageHeader.MessageID", new NUInteger(UplinkInfo.MessageId));
+                nomInstance.setValue("MessageHeader.MessageLength", new NUInteger(UplinkInfo.MessageLengthBytes));
+                nomInstance.setValue("UplinkInfo.AirthreatID", new NUInteger(uplinkInfo.AirthreatID));
+                nomInstance.setValue("UplinkInfo.AirthreatXPos", new NFloat(uplinkInfo.AirthreatXPos));
+                nomInstance.setValue("UplinkInfo.AirthreatYPos", new NFloat(uplinkInfo.AirthreatYPos));
+                nomInstance.setValue("UplinkInfo.MissileID", new NUInteger(uplinkInfo.MissileID));
+                nomInstance.setValue("UplinkInfo.AirthreatVelocity", new NFloat(uplinkInfo.AirthreatVelocity));
+                nomHandler.SendNOMMessage(nomInstance);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
     }
 }
