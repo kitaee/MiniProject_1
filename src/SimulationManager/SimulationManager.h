@@ -45,7 +45,7 @@ private:
 
 	// 내부 연동(송신 - UDP로 보냄)
 	void sendScenarioACK(std::shared_ptr<NOM> srcMsg); // srcMsg로 함
-	void forwardToModel(tstring msgName, std::shared_ptr<NOM> srcMsg);
+	void forwardToModel(std::shared_ptr<NOM> srcMsg);
 
 private:
 	IMEBComponent* meb;

@@ -180,8 +180,28 @@ SimulationManager::recvDeployScenarioRequest(std::shared_ptr<NOM> nomMsg)
 {
 	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
 
-	forwardToModel(_T("DeployScenarioToModel"), nomMsg);
+	auto modelMsg = meb->getNOMInstance(name, _T("DeployScenarioToModel"));
 
+	NUInteger msgID(2201);
+	modelMsg->setValue(_T("MessageHeader.MessageID"), &msgID);
+
+	auto airthreat = nomMsg->getDataTypeObject(_T("Airthreat"));
+	if (!airthreat)
+	{
+		tcout << _T("[SimulationManager] DeployScenarioRequest has no Airthreat.") << std::endl;
+		return;
+	}
+
+	if (!modelMsg->setDataTypeObjectByCopying(_T("Airthreat"), airthreat))
+	{
+		tcout << _T("[SimulationManager] failed to set Airthreat to DeployScenarioToModel.") << std::endl;
+		return;
+	}
+
+	NUInteger msgLength(modelMsg->getLength());
+	modelMsg->setValue(_T("MessageHeader.MessageLength"), &msgLength);
+
+	forwardToModel(modelMsg);
 	sendScenarioACK(nomMsg);
 }
 
@@ -190,7 +210,14 @@ SimulationManager::recvStartSimulationRequest(std::shared_ptr<NOM> nomMsg)
 {
 	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
 
-	forwardToModel(_T("StartSimulationToModel"), nomMsg);
+	auto modelMsg = meb->getNOMInstance(name, _T("StartSimulationToModel"));
+
+	NUInteger msgID(2202);
+	modelMsg->setValue(_T("MessageHeader.MessageID"), &msgID);
+	NUInteger msgLength(modelMsg->getLength());
+	modelMsg->setValue(_T("MessageHeader.MessageLength"), &msgLength);
+
+	forwardToModel(modelMsg);
 }
 
 void
@@ -198,7 +225,14 @@ SimulationManager::recvStopSimulationRequest(std::shared_ptr<NOM> nomMsg)
 {
 	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
 
-	forwardToModel(_T("StopSimulationToModel"), nomMsg);
+	auto modelMsg = meb->getNOMInstance(name, _T("StopSimulationToModel"));
+
+	NUInteger msgID(2203);
+	modelMsg->setValue(_T("MessageHeader.MessageID"), &msgID);
+	NUInteger msgLength(modelMsg->getLength());
+	modelMsg->setValue(_T("MessageHeader.MessageLength"), &msgLength);
+
+	forwardToModel(modelMsg);
 }
 
 void
@@ -206,43 +240,29 @@ SimulationManager::recvDetonationInfo(std::shared_ptr<NOM> nomMsg)
 {
 	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
 
-	forwardToModel(_T("DetonationInfoToModel"), nomMsg);
+	auto modelMsg = meb->getNOMInstance(name, _T("DetonationInfoToModel"));
+
+	NUInteger msgID(2204);
+	modelMsg->setValue(_T("MessageHeader.MessageID"), &msgID);
+
+	auto targetID = nomMsg->getValue(_T("TargetID"));
+	if (!targetID)
+	{
+		tcout << _T("[SimulationManager] DetonationInfo has no TargetID.") << std::endl;
+		return;
+	}
+	modelMsg->setValue(_T("TargetID"), targetID);
+
+	NUInteger msgLength(modelMsg->getLength());
+	modelMsg->setValue(_T("MessageHeader.MessageLength"), &msgLength);
+
+	forwardToModel(modelMsg);
 }
 
 // 모델로 보내는 내부 연동 메시지 4개 이름 다르게 해서 추가해야 됨
 void
-SimulationManager::forwardToModel(tstring msgName, std::shared_ptr<NOM> srcMsg)
+SimulationManager::forwardToModel(std::shared_ptr<NOM> modelMsg)
 {
-	auto modelMsg = meb->getNOMInstance(name, msgName);
-
-	if (!modelMsg.get())
-	{
-		tcout << _T("[SimulationManager] failed to create model message: ") << msgName << std::endl;
-		return;
-	}
-
-	NUInteger msgID(0);
-	NUInteger msgLength(8);
-
-	if (msgName == _T("DeployScenarioToModel"))
-	{
-		msgID = 2201;
-	}
-	else if (msgName == _T("StartSimulationToModel"))
-	{
-		msgID = 2202;
-	}
-	else if (msgName == _T("StopSimulationToModel"))
-	{
-		msgID = 2203;
-	}
-	else if (msgName == _T("DetonationInfoToModel"))
-	{
-		msgID = 2204;
-	}
-
-	modelMsg->setValue(_T("MessageHeader.MessageID"), &msgID);
-	modelMsg->setValue(_T("MessageHeader.MessageLength"), &msgLength);
 	this->sendMsg(modelMsg);
 }
 

@@ -55,6 +55,8 @@ private:
 	// 내부 연동(수신)
 	void recvScenarioACK(shared_ptr<NOM> nomMsg);
 	void recvATInfo(shared_ptr<NOM> nomMsg);
+
+	void ProcessTestCode();
 	
 public:
 	std::unique_ptr<NOMParser> nomParser;

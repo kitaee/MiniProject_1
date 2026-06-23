@@ -209,7 +209,60 @@ UDPCommunicationManager::start()
 		}
 	}
 
+	/*
+	* MockUp 테스트 코드 (MiniProject.ini 파일에서 UDPCOmmunicationManager 맨 밑으로 내려야함)
+	*/
+	//ProcessTestCode();
+
 	return true;
+}
+
+void
+UDPCommunicationManager::ProcessTestCode()
+{
+	//시나리오 배포
+	//<NOM:parameter name = "RadarPositionLatitude" semantics = "RadarPositionLatitude" dataType = "float" / >
+	//	<NOM:parameter name = "RadarPositionLongitude" semantics = "RadarPositionLongitude" dataType = "float" / >
+	//	<NOM:parameter name = "LauncherPositionLatitude" semantics = "LauncherPositionLatitude" dataType = "float" / >
+	//	<NOM:parameter name = "LauncherPositionLongitude" semantics = "LauncherPositionLongitude" dataType = "float" / >
+	//	<NOM:parameter name = "MissileVelocity" semantics = "MissileVelocity" dataType = "float" / >
+	auto nomMockDeployScenario = meb->getNOMInstance(name, _T("DeployScenarioRequest"));
+	nomMockDeployScenario->setValue(_T("MessageHeader.MessageID"), &(NUInteger)1001);
+	nomMockDeployScenario->setValue(_T("Airthreat.AirthreatID"), &(NUInteger)1);
+	nomMockDeployScenario->setValue(_T("Airthreat.AirthreatVelocity"), &(NFloat)100);
+	nomMockDeployScenario->setValue(_T("Airthreat.StartLatitude"), &(NFloat)37.7f);
+	nomMockDeployScenario->setValue(_T("Airthreat.StartLongitude"), &(NFloat)127.7f);
+	nomMockDeployScenario->setValue(_T("Airthreat.EndLatitude"), &(NFloat)41);
+	nomMockDeployScenario->setValue(_T("Airthreat.EndLongitude"), &(NFloat)139);
+
+	nomMockDeployScenario->setValue(_T("RadarPositionLatitude"), &(NFloat)37);
+	nomMockDeployScenario->setValue(_T("RadarPositionLongitude"), &(NFloat)139);
+	nomMockDeployScenario->setValue(_T("LauncherPositionLatitude"), &(NFloat)37);
+	nomMockDeployScenario->setValue(_T("LauncherPositionLongitude"), &(NFloat)139);
+	nomMockDeployScenario->setValue(_T("MissileVelocity"), &(NFloat)200);
+	nomMockDeployScenario->setValue(_T("MessageHeader.MessageLength"), &(NUInteger)52);
+	recvDeployScenarioRequest(nomMockDeployScenario);
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	////// 모의 시작
+	//auto nomMockStartSimulation = meb->getNOMInstance(name, _T("StartSimulationRequest"));
+	//startSimulation(nomMockStartSimulation);
+
+	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	//// 모의 중지
+	//auto nomMockStopSimulation = meb->getNOMInstance(name, _T("StopSimulationRequest"));
+	//stopSimulation(nomMockStopSimulation);
+
+	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	//auto nomMockFire = meb->getNOMInstance(name, _T("LaunchMissileRequest"));
+	//nomMockFire->setValue(_T("AirthreatID"), &(NUInteger)1);
+	//nomMockFire->setValue(_T("AirthreatLatitude"), &(NFloat)37.7);
+	//nomMockFire->setValue(_T("AirthreatLongitude"), &(NFloat)127.7);
+	//nomMockFire->setValue(_T("MissleID"), &(NUInteger)1);
+	//launchMissle(nomMockFire);
 }
 
 bool
@@ -277,152 +330,13 @@ void UDPCommunicationManager::recvDetonationInfo(shared_ptr<NOM> nomMsg)
 void UDPCommunicationManager::recvScenarioACK(shared_ptr<NOM> nomMsg)
 {
 	commInterface->sendCommMsg(nomMsg);
+	printf("[UDP] ScenarioACK MessageID=%u\n", nomMsg->getMessageID());
 }
 
 void UDPCommunicationManager::recvATInfo(shared_ptr<NOM> nomMsg)
 {
 	commInterface->sendCommMsg(nomMsg);
 }
-
-//
-//void UDPCommunicationManager::recvMissileDetonation(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerAirThreatDetonationToATM"));
-//	mec->sendMsg(nomMsg_new);
-//	//std::cout << "\n\n\n\nUDP에서 미사일 폭파 이벤트 수신\n\n\n" << std::endl;
-//}
-//
-//void UDPCommunicationManager::recvInnerAirThreatInfo(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("AirThreatInfo"));
-//	NUShort msgID(0x0d);;
-//	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
-//
-//	NUShort objectID(nomMsg->getValue(_T("AirThreatInfo.ObjectID"))->toShort());
-//	nomMsg_new->setValue(_T("AirThreatInfo.ObjectID"), &objectID);
-//
-//	NUShort objectState(nomMsg->getValue(_T("AirThreatInfo.ObjectState"))->toShort());
-//	nomMsg_new->setValue(_T("AirThreatInfo.ObjectState"), &objectState);
-//
-//	NDouble posX(nomMsg->getValue(_T("AirThreatInfo.PositionX"))->toDouble());
-//	nomMsg_new->setValue(_T("AirThreatInfo.PositionX"), &posX);
-//
-//	NDouble posY(nomMsg->getValue(_T("AirThreatInfo.PositionY"))->toDouble());
-//	nomMsg_new->setValue(_T("AirThreatInfo.PositionY"), &posY);
-//
-//	NDouble velX(nomMsg->getValue(_T("AirThreatInfo.VelocityX"))->toDouble());
-//	nomMsg_new->setValue(_T("AirThreatInfo.VelocityX"), &velX);
-//
-//	NDouble velY(nomMsg->getValue(_T("AirThreatInfo.VelocityY"))->toDouble());
-//	nomMsg_new->setValue(_T("AirThreatInfo.VelocityY"), &velY);
-//
-//	//std::cout << "\n" << velX << ", " << velY << std::endl;
-//
-//	commInterface->sendCommMsg(nomMsg_new);
-//}
-//
-//void UDPCommunicationManager::recvInnerRouteToComm(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("sendRouteAT"));
-//	routeString = nomMsg->getValue(_T("RouteAT"))->toString();
-//	NUShort msgID(0x43);;
-//	NString route(routeString);
-//
-//	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
-//	nomMsg_new->setValue(_T("RouteAT"), &route);
-//
-//	commInterface->sendCommMsg(nomMsg_new);
-//}
-//
-//void UDPCommunicationManager::recvSendScenario(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerSendScenario"));
-//
-//	nomMsg_new->setValue(_T("Scenario.OriginLat"), &(NDouble)(nomMsg->getValue(_T("Scenario.OriginLat"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.OriginLng"), &(NDouble)(nomMsg->getValue(_T("Scenario.OriginLng"))->toDouble()));
-//
-//	nomMsg_new->setValue(_T("Scenario.WayPoint0_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_X"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint0_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_Y"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint1_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_X"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint1_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_Y"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint2_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_X"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint2_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_Y"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint3_X"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_X"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint3_Y"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_Y"))->toDouble()));
-//
-//	nomMsg_new->setValue(_T("Scenario.WayPoint0_Lat"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_Lat"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint0_Lng"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint0_Lng"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint1_Lat"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_Lat"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint1_Lng"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint1_Lng"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint2_Lat"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_Lat"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint2_Lng"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint2_Lng"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint3_Lat"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_Lat"))->toDouble()));
-//	nomMsg_new->setValue(_T("Scenario.WayPoint3_Lng"), &(NDouble)(nomMsg->getValue(_T("Scenario.WayPoint3_Lng"))->toDouble()));
-//
-//	this->sendMsg(nomMsg_new);
-//}
-//
-//void UDPCommunicationManager::recvStartSimulation(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerStartSimulation"));
-//
-//	this->sendMsg(nomMsg_new);
-//}
-//
-//void UDPCommunicationManager::recvStopSimulation(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("InnerStopSimulation"));
-//
-//	this->sendMsg(nomMsg_new);
-//}
-//
-//void UDPCommunicationManager::recvInnerSendScenarioAck(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("SendScenarioAck"));
-//	NUShort msgID = NUShort((ushort)ICD_MessageID::SendScenarioAck);
-//	NUShort simulatorID = nomMsg->getValue(_T("SimulatorID"))->toUShort();
-//
-//	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
-//	nomMsg_new->setValue(_T("SimulatorID"), &simulatorID);
-//
-//	commInterface->sendCommMsg(nomMsg_new);
-//}
-//
-//void UDPCommunicationManager::recvInnerStartSimulationAck(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("StartSimulationAck"));
-//	NUShort msgID = NUShort((ushort)ICD_MessageID::StartSimulationAck);
-//	NUShort simulatorID = nomMsg->getValue(_T("SimulatorID"))->toUShort();
-//
-//	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
-//	nomMsg_new->setValue(_T("SimulatorID"), &simulatorID);
-//
-//	commInterface->sendCommMsg(nomMsg_new);
-//}
-//
-//void UDPCommunicationManager::recvInnerStopSimulationAck(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("StopSimulationAck"));
-//	NUShort msgID = NUShort((ushort)ICD_MessageID::StopSimulationAck);
-//	NUShort simulatorID = nomMsg->getValue(_T("SimulatorID"))->toUShort();
-//
-//	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
-//	nomMsg_new->setValue(_T("SimulatorID"), &simulatorID);
-//
-//	commInterface->sendCommMsg(nomMsg_new);
-//}
-//
-//void UDPCommunicationManager::recvInnerSimulatorStateComm(shared_ptr<NOM> nomMsg)
-//{
-//	auto nomMsg_new = meb->getNOMInstance(name, _T("SimulatorState"));
-//	NUShort msgID = NUShort((ushort)ICD_MessageID::SimulatorState);
-//	NUShort simulatorID = nomMsg->getValue(_T("SimulatorID"))->toUShort();
-//
-//	nomMsg_new->setValue(_T("Header.MessageID"), &msgID);
-//	nomMsg_new->setValue(_T("SimulatorID"), &simulatorID);
-//
-//	commInterface->sendCommMsg(nomMsg_new);
-//}
 
 void UDPCommunicationManager::sendInnerMsg(shared_ptr<NOM> nomMsg)
 {
@@ -449,13 +363,16 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 	{
 		unsigned short tmpMsgID = 0;
 		memcpy(&tmpMsgID, data + IDPos, IDSize);
-		msgID = ntohs(tmpMsgID);
+		//msgID = ntohs(tmpMsgID);
+		msgID = tmpMsgID;
 	}
 	else if (IDSize == 4)
 	{
 		unsigned int tmpMsgID = 0;
 		memcpy(&tmpMsgID, data + IDPos, IDSize);
-		msgID = ntohl(tmpMsgID);
+		//msgID = ntohl(tmpMsgID);
+		msgID = tmpMsgID;
+
 	}
 	else
 	{
@@ -468,7 +385,6 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 		return;
 	}
 	auto nomMsg = meb->getNOMInstance(name, commMsgHandler.getMsgName(msgID));
-	msgID = 1001;
 
 	if (nomMsg.get())
 	{
