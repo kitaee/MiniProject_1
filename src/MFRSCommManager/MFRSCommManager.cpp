@@ -197,6 +197,38 @@ MFRSCommManager::start()
 			this,
 			std::placeholders::_1));
 
+	msgFuncMap.emplace(
+		_T("UplinkInfoToDatalinkInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvUplinkInfoToDatalinkInnerManager,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("UplinkInfoToUDPInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvUplinkInfoToUDPInnerManager,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("DownlinkInfoToDatalinkInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvDownlinkInfoToDatalinkInnerManager,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("DownlinkInfoToUDPInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvDownlinkInfoToUDPInnerManager,
+			this,
+			std::placeholders::_1));
+
 	return true;
 }
 
@@ -283,6 +315,54 @@ recvATInfoInnerManager(
 
 void MFRSCommManager::
 recvRadarDetectionInfoInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("UDPCommunicationManager"));
+}
+
+void MFRSCommManager::
+recvUplinkInfoToDatalinkInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("DatalinkManager"));
+}
+
+void MFRSCommManager::
+recvUplinkInfoToUDPInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("UDPCommunicationManager"));
+}
+
+void MFRSCommManager::
+recvDownlinkInfoToDatalinkInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("DatalinkManager"));
+}
+
+void MFRSCommManager::
+recvDownlinkInfoToUDPInnerManager(
 	std::shared_ptr<NOM> nomMsg)
 {
 	if (!nomMsg || !mec)

@@ -58,6 +58,10 @@ private:
 	void stopSimulation(shared_ptr<NOM> nomMsg);
 	void recvATInfo(shared_ptr<NOM> nomMsg);
 	void sendRadarDetectionInfo(shared_ptr<NOM> nomMsg);
+	void recvUplinkInfoToMFRS(shared_ptr<NOM> nomMsg);
+	void sendUplinkInfoToMSS(shared_ptr<NOM> nomMsg);
+	void recvDownlinkInfoToMFRS(shared_ptr<NOM> nomMsg);
+	void sendDownlinkInfoToTCC(shared_ptr<NOM> nomMsg);
 
 public:
 	std::unique_ptr<NOMParser> nomParser;

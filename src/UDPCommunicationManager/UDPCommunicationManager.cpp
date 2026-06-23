@@ -176,12 +176,12 @@ bool UDPCommunicationManager::start()
 		placeholders::_2);
 	commConfig->setMsgProcessor(msgProcessor);
 
-	tcout << _T("[UDPCommunicationManager] local=")
+	tcout << _T("[UDPCommunicationManager] local: ")
 		<< commConfig->getLocalIPNumber()
 		<< _T(":") << commConfig->getLocalPortNumber()
-		<< _T(", remote=") << commConfig->getRemoteIPNumber()
+		<< _T(", remote: ") << commConfig->getRemoteIPNumber()
 		<< _T(":") << commConfig->getRemotePortNumber()
-		<< _T(", multicast=") << commConfig->getMulticastIPNumber()
+		<< _T(", multicast: ") << commConfig->getMulticastIPNumber()
 		<< _T(":") << commConfig->getMulticastPort()
 		<< std::endl;
 
@@ -337,6 +337,30 @@ void UDPCommunicationManager::funcMapInit()
 		this,
 		placeholders::_1);
 	funcMap.insert({ _T("RadarDetectionInfoInnerManager"), msgProcessor });
+
+	msgProcessor = bind(
+		&UDPCommunicationManager::recvUplinkInfoToMFRS,
+		this,
+		placeholders::_1);
+	funcMap.insert({ _T("UplinkInfo"), msgProcessor });
+
+	msgProcessor = bind(
+		&UDPCommunicationManager::sendUplinkInfoToMSS,
+		this,
+		placeholders::_1);
+	funcMap.insert({ _T("UplinkInfoToUDPInnerManager"), msgProcessor });
+
+	msgProcessor = bind(
+		&UDPCommunicationManager::recvDownlinkInfoToMFRS,
+		this,
+		placeholders::_1);
+	funcMap.insert({ _T("DownlinkInfoFromMSS"), msgProcessor });
+
+	msgProcessor = bind(
+		&UDPCommunicationManager::sendDownlinkInfoToTCC,
+		this,
+		placeholders::_1);
+	funcMap.insert({ _T("DownlinkInfoToUDPInnerManager"), msgProcessor });
 }
 
 void UDPCommunicationManager::deployScenario(shared_ptr<NOM> nomMsg)
@@ -356,13 +380,6 @@ void UDPCommunicationManager::deployScenario(shared_ptr<NOM> nomMsg)
 
 	float radarXValue = radarX->toFloat();
 	float radarYValue = radarY->toFloat();
-
-	tcout << std::fixed << std::setprecision(2)
-		<< _T("[UDPCommunicationManager] RadarXPos=")
-		<< radarXValue
-		<< _T(", RadarYPos=")
-		<< radarYValue
-		<< std::endl;
 
 	NFloat radarXPos(radarXValue);
 	NFloat radarYPos(radarYValue);
@@ -461,18 +478,287 @@ void UDPCommunicationManager::sendRadarDetectionInfo(shared_ptr<NOM> nomMsg)
 		&targetVelocityValue);
 
 	tcout << std::fixed << std::setprecision(2)
-		<< _T("---- [UDPCommunicationManager] TCC RadarDetectionInfo SEND ----")
+		<< _T("[UDPCommunicationManager] TCC RadarDetectionInfo SEND.")
+		<< std::endl;
+
+	commInterface->sendCommMsg(outerNOMInstance);
+}
+
+void UDPCommunicationManager::recvUplinkInfoToMFRS(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb || !mec)
+		return;
+
+	auto innerNOMInstance =
+		meb->getNOMInstance(
+			name,
+			_T("UplinkInfoToDatalinkInnerManager"));
+	if (!innerNOMInstance)
+		return;
+
+	const auto airthreatID =
+		nomMsg->getValue(_T("UplinkInfo.AirthreatID"));
+	const auto airthreatXPos =
+		nomMsg->getValue(_T("UplinkInfo.AirthreatXPos"));
+	const auto airthreatYPos =
+		nomMsg->getValue(_T("UplinkInfo.AirthreatYPos"));
+	const auto missileID =
+		nomMsg->getValue(_T("UplinkInfo.MissileID"));
+	const auto airthreatVelocity =
+		nomMsg->getValue(_T("UplinkInfo.AirthreatVelocity"));
+
+	if (!airthreatID || !airthreatXPos || !airthreatYPos ||
+		!missileID || !airthreatVelocity)
+	{
+		return;
+	}
+
+	NUInteger airthreatIDValue(airthreatID->toUInt());
+	NFloat airthreatXValue(airthreatXPos->toFloat());
+	NFloat airthreatYValue(airthreatYPos->toFloat());
+	NUInteger missileIDValue(missileID->toUInt());
+	NFloat airthreatVelocityValue(airthreatVelocity->toFloat());
+
+	innerNOMInstance->setValue(
+		_T("AirthreatID"),
+		&airthreatIDValue);
+	innerNOMInstance->setValue(
+		_T("AirthreatXPos"),
+		&airthreatXValue);
+	innerNOMInstance->setValue(
+		_T("AirthreatYPos"),
+		&airthreatYValue);
+	innerNOMInstance->setValue(
+		_T("MissileID"),
+		&missileIDValue);
+	innerNOMInstance->setValue(
+		_T("AirthreatVelocity"),
+		&airthreatVelocityValue);
+
+	tcout << std::fixed << std::setprecision(2)
+		<< _T("---- [UDPCommunicationManager] TCC UplinkInfo received. ----")
 		<< std::endl
-		<< _T("TargetID=")
-		<< targetIDValue.toUInt()
-		<< _T(", X=")
-		<< targetXValue.toFloat()
-		<< _T(", Y=")
-		<< targetYValue.toFloat()
-		<< _T(", DetectedFlag=")
-		<< detectedFlagValue.toUInt()
-		<< _T(", Velocity=")
-		<< targetVelocityValue.toFloat()
+		<< _T("AirthreatID=")
+		<< airthreatIDValue.toUInt()
+		<< _T(", AirthreatX=")
+		<< airthreatXValue.toFloat()
+		<< _T(", AirthreatY=")
+		<< airthreatYValue.toFloat()
+		<< _T(", MissileID=")
+		<< missileIDValue.toUInt()
+		<< _T(", AirthreatVelocity=")
+		<< airthreatVelocityValue.toFloat()
+		<< std::endl;
+
+	mec->sendMsg(
+		innerNOMInstance,
+		_T("MFRSCommManager"));
+}
+
+void UDPCommunicationManager::sendUplinkInfoToMSS(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb || !commInterface)
+		return;
+
+	const auto airthreatID =
+		nomMsg->getValue(_T("AirthreatID"));
+	const auto airthreatXPos =
+		nomMsg->getValue(_T("AirthreatXPos"));
+	const auto airthreatYPos =
+		nomMsg->getValue(_T("AirthreatYPos"));
+	const auto missileID =
+		nomMsg->getValue(_T("MissileID"));
+	const auto airthreatVelocity =
+		nomMsg->getValue(_T("AirthreatVelocity"));
+
+	if (!airthreatID || !airthreatXPos || !airthreatYPos ||
+		!missileID || !airthreatVelocity)
+	{
+		return;
+	}
+
+	auto outerNOMInstance =
+		meb->getNOMInstance(
+			name,
+			_T("UplinkInfoToMSS"));
+	if (!outerNOMInstance)
+		return;
+
+	NUInteger messageID(5301);
+	NUInteger messageLength(28);
+	NUInteger airthreatIDValue(airthreatID->toUInt());
+	NFloat airthreatXValue(airthreatXPos->toFloat());
+	NFloat airthreatYValue(airthreatYPos->toFloat());
+	NUInteger missileIDValue(missileID->toUInt());
+	NFloat airthreatVelocityValue(airthreatVelocity->toFloat());
+
+	outerNOMInstance->setValue(
+		_T("MessageHeader.MessageID"),
+		&messageID);
+	outerNOMInstance->setValue(
+		_T("MessageHeader.MessageLength"),
+		&messageLength);
+	outerNOMInstance->setValue(
+		_T("UplinkInfo.AirthreatID"),
+		&airthreatIDValue);
+	outerNOMInstance->setValue(
+		_T("UplinkInfo.AirthreatXPos"),
+		&airthreatXValue);
+	outerNOMInstance->setValue(
+		_T("UplinkInfo.AirthreatYPos"),
+		&airthreatYValue);
+	outerNOMInstance->setValue(
+		_T("UplinkInfo.MissileID"),
+		&missileIDValue);
+	outerNOMInstance->setValue(
+		_T("UplinkInfo.AirthreatVelocity"),
+		&airthreatVelocityValue);
+
+	tcout << std::fixed << std::setprecision(2)
+		<< _T("---- [UDPCommunicationManager] MSS UplinkInfo send. ----")
+		<< std::endl
+		<< _T("AirthreatID=")
+		<< airthreatIDValue.toUInt()
+		<< _T(", AirthreatX=")
+		<< airthreatXValue.toFloat()
+		<< _T(", AirthreatY=")
+		<< airthreatYValue.toFloat()
+		<< _T(", MissileID=")
+		<< missileIDValue.toUInt()
+		<< _T(", AirthreatVelocity=")
+		<< airthreatVelocityValue.toFloat()
+		<< std::endl;
+
+	commInterface->sendCommMsg(outerNOMInstance);
+}
+
+void UDPCommunicationManager::recvDownlinkInfoToMFRS(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb || !mec)
+		return;
+
+	auto innerNOMInstance =
+		meb->getNOMInstance(
+			name,
+			_T("DownlinkInfoToDatalinkInnerManager"));
+	if (!innerNOMInstance)
+		return;
+
+	const auto missileID =
+		nomMsg->getValue(_T("DownlinkInfo.MissileID"));
+	const auto missileVelocity =
+		nomMsg->getValue(_T("DownlinkInfo.MissileVelocity"));
+	const auto missileXPos =
+		nomMsg->getValue(_T("DownlinkInfo.MissileXPos"));
+	const auto missileYPos =
+		nomMsg->getValue(_T("DownlinkInfo.MissileYPos"));
+
+	if (!missileID || !missileVelocity ||
+		!missileXPos || !missileYPos)
+	{
+		return;
+	}
+
+	NUInteger missileIDValue(missileID->toUInt());
+	NFloat missileVelocityValue(missileVelocity->toFloat());
+	NFloat missileXValue(missileXPos->toFloat());
+	NFloat missileYValue(missileYPos->toFloat());
+
+	innerNOMInstance->setValue(
+		_T("MissileID"),
+		&missileIDValue);
+	innerNOMInstance->setValue(
+		_T("MissileVelocity"),
+		&missileVelocityValue);
+	innerNOMInstance->setValue(
+		_T("MissileXPos"),
+		&missileXValue);
+	innerNOMInstance->setValue(
+		_T("MissileYPos"),
+		&missileYValue);
+
+	tcout << std::fixed << std::setprecision(2)
+		<< _T("---- [UDPCommunicationManager] MSS DownlinkInfo received. ----")
+		<< std::endl
+		<< _T("MissileID=")
+		<< missileIDValue.toUInt()
+		<< _T(", MissileVelocity=")
+		<< missileVelocityValue.toFloat()
+		<< _T(", MissileX=")
+		<< missileXValue.toFloat()
+		<< _T(", MissileY=")
+		<< missileYValue.toFloat()
+		<< std::endl;
+
+	mec->sendMsg(
+		innerNOMInstance,
+		_T("MFRSCommManager"));
+}
+
+void UDPCommunicationManager::sendDownlinkInfoToTCC(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb || !commInterface)
+		return;
+
+	const auto missileID =
+		nomMsg->getValue(_T("MissileID"));
+	const auto missileVelocity =
+		nomMsg->getValue(_T("MissileVelocity"));
+	const auto missileXPos =
+		nomMsg->getValue(_T("MissileXPos"));
+	const auto missileYPos =
+		nomMsg->getValue(_T("MissileYPos"));
+
+	if (!missileID || !missileVelocity ||
+		!missileXPos || !missileYPos)
+	{
+		return;
+	}
+
+	auto outerNOMInstance =
+		meb->getNOMInstance(
+			name,
+			_T("DownlinkInfo"));
+	if (!outerNOMInstance)
+		return;
+
+	NUInteger messageID(5103);
+	NUInteger messageLength(24);
+	NUInteger missileIDValue(missileID->toUInt());
+	NFloat missileVelocityValue(missileVelocity->toFloat());
+	NFloat missileXValue(missileXPos->toFloat());
+	NFloat missileYValue(missileYPos->toFloat());
+
+	outerNOMInstance->setValue(
+		_T("MessageHeader.MessageID"),
+		&messageID);
+	outerNOMInstance->setValue(
+		_T("MessageHeader.MessageLength"),
+		&messageLength);
+	outerNOMInstance->setValue(
+		_T("DownlinkInfo.MissileID"),
+		&missileIDValue);
+	outerNOMInstance->setValue(
+		_T("DownlinkInfo.MissileVelocity"),
+		&missileVelocityValue);
+	outerNOMInstance->setValue(
+		_T("DownlinkInfo.MissileXPos"),
+		&missileXValue);
+	outerNOMInstance->setValue(
+		_T("DownlinkInfo.MissileYPos"),
+		&missileYValue);
+
+	tcout << std::fixed << std::setprecision(2)
+		<< _T("---- [UDPCommunicationManager] TCC DownlinkInfo send. ----")
+		<< std::endl
+		<< _T("MissileID=")
+		<< missileIDValue.toUInt()
+		<< _T(", MissileVelocity=")
+		<< missileVelocityValue.toFloat()
+		<< _T(", MissileX=")
+		<< missileXValue.toFloat()
+		<< _T(", MissileY=")
+		<< missileYValue.toFloat()
 		<< std::endl;
 
 	commInterface->sendCommMsg(outerNOMInstance);
@@ -553,19 +839,18 @@ void UDPCommunicationManager::recvATInfo(shared_ptr<NOM> nomMsg)
 	innerNOMInstance->setValue(_T("AirthreatVelocity"), &velocityValue);
 
 	tcout << std::fixed << std::setprecision(2)
-		<< _T("---- [UDPCommunicationManager] ATS ATInfo received. ----")
-		<< std::endl
-		<< _T("AirthreatID=")
+		<< _T("[UDPCommunicationManager] ATS ATInfo received. ")
+		<< _T("(AirthreatID: ")
 		<< idValue.toUInt()
-		<< _T(", Status=")
+		<< _T(", Status: ")
 		<< statusValue.toUInt()
-		<< _T(", X=")
+		<< _T(", X: ")
 		<< xValue.toFloat()
-		<< _T(", Y=")
+		<< _T(", Y: ")
 		<< yValue.toFloat()
-		<< _T(", Velocity=")
+		<< _T(", Velocity: ")
 		<< velocityValue.toFloat()
-		<< std::endl;
+		<< _T(")\n");
 
 	mec->sendMsg(innerNOMInstance, _T("MFRSCommManager"));
 }

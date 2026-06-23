@@ -216,13 +216,6 @@ void MFRSModelManager::recvScenario(
 	float radarY =
 		nomMsg->getValue(_T("RadarYPos"))->toFloat();
 
-	tcout << std::fixed << std::setprecision(2) 
-		<< _T("[MFRSModelManager] RadarXPos=")
-		<< radarX
-		<< _T(", RadarYPos=")
-		<< radarY
-		<< std::endl;
-
 	MFRSModel =
 		std::make_shared<MFRS_MODEL>();
 
@@ -265,10 +258,7 @@ void MFRSModelManager::recvStartSimulation(
 	isSimulationRunning = true;
 
 	tcout << _T(
-		"[MFRSModelManager] StartSimulationInnerManager received.")
-		<< std::endl;
-	tcout << _T(
-		"[MFRSModelManager] Current simulation state: START.")
+		"[MFRSModelManager] StartSimulationInnerManager received. (state: START)")
 		<< std::endl;
 }
 
@@ -281,10 +271,7 @@ void MFRSModelManager::recvStopSimulation(
 	isSimulationRunning = false;
 
 	tcout << _T(
-		"[MFRSModelManager] StopSimulationInnerManager received.")
-		<< std::endl;
-	tcout << _T(
-		"[MFRSModelManager] Current simulation state: STOPPED.")
+		"[MFRSModelManager] StopSimulationInnerManager received. (state: STOPPED)")
 		<< std::endl;
 }
 
@@ -392,6 +379,9 @@ void MFRSModelManager::recvTargetInfo(
 		<< dist_m
 		<< _T(" m, azimuth: ")
 		<< azimuth
+		<< _T(", DetectedFlag: ")
+		<< detectedflag
+		<< _T("(0: Undetected, 1: Detected, 2: ShootDown)")
 		<< std::endl;
 
 	auto radarDetectionInfo =

@@ -54,6 +54,18 @@ private:
 	void recvRadarDetectionInfoInnerManager(
 		std::shared_ptr<NOM> nomMsg);
 
+	void recvUplinkInfoToDatalinkInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
+	void recvUplinkInfoToUDPInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
+	void recvDownlinkInfoToDatalinkInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
+	void recvDownlinkInfoToUDPInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
 private:
 	std::map<
 		tstring,
