@@ -131,11 +131,23 @@ LCSModelManager::setData(void * data)
 bool
 LCSModelManager::start()
 {
-	// recvMsg에서 호출될 메서드 등록
-	std::function<void(std::shared_ptr<NOM>)> msgProcessor;
+	// 시나리오 배포
+    msgFuncMap.insert(make_pair(
+        _T("DeployScenarioInnerManager"),
+        std::bind(&LCSModelManager::recvScenario, this, std::placeholders::_1)
+    ));
 
-	msgProcessor = std::bind(&LCSModelManager::recvScenario, this, std::placeholders::_1);
-	msgFuncMap.insert(make_pair(_T("DeployScenarioInnerManager"), msgProcessor));
+    // 모의 중지
+    msgFuncMap.insert(make_pair(
+        _T("StopSimulationRequestInnerManager"),
+        std::bind(&LCSModelManager::recvScenario, this, std::placeholders::_1)
+    ));
+
+	// 발사
+	msgFuncMap.insert(make_pair(
+		_T("LaunchMissleInnerToModel"),
+		std::bind(&LCSModelManager::missleFire, this, std::placeholders::_1)
+	));
 
 	return true;
 }
@@ -176,6 +188,46 @@ LCSModelManager::recvScenario(std::shared_ptr<NOM> nomMsg)
 	InnerNOMInstance->setValue(_T("MessageHeader.MessageID"), &NUInteger(4101));
 	
 	std::cout << "발사대 모의기 LCSModelManager ACK 송신\n" << std::endl;
+	this->sendMsg(InnerNOMInstance);
+}
+
+void
+LCSModelManager::stopSimulation(std::shared_ptr<NOM> nomMsg)
+{
+	// 모델 초기화
+	launcherModel->modelReset();
+
+	std::cout << "발사대 모의기 LCSModelManager 모델 초기화 완료\n" << std::endl;
+}
+
+void
+LCSModelManager::missleFire(std::shared_ptr<NOM> nomMsg)
+{
+	std::cout << "발사대 모의기 LCSModelManager 발사 요청\n" << std::endl;
+
+	int missleID = nomMsg->getValue(_T("misslseID"))->toInt();
+
+	// 발사 수행
+	if (launcherModel->inventory[missleID - 1] == false) {
+		// 이미 발사된 탄에 대한 발사 요청
+		std::cout << "잘못된 발사 요청 (발사 불가)\n" << std::endl;
+	}
+	else {
+		launcherModel->fire(missleID - 1);
+		std::cout << "발사 완료\n" << std::endl;
+	}
+
+	auto InnerNOMInstance = meb->getNOMInstance(name, _T("LaunchMissleResponseInnerManager"));
+
+	// 발사 응답 세팅
+	InnerNOMInstance->setValue(_T("AirthreatID"), &(NInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
+	InnerNOMInstance->setValue(_T("AirthreatLatitude"), &(NFloat)(nomMsg->getValue(_T("AirthreatLatitude"))->toFloat()));
+	InnerNOMInstance->setValue(_T("AirthreatLongitude"), &(NFloat)(nomMsg->getValue(_T("AirthreatLongitude"))->toFloat()));
+	InnerNOMInstance->setValue(_T("MissleID"), &(NInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
+	InnerNOMInstance->setValue(_T("LCSXpos"), &(NFloat)launcherModel->launcherPosition.x);
+	InnerNOMInstance->setValue(_T("LCSYpos"), &(NFloat)launcherModel->launcherPosition.y);
+
+	std::cout << "발사대 모의기 LCSModelManager 발사 응답 송신\n" << std::endl;
 	this->sendMsg(InnerNOMInstance);
 }
 

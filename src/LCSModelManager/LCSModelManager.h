@@ -56,6 +56,8 @@ private:
 		Handler Method
 	*/
 	void recvScenario(std::shared_ptr<NOM> nomMsg);
+	void stopSimulation(std::shared_ptr<NOM> nomMsg);
+	void missleFire(std::shared_ptr<NOM> nomMsg);
 
 private:
 	std::shared_ptr<LCS_MODEL> launcherModel;

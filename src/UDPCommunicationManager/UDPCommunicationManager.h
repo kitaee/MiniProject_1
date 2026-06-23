@@ -49,6 +49,12 @@ private:
 	//void recvSendScenario(shared_ptr<NOM> nomMsg);
 	void deployScenario(shared_ptr<NOM> nomMsg);
 	void sendScenarioAck(shared_ptr<NOM> nomMsg);
+	void startSimulation(shared_ptr<NOM> nomMsg);
+	void stopSimulation(shared_ptr<NOM> nomMsg);
+	void launchMissle(shared_ptr<NOM> nomMsg);
+	void recvLaunchMissleResponse(shared_ptr<NOM> nomMsg);
+	void sendMissleFireResult(shared_ptr<NOM> nomMsg);
+	void sendMissleFireRequestToMissle(shared_ptr<NOM> nomMsg);
 	/*void recvStartSimulation(shared_ptr<NOM> nomMsg);
 	void recvStopSimulation(shared_ptr<NOM> nomMsg);
 	void recvInnerSendScenarioAck(shared_ptr<NOM> nomMsg);

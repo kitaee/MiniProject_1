@@ -3,6 +3,14 @@
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
 
+#include <nFramework/BaseManager.h>
+#include <nFramework/mec/MECComponent.h>
+#include <nFramework/nom/NOMMain.h>
+#include <nFramework/nLineStream/NLineStreamMain.h>
+#include <nFramework/nTimer/NTimer.h>
+#include <sstream>
+#include <functional>
+
 using namespace nframework;
 using namespace nom;
 
@@ -29,6 +37,9 @@ public:
 	virtual bool stop() override;
 	virtual void setMEBComponent(IMEBComponent*) override;
 
+	void launchMissle(std::shared_ptr<NOM> nomMsg);
+	void recvLaunchMissleResponse(std::shared_ptr<NOM> nomMsg);
+
 private:
 	void initialize();
 	void release();
@@ -39,5 +50,7 @@ private:
 	tstring name;
 	std::map<unsigned int, std::shared_ptr<NOM>> registeredMsgMap;
 	std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;
+
+	std::map<tstring, std::function<void(std::shared_ptr<NOM>)>> msgFuncMap;
 };
 
