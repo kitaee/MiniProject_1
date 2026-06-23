@@ -112,5 +112,27 @@ namespace MiniProject_GUI.Infrastructure
                 MessageBox.Show(ex.ToString());
             }
         }
+
+        public void LaunchMissile(LaunchMissileRequest launchMissileRequest)
+        {
+            var nomInstance = nomHandler.GetNMessage("LaunchMissileCommand")?.createNOMInstance();
+            if (nomInstance == null) return;
+
+            try
+            {
+                nomInstance.owner = "UIManager";
+                nomInstance.setValue("MessageHeader.MessageID", new NUInteger(LaunchMissileRequest.CommandMessageId));
+                nomInstance.setValue("MessageHeader.MessageLength", new NUInteger(LaunchMissileRequest.MessageLengthBytes));
+                nomInstance.setValue("AirthreatID", new NUInteger(launchMissileRequest.AirthreatID));
+                nomInstance.setValue("AirthreatXPos", new NFloat(launchMissileRequest.AirthreatXPos));
+                nomInstance.setValue("AirthreatYPos", new NFloat(launchMissileRequest.AirthreatYPos));
+                nomInstance.setValue("MissileID", new NUInteger(launchMissileRequest.MissileID));
+                nomHandler.SendNOMMessage(nomInstance);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+        }
     }
 }

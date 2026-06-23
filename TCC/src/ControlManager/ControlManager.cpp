@@ -1,6 +1,7 @@
 #pragma once
 # include <nFramework/util/IniHandler.h>
 # include "ControlManager.h"
+# include <nFramework/nom/NFloat.h>
 # include <nFramework/nom/NUInteger.h>
 # include <map>
 
@@ -120,6 +121,10 @@ ControlManager::recvMsg(std::shared_ptr < NOM > nomMsg)
 	{
 		sendSimulationRequest(_T("StopSimulationRequest"), 1003);
 	}
+	else if (msgName == _T("LaunchMissileCommand"))
+	{
+		sendLaunchMissileRequest(nomMsg);
+	}
 }
 
 void
@@ -139,6 +144,31 @@ ControlManager::sendSimulationRequest(const tstring& requestName, uint32_t messa
 	requestMsg->setOwner(name);
 	requestMsg->setValue(_T("MessageHeader.MessageID"), new NUInteger(messageId));
 	requestMsg->setValue(_T("MessageHeader.MessageLength"), new NUInteger(8));
+
+	sendMsg(requestMsg);
+}
+
+void
+ControlManager::sendLaunchMissileRequest(std::shared_ptr<NOM> commandMsg)
+{
+	if (meb == nullptr || commandMsg == nullptr)
+		return;
+
+	auto requestTemplate = meb->getNOMInstance(name, _T("LaunchMissileRequest"));
+	if (!requestTemplate)
+	{
+		tcerr << _T("[ControlManager] undefined message: LaunchMissileRequest") << std::endl;
+		return;
+	}
+
+	auto requestMsg = requestTemplate->clone();
+	requestMsg->setOwner(name);
+	requestMsg->setValue(_T("MessageHeader.MessageID"), new NUInteger(1401));
+	requestMsg->setValue(_T("MessageHeader.MessageLength"), new NUInteger(24));
+	requestMsg->setValue(_T("AirthreatID"), new NUInteger(commandMsg->getValue(_T("AirthreatID"))->toUInt()));
+	requestMsg->setValue(_T("AirthreatXPos"), new NFloat(commandMsg->getValue(_T("AirthreatXPos"))->toFloat()));
+	requestMsg->setValue(_T("AirthreatYPos"), new NFloat(commandMsg->getValue(_T("AirthreatYPos"))->toFloat()));
+	requestMsg->setValue(_T("MissileID"), new NUInteger(commandMsg->getValue(_T("MissileID"))->toUInt()));
 
 	sendMsg(requestMsg);
 }

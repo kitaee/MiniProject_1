@@ -172,6 +172,7 @@
                            FontWeight="SemiBold"
                            Foreground="#B7C7D9"/>
             </StackPanel>
+
         </Grid>
     </GroupBox>
 </UserControl>

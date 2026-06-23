@@ -20,12 +20,23 @@
 		<NOM:interaction name="StopSimulationCommand" id="9003" semantics="UIManager to ControlManager simulation stop command" sharing="Publish" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 		</NOM:interaction>
+		<NOM:interaction name="LaunchMissileCommand" id="9004" semantics="UIManager to ControlManager launch missile command" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+			<NOM:parameter name="AirthreatXPos" semantics="AirthreatXPos" dataType="float"/>
+			<NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+			<NOM:parameter name="MissileID" semantics="MissileID" dataType="uint"/>
+		</NOM:interaction>
 		<NOM:interaction name="ScenarioACK" id="2101" semantics="simulator to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 		</NOM:interaction>
 		<NOM:interaction name="RadarDetectionInfo" id="5102" semantics="MFRS to TCC radar detection information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 			<NOM:parameter name="RadarDetection" semantics="RadarDetection" dataType="DetectedTargetStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="MissileQuantityInfo" id="4102" semantics="LCS to TCC missile quantity information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="MissileQuantity" semantics="MissileQuantity" dataType="uint"/>
 		</NOM:interaction>
 	</NOM:interactions>
 

@@ -33,6 +33,7 @@ private:
 	void initialize();
 	void release();
 	void sendSimulationRequest(const tstring& requestName, uint32_t messageId);
+	void sendLaunchMissileRequest(std::shared_ptr<NOM> commandMsg);
 
 private:
 	IMEBComponent* meb;

@@ -2,6 +2,7 @@ using MiniProject_GUI.Infrastructure;
 using MiniProject_GUI.Models.Coordinate;
 using MiniProject_GUI.Models.Enum;
 using MiniProject_GUI.Models.Scenario;
+using MiniProject_GUI.Models.Simualation;
 using MiniProject_GUI.Models.Simulation;
 using MiniProject_GUI.Services;
 using System;
@@ -29,11 +30,16 @@ namespace MiniProject_GUI.ViewModels
         private bool _isMfrsScenarioAckReceived;
         private bool _isLoadingInputs;
         private bool _isSimulationRunning;
+        private bool _isScenarioEditAllowedAfterStop;
         private bool _hasRadarDetection;
         private uint _detectedFlag;
+        private uint _detectedTargetID;
+        private float _detectedTargetXPos;
+        private float _detectedTargetYPos;
         private float _detectedTargetLatitude;
         private float _detectedTargetLongitude;
         private int _remainingMissileCount = 4;
+        private uint _nextMissileID = 1;
         private ScenarioSend _savedScenario;
         private string _selectedMapTarget = "Radar";
 
@@ -51,6 +57,7 @@ namespace MiniProject_GUI.ViewModels
         {
             EventAggregator.Instance.Subscribe<ScenarioSendAck>(OnScenarioSendAck);
             EventAggregator.Instance.Subscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
+            EventAggregator.Instance.Subscribe<MissileQuantityInfo>(OnMissileQuantityInfo);
 
             EditScenarioCommand = new RelayCommand(EnterEditMode, () => !IsEditMode && !IsScenarioLocationLocked);
             SwitchToSimulationModeCommand = new RelayCommand(EnterSimulationMode, () => IsEditMode && !IsSimulationRunning);
@@ -154,7 +161,7 @@ namespace MiniProject_GUI.ViewModels
             AreAllScenarioAcksReceived;
 
         public bool IsScenarioLocationLocked =>
-            IsSimulationRunning || CanStartSimulation;
+            IsSimulationRunning || (CanStartSimulation && !_isScenarioEditAllowedAfterStop);
 
         public string SimulationControlButtonText =>
             IsSimulationRunning ? "모의 중지" : "모의 시작";
@@ -449,6 +456,7 @@ namespace MiniProject_GUI.ViewModels
             }
 
             _savedScenario = scenario;
+            SetScenarioEditAllowedAfterStop(false);
             HasUnsavedChanges = false;
             IsScenarioDeployed = false;
             ResetScenarioAcks();
@@ -464,6 +472,8 @@ namespace MiniProject_GUI.ViewModels
         {
             if (_savedScenario == null || IsSimulationRunning) return;
 
+            SetScenarioEditAllowedAfterStop(false);
+            ResetTacticalStatus();
             ResetScenarioAcks();
             ScenarioService.SendSendScenario(_savedScenario);
             IsScenarioDeployed = true;
@@ -475,12 +485,16 @@ namespace MiniProject_GUI.ViewModels
             {
                 SimulationService.SendStopSimulation();
                 IsSimulationRunning = false;
+                SetScenarioEditAllowedAfterStop(true);
+                ResetTacticalStatus();
                 RemainingMissileCount = 4;
+                _nextMissileID = 1;
                 return;
             }
 
             if (!CanStartSimulation) return;
 
+            SetScenarioEditAllowedAfterStop(false);
             SimulationService.SendStartSimulation();
             IsSimulationRunning = true;
         }
@@ -489,11 +503,22 @@ namespace MiniProject_GUI.ViewModels
         {
             if (!CanFireMissile) return;
 
-            RemainingMissileCount -= 1;
+            SimulationService.SendLaunchMissile(new LaunchMissileRequest
+            {
+                AirthreatID = _detectedTargetID,
+                AirthreatXPos = _detectedTargetXPos,
+                AirthreatYPos = _detectedTargetYPos,
+                MissileID = _nextMissileID
+            });
+
+            _nextMissileID++;
+            RemainingMissileCount = Math.Max(0, RemainingMissileCount - 1);
         }
 
         public void ToggleScenarioAck(string simulatorName)
         {
+            if (IsSimulationRunning) return;
+
             switch (simulatorName)
             {
                 case "ATS":
@@ -696,8 +721,40 @@ namespace MiniProject_GUI.ViewModels
 
             _hasRadarDetection = true;
             _detectedFlag = radarDetection.DetectedFlag;
+            _detectedTargetID = radarDetection.TargetID;
+            _detectedTargetXPos = radarDetection.TargetXPos;
+            _detectedTargetYPos = radarDetection.TargetYPos;
             _detectedTargetLatitude = targetPosition.Latitude;
             _detectedTargetLongitude = targetPosition.Longitude;
+
+            OnPropertyChanged(nameof(HasRadarDetection));
+            OnPropertyChanged(nameof(DetectedFlag));
+            OnPropertyChanged(nameof(IsTargetDetected));
+            OnPropertyChanged(nameof(IsTargetDestroyed));
+            OnPropertyChanged(nameof(DetectedTargetLatitude));
+            OnPropertyChanged(nameof(DetectedTargetLongitude));
+            OnPropertyChanged(nameof(RadarDetectionStatusText));
+            OnPropertyChanged(nameof(CanFireMissile));
+            OnPropertyChanged(nameof(FireMissileButtonText));
+            RefreshCommandState();
+        }
+
+        private void OnMissileQuantityInfo(MissileQuantityInfo missileQuantityInfo)
+        {
+            RemainingMissileCount = missileQuantityInfo.MissileQuantity > int.MaxValue
+                ? int.MaxValue
+                : (int)missileQuantityInfo.MissileQuantity;
+        }
+
+        private void ResetTacticalStatus()
+        {
+            _hasRadarDetection = false;
+            _detectedFlag = 0;
+            _detectedTargetID = 0;
+            _detectedTargetXPos = 0;
+            _detectedTargetYPos = 0;
+            _detectedTargetLatitude = 0;
+            _detectedTargetLongitude = 0;
 
             OnPropertyChanged(nameof(HasRadarDetection));
             OnPropertyChanged(nameof(DetectedFlag));
@@ -717,6 +774,15 @@ namespace MiniProject_GUI.ViewModels
             IsMssScenarioAckReceived = false;
             IsLcsScenarioAckReceived = false;
             IsMfrsScenarioAckReceived = false;
+        }
+
+        private void SetScenarioEditAllowedAfterStop(bool value)
+        {
+            if (_isScenarioEditAllowedAfterStop == value) return;
+
+            _isScenarioEditAllowedAfterStop = value;
+            OnPropertyChanged(nameof(IsScenarioLocationLocked));
+            RefreshCommandState();
         }
 
         private void SetScenarioAckState(ref bool storage, bool value, [CallerMemberName] string propertyName = null)
@@ -742,6 +808,7 @@ namespace MiniProject_GUI.ViewModels
         {
             EventAggregator.Instance.Unsubscribe<ScenarioSendAck>(OnScenarioSendAck);
             EventAggregator.Instance.Unsubscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
+            EventAggregator.Instance.Unsubscribe<MissileQuantityInfo>(OnMissileQuantityInfo);
         }
     }
 }

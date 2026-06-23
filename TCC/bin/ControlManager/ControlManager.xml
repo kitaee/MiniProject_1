@@ -9,11 +9,25 @@
 		<NOM:interaction name="StopSimulationCommand" id="9003" semantics="UIManager to ControlManager simulation stop command" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 		</NOM:interaction>
+		<NOM:interaction name="LaunchMissileCommand" id="9004" semantics="UIManager to ControlManager launch missile command" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+			<NOM:parameter name="AirthreatXPos" semantics="AirthreatXPos" dataType="float"/>
+			<NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+			<NOM:parameter name="MissileID" semantics="MissileID" dataType="uint"/>
+		</NOM:interaction>
 		<NOM:interaction name="StartSimulationRequest" id="1002" semantics="TCC to simulators simulation start request" sharing="Publish" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 		</NOM:interaction>
 		<NOM:interaction name="StopSimulationRequest" id="1003" semantics="TCC to simulators simulation stop request" sharing="Publish" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="LaunchMissileRequest" id="1401" semantics="TCC to LCS launch missile request" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+			<NOM:parameter name="AirthreatXPos" semantics="AirthreatXPos" dataType="float"/>
+			<NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+			<NOM:parameter name="MissileID" semantics="MissileID" dataType="uint"/>
 		</NOM:interaction>
 	</NOM:interactions>
 	<NOM:dataTypes>

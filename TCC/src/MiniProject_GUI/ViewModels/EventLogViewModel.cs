@@ -3,6 +3,7 @@ using MiniProject_GUI.Models;
 using MiniProject_GUI.Models.Enum;
 using MiniProject_GUI.Models.Scenario;
 using MiniProject_GUI.Models.Simualation;
+using MiniProject_GUI.Models.Simulation;
 using System;
 using System.Collections.ObjectModel;
 
@@ -44,6 +45,9 @@ namespace MiniProject_GUI.ViewModels
             EventAggregator.Instance.Subscribe<ScenarioSendAck>(OnScenarioSendAck);
             EventAggregator.Instance.Subscribe<SimulationStart>(OnSimulationStart);
             EventAggregator.Instance.Subscribe<SimulationStop>(OnSimulationStop);
+            EventAggregator.Instance.Subscribe<LaunchMissileRequest>(OnLaunchMissileRequest);
+            EventAggregator.Instance.Subscribe<MissileQuantityInfo>(OnMissileQuantityInfo);
+            EventAggregator.Instance.Subscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
 
             // ── [확장 가이드] 아래 구독을 활성화하여 기능 확장 가능 ──
             // 시뮬레이션 시작·종료 ACK 로그:
@@ -85,6 +89,16 @@ namespace MiniProject_GUI.ViewModels
             }
         }
 
+        private string GetDetectedFlagName(uint detectedFlag)
+        {
+            switch (detectedFlag)
+            {
+                case 1:  return "탐지";
+                case 2:  return "격추";
+                default: return "미탐지";
+            }
+        }
+
         // ────────────────────────────────────────────
         // 이벤트 핸들러
         // ────────────────────────────────────────────
@@ -95,7 +109,7 @@ namespace MiniProject_GUI.ViewModels
         /// </summary>
         private void OnScenarioSendAck(ScenarioSendAck ack)
         {
-            AddLog("[" + GetSimulatorName(ack.SimulatorID) + "] 배포 ACK");
+            AddLog("[Response] " + GetSimulatorName(ack.SimulatorID) + " -> TCC ID " + ack.MessageId + " ScenarioACK");
         }
 
         // 확장 가이드, 아래 메서드들을 활성화하면 시뮬레이션 시작·종료 로그를 표시할 수 있다.
@@ -125,6 +139,25 @@ namespace MiniProject_GUI.ViewModels
             AddLog("[Request] TCC -> ALL ID " + SimulationStop.MessageId + " StopSimulationRequest 전송");
         }
 
+        private void OnLaunchMissileRequest(LaunchMissileRequest launchMissileRequest)
+        {
+            AddLog("[Request] TCC -> LCS ID " + LaunchMissileRequest.MessageId + " LaunchMissileRequest");
+        }
+
+        private void OnMissileQuantityInfo(MissileQuantityInfo missileQuantityInfo)
+        {
+            AddLog("[Response] LCS -> TCC ID " + MissileQuantityInfo.MessageId + " MissileQuantityInfo Qty=" + missileQuantityInfo.MissileQuantity);
+        }
+
+        private void OnRadarDetectionInfo(RadarDetectionInfo radarDetectionInfo)
+        {
+            AddLog(
+                "[Response] MFRS -> TCC ID " + RadarDetectionInfo.MessageId +
+                " RadarDetectionInfo Tgt=" + radarDetectionInfo.TargetID +
+                " Flag=" + GetDetectedFlagName(radarDetectionInfo.DetectedFlag) +
+                " Spd=" + radarDetectionInfo.TargetVelocity.ToString("0.##"));
+        }
+
         public void Dispose()
         {
             // Subscribe와 쌍으로 반드시 Unsubscribe 해야 메모리 누수를 방지할 수 있다.
@@ -132,6 +165,9 @@ namespace MiniProject_GUI.ViewModels
             EventAggregator.Instance.Unsubscribe<ScenarioSendAck>(OnScenarioSendAck);
             EventAggregator.Instance.Unsubscribe<SimulationStart>(OnSimulationStart);
             EventAggregator.Instance.Unsubscribe<SimulationStop>(OnSimulationStop);
+            EventAggregator.Instance.Unsubscribe<LaunchMissileRequest>(OnLaunchMissileRequest);
+            EventAggregator.Instance.Unsubscribe<MissileQuantityInfo>(OnMissileQuantityInfo);
+            EventAggregator.Instance.Unsubscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
         }
     }
 }

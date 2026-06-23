@@ -97,6 +97,7 @@ namespace MiniProject_GUI
             // SimulationControl View를 만들고 버튼에서 SimulationService.SendStartSimulation() 호출.
             EventAggregator.Instance.Subscribe<SimulationStart>(nomEventHandler.StartSimulation);
             EventAggregator.Instance.Subscribe<SimulationStop>(nomEventHandler.StopSimulation);
+            EventAggregator.Instance.Subscribe<LaunchMissileRequest>(nomEventHandler.LaunchMissile);
 
             InitializeComponent();
         }
@@ -216,6 +217,10 @@ namespace MiniProject_GUI
                             else if (innerNom.name == "RadarDetectionInfo")
                             {
                                 SimulationService.ReceiveRadarDetectionInfo(innerNom);
+                            }
+                            else if (innerNom.name == "MissileQuantityInfo")
+                            {
+                                SimulationService.ReceiveMissileQuantityInfo(innerNom);
                             }
                             else if (innerNom.name == "StartSimulationAck")
                             {

@@ -24,9 +24,9 @@
 		<NOM:interaction name="LaunchMissileRequest" id="1401" semantics="통합통제기→발사대 모의기 발사 명령" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 			<NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
-			<NOM:parameter name="AirthreatxPos" semantics="AirthreatxPos" dataType="float"/>
-			<NOM:parameter name="AirthreatyPos" semantics="AirthreatyPos" dataType="float"/>
-			<NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
+			<NOM:parameter name="AirthreatXPos" semantics="AirthreatXPos" dataType="float"/>
+			<NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+			<NOM:parameter name="MissileID" semantics="MissileID" dataType="uint"/>
 		</NOM:interaction>
 		<NOM:interaction name="UplinkInfo" id="1501" semantics="통합통제기(레이더 모의기)→레이더 모의기(유도탄 모의기) 업링크(주기)" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>

@@ -44,6 +44,11 @@ namespace MiniProject_GUI.Services
             EventAggregator.Instance.Publish(new SimulationStop());
         }
 
+        public static void SendLaunchMissile(LaunchMissileRequest launchMissileRequest)
+        {
+            EventAggregator.Instance.Publish(launchMissileRequest);
+        }
+
         // ────────────────────────────────────────────
         // 수신 (모의기 → TCC)
         // ────────────────────────────────────────────
@@ -89,6 +94,13 @@ namespace MiniProject_GUI.Services
         {
             EventAggregator.Instance.Publish(
                 NOMConverter.Import<RadarDetectionInfo>(nomMsg)
+            );
+        }
+
+        public static void ReceiveMissileQuantityInfo(NOM nomMsg)
+        {
+            EventAggregator.Instance.Publish(
+                NOMConverter.Import<MissileQuantityInfo>(nomMsg)
             );
         }
     }

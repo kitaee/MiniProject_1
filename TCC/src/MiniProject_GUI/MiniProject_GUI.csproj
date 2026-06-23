@@ -140,6 +140,8 @@
     <Compile Include="Models\Simulation\SimulationStopAck.cs" />
     <Compile Include="Models\Simulation\SimulatorState.cs" />
     <Compile Include="Models\Simulation\RadarDetectionInfo.cs" />
+    <Compile Include="Models\Simulation\LaunchMissileRequest.cs" />
+    <Compile Include="Models\Simulation\MissileQuantityInfo.cs" />
 
     <!-- ── Models / 공통 ── -->
     <Compile Include="Models\EventLogEntry.cs" />
