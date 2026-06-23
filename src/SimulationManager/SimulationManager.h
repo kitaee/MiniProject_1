@@ -42,6 +42,12 @@ private:
 	void recvScenarioACKInnerManager(
 		std::shared_ptr<NOM> nomMsg);
 
+	void recvStartSimulationInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
+	void recvStopSimulationInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
 private:
 	std::map<
 		tstring,

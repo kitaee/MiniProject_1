@@ -165,6 +165,22 @@ MFRSCommManager::start()
 			this,
 			std::placeholders::_1));
 
+	msgFuncMap.emplace(
+		_T("StartSimulationInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvStartSimulationInnerManager,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("StopSimulationInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvStopSimulationInnerManager,
+			this,
+			std::placeholders::_1));
+
 	return true;
 }
 
@@ -203,6 +219,38 @@ recvScenarioACKInnerManager(
 	mec->sendMsg(
 		nomMsg,
 		_T("UDPCommunicationManager"));
+}
+
+void MFRSCommManager::
+recvStartSimulationInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	tcout << _T(
+		"[MFRSCommManager] StartSimulationInnerManager received.")
+		<< std::endl;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("SimulationManager"));
+}
+
+void MFRSCommManager::
+recvStopSimulationInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	tcout << _T(
+		"[MFRSCommManager] StopSimulationInnerManager received.")
+		<< std::endl;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("SimulationManager"));
 }
 
 /************************************************************************

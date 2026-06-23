@@ -158,6 +158,20 @@ MFRSModelManager::start()
 			this,
 			std::placeholders::_1));
 
+	msgFuncMap.emplace(
+		_T("StartSimulationInnerManager"),
+		std::bind(
+			&MFRSModelManager::recvStartSimulation,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("StopSimulationInnerManager"),
+		std::bind(
+			&MFRSModelManager::recvStopSimulation,
+			this,
+			std::placeholders::_1));
+
 	return true;
 }
 
@@ -181,25 +195,31 @@ void MFRSModelManager::recvScenario(
 	if (!nomMsg || !meb)
 		return;
 
-	const auto latitudeValue =
-		nomMsg->getValue(_T("RadarPositionLatitude"));
-	const auto longitudeValue =
-		nomMsg->getValue(_T("RadarPositionLongitude"));
-
-	if (!latitudeValue || !longitudeValue)
+	if (!nomMsg->getValue(_T("RadarPositionLatitude")) ||
+		!nomMsg->getValue(_T("RadarPositionLongitude")))
+	{
 		return;
+	}
 
-	const float latitude = latitudeValue->toFloat();
-	const float longitude = longitudeValue->toFloat();
+	float radarLatitude =
+		nomMsg->getValue(_T("RadarPositionLatitude"))->toFloat();
+	float radarLongitude =
+		nomMsg->getValue(_T("RadarPositionLongitude"))->toFloat();
+
+	tcout << _T("[MFRSModelManager] RadarPositionLatitude=")
+		<< radarLatitude
+		<< _T(", RadarPositionLongitude=")
+		<< radarLongitude
+		<< std::endl;
 
 	MFRSModel =
 		std::make_shared<MFRS_MODEL>();
 
 	MFRSModel->position.latitude =
-		latitude;
+		radarLatitude;
 
 	MFRSModel->position.longitude =
-		longitude;
+		radarLongitude;
 
 	MFRSModel->position.altitude =
 		0.0F;
@@ -226,6 +246,38 @@ void MFRSModelManager::recvScenario(
 	mec->sendMsg(
 		ackMsg,
 		_T("SimulationManager"));
+}
+
+void MFRSModelManager::recvStartSimulation(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg)
+		return;
+
+	isSimulationRunning = true;
+
+	tcout << _T(
+		"[MFRSModelManager] StartSimulationInnerManager received.")
+		<< std::endl;
+	tcout << _T(
+		"[MFRSModelManager] Current simulation state: START/RUNNING.")
+		<< std::endl;
+}
+
+void MFRSModelManager::recvStopSimulation(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg)
+		return;
+
+	isSimulationRunning = false;
+
+	tcout << _T(
+		"[MFRSModelManager] StopSimulationInnerManager received.")
+		<< std::endl;
+	tcout << _T(
+		"[MFRSModelManager] Current simulation state: STOPPED.")
+		<< std::endl;
 }
 
 /************************************************************************

@@ -160,6 +160,22 @@ SimulationManager::start()
 			this,
 			std::placeholders::_1));
 
+	msgFuncMap.emplace(
+		_T("StartSimulationInnerManager"),
+		std::bind(
+			&SimulationManager::
+			recvStartSimulationInnerManager,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("StopSimulationInnerManager"),
+		std::bind(
+			&SimulationManager::
+			recvStopSimulationInnerManager,
+			this,
+			std::placeholders::_1));
+
 	tcout << "[" << __FUNCTIONT__ << "] " << std::endl;
 	return true;
 }
@@ -200,6 +216,38 @@ recvScenarioACKInnerManager(
 	mec->sendMsg(
 		nomMsg,
 		_T("MFRSCommManager"));
+}
+
+void SimulationManager::
+recvStartSimulationInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	tcout << _T(
+		"[SimulationManager] StartSimulationInnerManager received.")
+		<< std::endl;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("MFRSModelManager"));
+}
+
+void SimulationManager::
+recvStopSimulationInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	tcout << _T(
+		"[SimulationManager] StopSimulationInnerManager received.")
+		<< std::endl;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("MFRSModelManager"));
 }
 
 /************************************************************************

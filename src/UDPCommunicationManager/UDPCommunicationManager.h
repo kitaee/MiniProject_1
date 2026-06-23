@@ -37,6 +37,7 @@ public:
 	virtual tstring getUserName() override;
 	virtual void setData(void*) override;
 	virtual bool start() override;
+	void ProcessTestCode();
 	virtual bool stop() override;
 	virtual void setMEBComponent(IMEBComponent*) override;
 
@@ -53,6 +54,8 @@ private:
 private:
 	void deployScenario(shared_ptr<NOM> nomMsg);
 	void sendScenarioAck(shared_ptr<NOM> nomMsg);
+	void startSimulation(shared_ptr<NOM> nomMsg);
+	void stopSimulation(shared_ptr<NOM> nomMsg);
 
 public:
 	std::unique_ptr<NOMParser> nomParser;

@@ -214,7 +214,31 @@ bool UDPCommunicationManager::start()
 		}
 	}
 
+	ProcessTestCode();
+
 	return true;
+}
+
+void
+UDPCommunicationManager::ProcessTestCode()
+{
+	//시나리오 배포
+	auto nomMockDeployScenario = meb->getNOMInstance(name, _T("DeployScenarioRequest"));
+	nomMockDeployScenario->setValue(_T("RadarPositionLatitude"), &(NFloat)37.7);
+	nomMockDeployScenario->setValue(_T("RadarPositionLongitude"), &(NFloat)127.7);
+	deployScenario(nomMockDeployScenario);
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	//// 모의 시작
+	auto nomMockStartSimulation = meb->getNOMInstance(name, _T("StartSimulationRequest"));
+	startSimulation(nomMockStartSimulation);
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	// 모의 중지
+	auto nomMockStopSimulation = meb->getNOMInstance(name, _T("StopSimulationRequest"));
+	stopSimulation(nomMockStopSimulation);
 }
 
 bool UDPCommunicationManager::stop()
@@ -250,6 +274,18 @@ void UDPCommunicationManager::funcMapInit()
 		this,
 		placeholders::_1);
 	funcMap.insert({ _T("ScenarioACKInnerManager"), msgProcessor });
+
+	msgProcessor = bind(
+		&UDPCommunicationManager::startSimulation,
+		this,
+		placeholders::_1);
+	funcMap.insert({ _T("StartSimulationRequest"), msgProcessor });
+
+	msgProcessor = bind(
+		&UDPCommunicationManager::stopSimulation,
+		this,
+		placeholders::_1);
+	funcMap.insert({ _T("StopSimulationRequest"), msgProcessor });
 }
 
 void UDPCommunicationManager::deployScenario(shared_ptr<NOM> nomMsg)
@@ -267,8 +303,17 @@ void UDPCommunicationManager::deployScenario(shared_ptr<NOM> nomMsg)
 	if (!latitude || !longitude)
 		return;
 
-	NFloat radarLatitude(latitude->toFloat());
-	NFloat radarLongitude(longitude->toFloat());
+	float radarLatitudeValue = latitude->toFloat();
+	float radarLongitudeValue = longitude->toFloat();
+
+	tcout << _T("[UDPCommunicationManager] RadarPositionLatitude=")
+		<< radarLatitudeValue
+		<< _T(", RadarPositionLongitude=")
+		<< radarLongitudeValue
+		<< std::endl;
+
+	NFloat radarLatitude(radarLatitudeValue);
+	NFloat radarLongitude(radarLongitudeValue);
 	innerNOMInstance->setValue(
 		_T("RadarPositionLatitude"), &radarLatitude);
 	innerNOMInstance->setValue(
@@ -303,6 +348,40 @@ void UDPCommunicationManager::sendScenarioAck(shared_ptr<NOM> nomMsg)
 	commInterface->sendCommMsg(outerNOMInstance);
 }
 
+void UDPCommunicationManager::startSimulation(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb || !mec)
+		return;
+
+	auto innerNOMInstance = meb->getNOMInstance(
+		name, _T("StartSimulationInnerManager"));
+	if (!innerNOMInstance)
+		return;
+
+	tcout << _T(
+		"[UDPCommunicationManager] StartSimulationRequest received.")
+		<< std::endl;
+
+	mec->sendMsg(innerNOMInstance, _T("MFRSCommManager"));
+}
+
+void UDPCommunicationManager::stopSimulation(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb || !mec)
+		return;
+
+	auto innerNOMInstance = meb->getNOMInstance(
+		name, _T("StopSimulationInnerManager"));
+	if (!innerNOMInstance)
+		return;
+
+	tcout << _T(
+		"[UDPCommunicationManager] StopSimulationRequest received.")
+		<< std::endl;
+
+	mec->sendMsg(innerNOMInstance, _T("MFRSCommManager"));
+}
+
 void UDPCommunicationManager::sendInnerMsg(shared_ptr<NOM> nomMsg)
 {
 	if (!nomMsg)
@@ -330,12 +409,13 @@ void UDPCommunicationManager::processRecvMessage(
 		return;
 	}
 
-	std::uint32_t networkMessageID = 0;
+	std::uint32_t messageID = 0;
 	std::memcpy(
-		&networkMessageID,
+		&messageID,
 		data + idPosition,
-		sizeof(networkMessageID));
-	const std::uint32_t messageID = ntohl(networkMessageID);
+		sizeof(messageID));
+
+	printf("[UDP CALLBACK] messageID=%d\n", messageID);
 
 	const int messageDestination = (messageID / 100) % 10;
 	if (messageDestination != 0 && messageDestination != 5)

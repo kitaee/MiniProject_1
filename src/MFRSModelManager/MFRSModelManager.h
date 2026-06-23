@@ -40,6 +40,8 @@ private:
 	void release();
 
 	void recvScenario(std::shared_ptr<NOM> nomMsg);
+	void recvStartSimulation(std::shared_ptr<NOM> nomMsg);
+	void recvStopSimulation(std::shared_ptr<NOM> nomMsg);
 
 private:
 	std::map<
@@ -48,6 +50,7 @@ private:
 	> msgFuncMap;
 
 	std::shared_ptr<MFRS_MODEL> MFRSModel;
+	bool isSimulationRunning = false;
 
 private:
 	IMEBComponent* meb = nullptr;
