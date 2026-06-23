@@ -117,6 +117,9 @@ namespace MiniProject_GUI.Views
 
         private void ScenarioMap_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            if (IsControlKeyDown())
+                return;
+
             if (!(DataContext is AckStatusViewModel viewModel)) return;
             if (viewModel.IsScenarioLocationLocked)
             {
@@ -135,6 +138,22 @@ namespace MiniProject_GUI.Views
 
             if (target == "Radar")
                 SetRadarCoverage(coordinate);
+        }
+
+        private void ScenarioMap_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (IsControlKeyDown())
+                ScenarioMap.DragButton = MouseButton.Left;
+        }
+
+        private void ScenarioMap_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            ScenarioMap.DragButton = MouseButton.Middle;
+        }
+
+        private bool IsControlKeyDown()
+        {
+            return (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         }
 
         private void SetMarker(string key, string label, PointLatLng coordinate)

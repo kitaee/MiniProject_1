@@ -377,6 +377,8 @@
                         ClipToBounds="True">
                     <Grid>
                         <gmap:GMapControl x:Name="ScenarioMap"
+                                          PreviewMouseLeftButtonDown="ScenarioMap_PreviewMouseLeftButtonDown"
+                                          PreviewMouseLeftButtonUp="ScenarioMap_PreviewMouseLeftButtonUp"
                                           MouseLeftButtonDown="ScenarioMap_MouseLeftButtonDown"/>
 
                         <StackPanel HorizontalAlignment="Left"
