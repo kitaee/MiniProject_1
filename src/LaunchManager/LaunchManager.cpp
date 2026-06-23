@@ -105,7 +105,10 @@ LaunchManager::sendMsg(std::shared_ptr < NOM > nomMsg)
 void
 LaunchManager::recvMsg(std::shared_ptr < NOM > nomMsg)
 {
-	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+	if (auto itr = msgFuncMap.find(nomMsg->getName()); itr != msgFuncMap.end())
+	{
+		itr->second(nomMsg);
+	}
 }
 
 void
@@ -165,10 +168,10 @@ LaunchManager::launchMissle(std::shared_ptr<NOM> nomMsg)
 	auto InnerNOMInstance = meb->getNOMInstance(name, _T("LaunchMissleInnerToModel"));
 
 	// 내부 구조체 세팅
-	InnerNOMInstance->setValue(_T("AirthreatID"), &(NInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
-	InnerNOMInstance->setValue(_T("AirthreatLatitude"), &(NFloat)(nomMsg->getValue(_T("AirthreatLatitude"))->toFloat()));
-	InnerNOMInstance->setValue(_T("AirthreatLongitude"), &(NFloat)(nomMsg->getValue(_T("AirthreatLongitude"))->toFloat()));
-	InnerNOMInstance->setValue(_T("MissleID"), &(NInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
+	InnerNOMInstance->setValue(_T("AirthreatID"), &(NUInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
+	InnerNOMInstance->setValue(_T("AirthreatXpos"), &(NFloat)(nomMsg->getValue(_T("AirthreatXpos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("AirthreatYPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatYPos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("MissleID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
 
 	this->sendMsg(InnerNOMInstance);
 }
@@ -181,12 +184,12 @@ LaunchManager::recvLaunchMissleResponse(std::shared_ptr<NOM> nomMsg)
 	auto InnerNOMInstance = meb->getNOMInstance(name, _T("LaunchMissleResponseToUDP"));
 
 	// 발사 응답 세팅
-	InnerNOMInstance->setValue(_T("AirthreatID"), &(NInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
-	InnerNOMInstance->setValue(_T("AirthreatLatitude"), &(NFloat)(nomMsg->getValue(_T("AirthreatLatitude"))->toFloat()));
-	InnerNOMInstance->setValue(_T("AirthreatLongitude"), &(NFloat)(nomMsg->getValue(_T("AirthreatLongitude"))->toFloat()));
-	InnerNOMInstance->setValue(_T("MissleID"), &(NInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
+	InnerNOMInstance->setValue(_T("AirthreatID"), &(NUInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
+	InnerNOMInstance->setValue(_T("AirthreatXpos"), &(NFloat)(nomMsg->getValue(_T("AirthreatXpos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("AirthreatYPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatYPos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("MissleID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
 	InnerNOMInstance->setValue(_T("LCSXpos"), &(NFloat)(nomMsg->getValue(_T("LCSXpos"))->toFloat()));
-	InnerNOMInstance->setValue(_T("LCSYpos"), &(NFloat)(nomMsg->getValue(_T("LCSYpos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("LCSYPos"), &(NFloat)(nomMsg->getValue(_T("LCSYPos"))->toFloat()));
 
 	this->sendMsg(InnerNOMInstance);
 }

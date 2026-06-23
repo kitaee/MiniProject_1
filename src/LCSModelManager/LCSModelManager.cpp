@@ -140,7 +140,7 @@ LCSModelManager::start()
     // 모의 중지
     msgFuncMap.insert(make_pair(
         _T("StopSimulationRequestInnerManager"),
-        std::bind(&LCSModelManager::recvScenario, this, std::placeholders::_1)
+        std::bind(&LCSModelManager::stopSimulation, this, std::placeholders::_1)
     ));
 
 	// 발사
@@ -205,7 +205,7 @@ LCSModelManager::missleFire(std::shared_ptr<NOM> nomMsg)
 {
 	std::cout << "발사대 모의기 LCSModelManager 발사 요청\n" << std::endl;
 
-	int missleID = nomMsg->getValue(_T("misslseID"))->toInt();
+	int missleID = nomMsg->getValue(_T("MissleID"))->toInt();
 
 	// 발사 수행
 	if (launcherModel->inventory[missleID - 1] == false) {
@@ -220,12 +220,12 @@ LCSModelManager::missleFire(std::shared_ptr<NOM> nomMsg)
 	auto InnerNOMInstance = meb->getNOMInstance(name, _T("LaunchMissleResponseInnerManager"));
 
 	// 발사 응답 세팅
-	InnerNOMInstance->setValue(_T("AirthreatID"), &(NInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
-	InnerNOMInstance->setValue(_T("AirthreatLatitude"), &(NFloat)(nomMsg->getValue(_T("AirthreatLatitude"))->toFloat()));
-	InnerNOMInstance->setValue(_T("AirthreatLongitude"), &(NFloat)(nomMsg->getValue(_T("AirthreatLongitude"))->toFloat()));
-	InnerNOMInstance->setValue(_T("MissleID"), &(NInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
+	InnerNOMInstance->setValue(_T("AirthreatID"), &(NUInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
+	InnerNOMInstance->setValue(_T("AirthreatXpos"), &(NFloat)(nomMsg->getValue(_T("AirthreatXpos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("AirthreatYPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatYPos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("MissleID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
 	InnerNOMInstance->setValue(_T("LCSXpos"), &(NFloat)launcherModel->launcherPosition.x);
-	InnerNOMInstance->setValue(_T("LCSYpos"), &(NFloat)launcherModel->launcherPosition.y);
+	InnerNOMInstance->setValue(_T("LCSYPos"), &(NFloat)launcherModel->launcherPosition.y);
 
 	std::cout << "발사대 모의기 LCSModelManager 발사 응답 송신\n" << std::endl;
 	this->sendMsg(InnerNOMInstance);

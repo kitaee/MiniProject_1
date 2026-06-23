@@ -25,6 +25,6 @@ struct LCS_MODEL {
 
 	// 발사 (해당 missleID의 상태값 변경)
 	void fire(int missleID) {
-		this->inventory[missleID - 1] = false;
+		this->inventory[missleID] = false;
 	}
 };

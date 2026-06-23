@@ -32,6 +32,7 @@ public:
 	virtual tstring getUserName() override;
 	virtual void setData(void*) override;
 	virtual bool start() override;
+	void ProcessTestCode();
 	virtual bool stop() override;
 	virtual void setMEBComponent(IMEBComponent*) override;
 	
