@@ -4,6 +4,9 @@
 #include <nFramework/nom/NOMMain.h>
 #include <functional>
 #include <map>
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 using namespace nframework;
 using namespace nom;
@@ -41,9 +44,31 @@ private:
 	void recvStartSimulationToModel(std::shared_ptr<NOM> nomMsg);
 	void recvStopSimulationToModel(std::shared_ptr<NOM> nomMsg);
 	void recvDetonationInfoToModel(std::shared_ptr<NOM> nomMsg);
-	void sendATInfo();
 
 private:
+	void resetAirthreatState();
+	void startSimulationLoop();
+	void stopSimulationLoop();
+	void simulationLoop();
+	void sendATInfo();
+	static double calculateDistanceMeter(float currentLatitude, float currentlongitude, float endLatitude, float endlongitude);
+
+private:
+	struct AirthreatState
+	{
+		unsigned int airthreatID = 0;
+		float airthreatXPos = 0.0f;
+		float airthreatYPos = 0.0f;
+		float airthreatVelocity = 0.0f;
+		float airthreatStartXPos = 0.0f;
+		float airthreatStartYPos = 0.0f;
+		float airthreatEndXPos = 0.0f;
+		float airthreatEndYPos = 0.0f;
+		bool scenarioLoaded = false;
+		bool simulationRunning = false;
+		bool airThreatDetonated = false;
+	};
+
 	IMEBComponent* meb;
 	MECComponent* mec;
 	tstring name;
@@ -51,9 +76,11 @@ private:
 	std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;
 	std::map<tstring, std::function<void(std::shared_ptr<NOM>)>> funcMap;
 
+	std::thread simulationThread;
+	std::atomic_bool simulationLoopRunning = false;
+	std::mutex airthreatStateMutex;
+
 private:
-	bool scenarioLoaded = false;
-	bool simulationRunning = false;
-	bool airThreatDetonated = false;
+	AirthreatState airthreatState;
 };
 

@@ -221,48 +221,42 @@ void
 UDPCommunicationManager::ProcessTestCode()
 {
 	//시나리오 배포
-	//<NOM:parameter name = "RadarPositionLatitude" semantics = "RadarPositionLatitude" dataType = "float" / >
-	//	<NOM:parameter name = "RadarPositionLongitude" semantics = "RadarPositionLongitude" dataType = "float" / >
-	//	<NOM:parameter name = "LauncherPositionLatitude" semantics = "LauncherPositionLatitude" dataType = "float" / >
-	//	<NOM:parameter name = "LauncherPositionLongitude" semantics = "LauncherPositionLongitude" dataType = "float" / >
-	//	<NOM:parameter name = "MissileVelocity" semantics = "MissileVelocity" dataType = "float" / >
 	auto nomMockDeployScenario = meb->getNOMInstance(name, _T("DeployScenarioRequest"));
 	nomMockDeployScenario->setValue(_T("MessageHeader.MessageID"), &(NUInteger)1001);
 	nomMockDeployScenario->setValue(_T("Airthreat.AirthreatID"), &(NUInteger)1);
 	nomMockDeployScenario->setValue(_T("Airthreat.AirthreatVelocity"), &(NFloat)100);
-	nomMockDeployScenario->setValue(_T("Airthreat.StartLatitude"), &(NFloat)37.7f);
-	nomMockDeployScenario->setValue(_T("Airthreat.StartLongitude"), &(NFloat)127.7f);
-	nomMockDeployScenario->setValue(_T("Airthreat.EndLatitude"), &(NFloat)41);
-	nomMockDeployScenario->setValue(_T("Airthreat.EndLongitude"), &(NFloat)139);
+	nomMockDeployScenario->setValue(_T("Airthreat.StartXPos"), &(NFloat)127.0f);
+	nomMockDeployScenario->setValue(_T("Airthreat.StartYPos"), &(NFloat)37.0f);
+	nomMockDeployScenario->setValue(_T("Airthreat.EndXPos"), &(NFloat)127.0f);
+	nomMockDeployScenario->setValue(_T("Airthreat.EndYPos"), &(NFloat)35.0f);
 
-	nomMockDeployScenario->setValue(_T("RadarPositionLatitude"), &(NFloat)37);
-	nomMockDeployScenario->setValue(_T("RadarPositionLongitude"), &(NFloat)139);
-	nomMockDeployScenario->setValue(_T("LauncherPositionLatitude"), &(NFloat)37);
-	nomMockDeployScenario->setValue(_T("LauncherPositionLongitude"), &(NFloat)139);
+	nomMockDeployScenario->setValue(_T("RadarXPos"), &(NFloat)37);
+	nomMockDeployScenario->setValue(_T("RadarYPos"), &(NFloat)139);
+	nomMockDeployScenario->setValue(_T("LauncherXPos"), &(NFloat)37);
+	nomMockDeployScenario->setValue(_T("LauncherYPos"), &(NFloat)139);
 	nomMockDeployScenario->setValue(_T("MissileVelocity"), &(NFloat)200);
 	nomMockDeployScenario->setValue(_T("MessageHeader.MessageLength"), &(NUInteger)52);
 	recvDeployScenarioRequest(nomMockDeployScenario);
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-	////// 모의 시작
-	//auto nomMockStartSimulation = meb->getNOMInstance(name, _T("StartSimulationRequest"));
-	//startSimulation(nomMockStartSimulation);
+	//// 모의 시작
+	auto nomMockStartSimulation = meb->getNOMInstance(name, _T("StartSimulationRequest"));
+	NUInteger startMsgID(1002);
+	nomMockStartSimulation->setValue(_T("MessageHeader.MessageID"), &startMsgID);
+	NUInteger startMsgLength(nomMockStartSimulation->getLength());
+	nomMockStartSimulation->setValue(_T("MessageHeader.MessageLength"), &startMsgLength);
+	recvStartSimulationRequest(nomMockStartSimulation);
 
-	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	std::this_thread::sleep_for(std::chrono::milliseconds(2500));
 
-	//// 모의 중지
-	//auto nomMockStopSimulation = meb->getNOMInstance(name, _T("StopSimulationRequest"));
-	//stopSimulation(nomMockStopSimulation);
-
-	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-	//auto nomMockFire = meb->getNOMInstance(name, _T("LaunchMissileRequest"));
-	//nomMockFire->setValue(_T("AirthreatID"), &(NUInteger)1);
-	//nomMockFire->setValue(_T("AirthreatLatitude"), &(NFloat)37.7);
-	//nomMockFire->setValue(_T("AirthreatLongitude"), &(NFloat)127.7);
-	//nomMockFire->setValue(_T("MissleID"), &(NUInteger)1);
-	//launchMissle(nomMockFire);
+	// 모의 중지
+	auto nomMockStopSimulation = meb->getNOMInstance(name, _T("StopSimulationRequest"));
+	NUInteger stopMsgID(1003);
+	nomMockStopSimulation->setValue(_T("MessageHeader.MessageID"), &stopMsgID);
+	NUInteger stopMsgLength(nomMockStopSimulation->getLength());
+	nomMockStopSimulation->setValue(_T("MessageHeader.MessageLength"), &stopMsgLength);
+	recvStopSimulationRequest(nomMockStopSimulation);
 }
 
 bool
@@ -335,6 +329,7 @@ void UDPCommunicationManager::recvScenarioACK(shared_ptr<NOM> nomMsg)
 
 void UDPCommunicationManager::recvATInfo(shared_ptr<NOM> nomMsg)
 {
+	tcout << _T("[UDPCommunicationManager::recvATInfo] ATInfo") << std::endl;
 	commInterface->sendCommMsg(nomMsg);
 }
 
@@ -354,9 +349,6 @@ UDPCommunicationManager::processRecvMessage(unsigned char* data, int size)
 	auto IDSize = commConfig->getHeaderIDSize();
 
 	auto msgID = 0;
-
-	// 수신 확인용 디버깅 코드
-	tcout << _T("[UDP] msgID=") << msgID << std::endl;
 
 	//ID 형식이 short 또는 int인 경우만 처리
 	if (IDSize == 2)
