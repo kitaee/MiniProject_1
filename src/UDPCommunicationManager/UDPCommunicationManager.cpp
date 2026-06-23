@@ -212,7 +212,7 @@ UDPCommunicationManager::start()
 	/*
 	* MockUp 테스트 코드 (MiniProject.ini 파일에서 UDPCOmmunicationManager 맨 밑으로 내려야함)
 	*/
-	//ProcessTestCode();
+	ProcessTestCode();
 
 	return true;
 }
@@ -222,8 +222,8 @@ UDPCommunicationManager::ProcessTestCode()
 {
 	//시나리오 배포
 	auto nomMockDeployScenario = meb->getNOMInstance(name, _T("DeployScenarioRequest"));
-	nomMockDeployScenario->setValue(_T("LauncherPositionLatitude"), &(NFloat)37.7);
-	nomMockDeployScenario->setValue(_T("LauncherPositionLongitude"), &(NFloat)127.7);
+	nomMockDeployScenario->setValue(_T("LauncherXPos"), &(NFloat)37.7);
+	nomMockDeployScenario->setValue(_T("LauncherYPos"), &(NFloat)127.7);
 	deployScenario(nomMockDeployScenario);
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -242,8 +242,8 @@ UDPCommunicationManager::ProcessTestCode()
 
 	auto nomMockFire = meb->getNOMInstance(name, _T("LaunchMissileRequest"));
 	nomMockFire->setValue(_T("AirthreatID"), &(NUInteger)1);
-	nomMockFire->setValue(_T("AirthreatLatitude"), &(NFloat)37.7);
-	nomMockFire->setValue(_T("AirthreatLongitude"), &(NFloat)127.7);
+	nomMockFire->setValue(_T("AirthreatxPos"), &(NFloat)37.7);
+	nomMockFire->setValue(_T("AirthreatyPos"), &(NFloat)127.7);
 	nomMockFire->setValue(_T("MissleID"), &(NUInteger)1);
 	launchMissle(nomMockFire);
 }
@@ -312,8 +312,8 @@ void UDPCommunicationManager::deployScenario(shared_ptr<NOM> nomMsg)
 	auto InnerNOMInstance = meb->getNOMInstance(name, _T("DeployScenarioInnerManager"));
 
 	// 내부 구조체 세팅
-	InnerNOMInstance->setValue(_T("LauncherPositionLatitude"), &(NFloat)(nomMsg->getValue(_T("LauncherPositionLatitude"))->toFloat()));
-	InnerNOMInstance->setValue(_T("LauncherPositionLongitude"), &(NFloat)(nomMsg->getValue(_T("LauncherPositionLongitude"))->toFloat()));
+	InnerNOMInstance->setValue(_T("LCSXPos"), &(NFloat)(nomMsg->getValue(_T("LauncherXPos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("LCSYPos"), &(NFloat)(nomMsg->getValue(_T("LauncherYPos"))->toFloat()));
 	
 	std::cout << "발사대 모의기 UDPCommunicationManager 시나리오 배포 수신\n" << std::endl;
 	this->sendMsg(InnerNOMInstance);
@@ -352,8 +352,8 @@ void UDPCommunicationManager::launchMissle(shared_ptr<NOM> nomMsg)
 
 	// 내부 구조체 세팅
 	InnerNOMInstance->setValue(_T("AirthreatID"), &(NUInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
-	InnerNOMInstance->setValue(_T("AirthreatXpos"), &(NFloat)(nomMsg->getValue(_T("AirthreatLatitude"))->toFloat()));
-	InnerNOMInstance->setValue(_T("AirthreatYPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatLongitude"))->toFloat()));
+	InnerNOMInstance->setValue(_T("AirthreatXPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatxPos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("AirthreatYPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatyPos"))->toFloat()));
 	InnerNOMInstance->setValue(_T("MissleID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
 
 	this->sendMsg(InnerNOMInstance);
@@ -386,10 +386,10 @@ void UDPCommunicationManager::sendMissleFireRequestToMissle(shared_ptr<NOM> nomM
 
 	outerNOMInstance->setValue(_T("MessageHeader.MessageID"), &NUInteger(4301));
 	outerNOMInstance->setValue(_T("AirthreatID"), &(NUInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
-	outerNOMInstance->setValue(_T("AirthreatXpos"), &(NFloat)(nomMsg->getValue(_T("AirthreatXpos"))->toFloat()));
+	outerNOMInstance->setValue(_T("AirthreatXPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatXPos"))->toFloat()));
 	outerNOMInstance->setValue(_T("AirthreatYPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatYPos"))->toFloat()));
-	outerNOMInstance->setValue(_T("MissleID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
-	outerNOMInstance->setValue(_T("LCSXpos"), &(NFloat)(nomMsg->getValue(_T("LCSXpos"))->toFloat()));
+	outerNOMInstance->setValue(_T("MissileID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
+	outerNOMInstance->setValue(_T("LCSXPos"), &(NFloat)(nomMsg->getValue(_T("LCSXPos"))->toFloat()));
 	outerNOMInstance->setValue(_T("LCSYPos"), &(NFloat)(nomMsg->getValue(_T("LCSYPos"))->toFloat()));
 
 	commInterface->sendCommMsg(outerNOMInstance);

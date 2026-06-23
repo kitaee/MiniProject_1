@@ -173,13 +173,13 @@ LCSModelManager::setMEBComponent(IMEBComponent * realMEB)
 void
 LCSModelManager::recvScenario(std::shared_ptr<NOM> nomMsg)
 {
-	float launcherLatitude = nomMsg->getValue(_T("LauncherPositionLatitude"))->toFloat();
-	float launcherLongitude = nomMsg->getValue(_T("LauncherPositionLongitude"))->toFloat();
+	float x = nomMsg->getValue(_T("LCSXPos"))->toFloat();
+	float y = nomMsg->getValue(_T("LCSYPos"))->toFloat();
 
 	// 발사대 모델 세팅
 	launcherModel = std::make_shared<LCS_MODEL>();
-	launcherModel->launcherPosition.x = launcherLatitude;
-	launcherModel->launcherPosition.y = launcherLongitude;
+	launcherModel->launcherPosition.x = x;
+	launcherModel->launcherPosition.y = y;
 
 	// ACK 송신
 	auto InnerNOMInstance = meb->getNOMInstance(name, _T("ScenarioACKInnerManager"));
@@ -221,10 +221,10 @@ LCSModelManager::missleFire(std::shared_ptr<NOM> nomMsg)
 
 	// 발사 응답 세팅
 	InnerNOMInstance->setValue(_T("AirthreatID"), &(NUInteger)(nomMsg->getValue(_T("AirthreatID"))->toUInt()));
-	InnerNOMInstance->setValue(_T("AirthreatXpos"), &(NFloat)(nomMsg->getValue(_T("AirthreatXpos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("AirthreatXPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatXPos"))->toFloat()));
 	InnerNOMInstance->setValue(_T("AirthreatYPos"), &(NFloat)(nomMsg->getValue(_T("AirthreatYPos"))->toFloat()));
 	InnerNOMInstance->setValue(_T("MissleID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
-	InnerNOMInstance->setValue(_T("LCSXpos"), &(NFloat)launcherModel->launcherPosition.x);
+	InnerNOMInstance->setValue(_T("LCSXPos"), &(NFloat)launcherModel->launcherPosition.x);
 	InnerNOMInstance->setValue(_T("LCSYPos"), &(NFloat)launcherModel->launcherPosition.y);
 
 	std::cout << "발사대 모의기 LCSModelManager 발사 응답 송신\n" << std::endl;
