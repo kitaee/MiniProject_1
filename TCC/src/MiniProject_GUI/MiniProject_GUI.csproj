@@ -121,7 +121,6 @@
     <Compile Include="Infrastructure\RelayCommand.cs" />
 
     <!-- ── Models / Converter ── -->
-    <Compile Include="Models\Coordinate\EcefCoordinateConverter.cs" />
     <Compile Include="Models\Converter\INOMConvertible.cs" />
     <Compile Include="Models\Converter\NOMConverter.cs" />
 

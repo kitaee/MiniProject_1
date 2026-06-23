@@ -1,5 +1,4 @@
 using MiniProject_GUI.Infrastructure;
-using MiniProject_GUI.Models.Coordinate;
 using MiniProject_GUI.Models.Enum;
 using MiniProject_GUI.Models.Scenario;
 using MiniProject_GUI.Models.Simualation;
@@ -715,17 +714,13 @@ namespace MiniProject_GUI.ViewModels
 
         private void OnRadarDetectionInfo(RadarDetectionInfo radarDetection)
         {
-            GeoCoordinate targetPosition = EcefCoordinateConverter.ToLatitudeLongitude(
-                radarDetection.TargetXPos,
-                radarDetection.TargetYPos);
-
             _hasRadarDetection = true;
             _detectedFlag = radarDetection.DetectedFlag;
             _detectedTargetID = radarDetection.TargetID;
             _detectedTargetXPos = radarDetection.TargetXPos;
             _detectedTargetYPos = radarDetection.TargetYPos;
-            _detectedTargetLatitude = targetPosition.Latitude;
-            _detectedTargetLongitude = targetPosition.Longitude;
+            _detectedTargetLatitude = radarDetection.TargetYPos;
+            _detectedTargetLongitude = radarDetection.TargetXPos;
 
             OnPropertyChanged(nameof(HasRadarDetection));
             OnPropertyChanged(nameof(DetectedFlag));
