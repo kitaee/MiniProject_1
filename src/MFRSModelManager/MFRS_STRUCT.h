@@ -2,9 +2,8 @@
 
 struct MFRS_POSITION
 {
-    float latitude = 0.0F;
-    float longitude = 0.0F;
-    float altitude = 0.0F;
+    float x = 0.0F;
+    float y = 0.0F;
 };
 
 struct MFRS_MODEL

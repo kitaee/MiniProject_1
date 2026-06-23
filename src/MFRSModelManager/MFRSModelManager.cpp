@@ -2,6 +2,7 @@
 # include <nFramework/util/IniHandler.h>
 # include "MFRSModelManager.h"
 # include <map>
+#include <iomanip>
 
 /**
 * @ class: MFRSModelManager
@@ -195,34 +196,32 @@ void MFRSModelManager::recvScenario(
 	if (!nomMsg || !meb)
 		return;
 
-	if (!nomMsg->getValue(_T("RadarPositionLatitude")) ||
-		!nomMsg->getValue(_T("RadarPositionLongitude")))
+	if (!nomMsg->getValue(_T("RadarXPos")) ||
+		!nomMsg->getValue(_T("RadarYPos")))
 	{
 		return;
 	}
 
-	float radarLatitude =
-		nomMsg->getValue(_T("RadarPositionLatitude"))->toFloat();
-	float radarLongitude =
-		nomMsg->getValue(_T("RadarPositionLongitude"))->toFloat();
+	float radarX =
+		nomMsg->getValue(_T("RadarXPos"))->toFloat();
+	float radarY =
+		nomMsg->getValue(_T("RadarYPos"))->toFloat();
 
-	tcout << _T("[MFRSModelManager] RadarPositionLatitude=")
-		<< radarLatitude
-		<< _T(", RadarPositionLongitude=")
-		<< radarLongitude
+	tcout << std::fixed << std::setprecision(2) 
+		<< _T("[MFRSModelManager] RadarXPos=")
+		<< radarX
+		<< _T(", RadarYPos=")
+		<< radarY
 		<< std::endl;
 
 	MFRSModel =
 		std::make_shared<MFRS_MODEL>();
 
-	MFRSModel->position.latitude =
-		radarLatitude;
+	MFRSModel->position.x =
+		radarX;
 
-	MFRSModel->position.longitude =
-		radarLongitude;
-
-	MFRSModel->position.altitude =
-		0.0F;
+	MFRSModel->position.y =
+		radarY;
 
 	auto ackMsg =
 		meb->getNOMInstance(

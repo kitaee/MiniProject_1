@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <filesystem>
+#include <iomanip>
 
 using namespace std::filesystem;
 
@@ -182,8 +183,6 @@ bool UDPCommunicationManager::start()
 		<< _T(":") << commConfig->getRemotePortNumber()
 		<< _T(", multicast=") << commConfig->getMulticastIPNumber()
 		<< _T(":") << commConfig->getMulticastPort()
-		<< _T(", role=") << commConfig->getServerRole()
-		<< _T(", cast=") << commConfig->getCastType()
 		<< std::endl;
 
 	const bool initialized = commInterface->initNetEnv(commConfig);
@@ -222,21 +221,23 @@ bool UDPCommunicationManager::start()
 void
 UDPCommunicationManager::ProcessTestCode()
 {
-	//½Ã³ª¸®¿À ¹èÆ÷
+	//ì‹œë‚˜ë¦¬ì˜¤ ë°°í¬
 	auto nomMockDeployScenario = meb->getNOMInstance(name, _T("DeployScenarioRequest"));
-	nomMockDeployScenario->setValue(_T("RadarPositionLatitude"), &(NFloat)37.7);
-	nomMockDeployScenario->setValue(_T("RadarPositionLongitude"), &(NFloat)127.7);
+	NFloat radarXPos(3000000.1F);
+	NFloat radarYPos(-4000000.1F);
+	nomMockDeployScenario->setValue(_T("RadarXPos"), &radarXPos);
+	nomMockDeployScenario->setValue(_T("RadarYPos"), &radarYPos);
 	deployScenario(nomMockDeployScenario);
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-	//// ¸ðÀÇ ½ÃÀÛ
+	//// ëª¨ì˜ ì‹œìž‘
 	auto nomMockStartSimulation = meb->getNOMInstance(name, _T("StartSimulationRequest"));
 	startSimulation(nomMockStartSimulation);
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
-	// ¸ðÀÇ ÁßÁö
+	// ëª¨ì˜ ì¤‘ì§€
 	auto nomMockStopSimulation = meb->getNOMInstance(name, _T("StopSimulationRequest"));
 	stopSimulation(nomMockStopSimulation);
 }
@@ -298,26 +299,27 @@ void UDPCommunicationManager::deployScenario(shared_ptr<NOM> nomMsg)
 	if (!innerNOMInstance)
 		return;
 
-	const auto latitude = nomMsg->getValue(_T("RadarPositionLatitude"));
-	const auto longitude = nomMsg->getValue(_T("RadarPositionLongitude"));
-	if (!latitude || !longitude)
+	const auto radarX = nomMsg->getValue(_T("RadarXPos"));
+	const auto radarY = nomMsg->getValue(_T("RadarYPos"));
+	if (!radarX || !radarY)
 		return;
 
-	float radarLatitudeValue = latitude->toFloat();
-	float radarLongitudeValue = longitude->toFloat();
+	float radarXValue = radarX->toFloat();
+	float radarYValue = radarY->toFloat();
 
-	tcout << _T("[UDPCommunicationManager] RadarPositionLatitude=")
-		<< radarLatitudeValue
-		<< _T(", RadarPositionLongitude=")
-		<< radarLongitudeValue
+	tcout << std::fixed << std::setprecision(2)
+		<< _T("[UDPCommunicationManager] RadarXPos=")
+		<< radarXValue
+		<< _T(", RadarYPos=")
+		<< radarYValue
 		<< std::endl;
 
-	NFloat radarLatitude(radarLatitudeValue);
-	NFloat radarLongitude(radarLongitudeValue);
+	NFloat radarXPos(radarXValue);
+	NFloat radarYPos(radarYValue);
 	innerNOMInstance->setValue(
-		_T("RadarPositionLatitude"), &radarLatitude);
+		_T("RadarXPos"), &radarXPos);
 	innerNOMInstance->setValue(
-		_T("RadarPositionLongitude"), &radarLongitude);
+		_T("RadarYPos"), &radarYPos);
 
 	tcout << _T(
 		"[UDPCommunicationManager] DeployScenarioRequest received.")
