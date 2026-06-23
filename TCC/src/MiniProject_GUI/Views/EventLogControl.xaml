@@ -20,14 +20,22 @@
                 <ItemsControl ItemsSource="{Binding Logs}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Style="{StaticResource MaterialDesignCaptionTextBlock}"
-                                           Foreground="Yellow" Margin="0,0,5,0"
+                            <Grid Margin="0,0,0,2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                           Foreground="Yellow"
+                                           Margin="0,0,5,0"
                                            Text="{Binding Time}"/>
-                                <TextBlock Style="{StaticResource MaterialDesignCaptionTextBlock}"
+                                <TextBlock Grid.Column="1"
+                                           Style="{StaticResource MaterialDesignCaptionTextBlock}"
                                            Foreground="White"
+                                           TextWrapping="Wrap"
                                            Text="{Binding Message}"/>
-                            </StackPanel>
+                            </Grid>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>

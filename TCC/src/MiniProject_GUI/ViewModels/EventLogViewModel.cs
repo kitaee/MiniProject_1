@@ -95,7 +95,7 @@ namespace MiniProject_GUI.ViewModels
         /// </summary>
         private void OnScenarioSendAck(ScenarioSendAck ack)
         {
-            AddLog("[" + GetSimulatorName(ack.SimulatorID) + "] 시나리오 배포 ACK 수신");
+            AddLog("[" + GetSimulatorName(ack.SimulatorID) + "] 배포 ACK");
         }
 
         // 확장 가이드, 아래 메서드들을 활성화하면 시뮬레이션 시작·종료 로그를 표시할 수 있다.

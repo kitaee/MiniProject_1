@@ -5,6 +5,7 @@ using MaterialDesignThemes.Wpf;
 using MiniProject_GUI.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -28,6 +29,8 @@ namespace MiniProject_GUI.Views
         {
             InitializeComponent();
             DataContext = ViewModelLocator.AckStatus;
+            ViewModelLocator.AckStatus.PropertyChanged += OnViewModelPropertyChanged;
+            Unloaded += OnUnloaded;
             InitializeMap();
         }
 
@@ -50,10 +53,43 @@ namespace MiniProject_GUI.Views
             ScenarioMap.MaxZoom = 18;
             ScenarioMap.Zoom = 6;
             ScenarioMap.CanDragMap = true;
-            ScenarioMap.DragButton = MouseButton.Right;
+            ScenarioMap.DragButton = MouseButton.Middle;
             ScenarioMap.MouseWheelZoomEnabled = true;
             ScenarioMap.MouseWheelZoomType = MouseWheelZoomType.MousePositionWithoutCenter;
             ScenarioMap.ShowCenter = false;
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            ViewModelLocator.AckStatus.PropertyChanged -= OnViewModelPropertyChanged;
+            Unloaded -= OnUnloaded;
+        }
+
+        private void OnViewModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(AckStatusViewModel.HasRadarDetection) ||
+                e.PropertyName == nameof(AckStatusViewModel.DetectedFlag) ||
+                e.PropertyName == nameof(AckStatusViewModel.DetectedTargetLatitude) ||
+                e.PropertyName == nameof(AckStatusViewModel.DetectedTargetLongitude))
+            {
+                RefreshDetectedTargetMarker();
+            }
+        }
+
+        private void RefreshDetectedTargetMarker()
+        {
+            if (!(DataContext is AckStatusViewModel viewModel)) return;
+
+            if (!viewModel.HasRadarDetection)
+            {
+                RemoveMarker("DetectedTarget");
+                return;
+            }
+
+            SetMarker(
+                "DetectedTarget",
+                viewModel.RadarDetectionStatusText,
+                new PointLatLng(viewModel.DetectedTargetLatitude, viewModel.DetectedTargetLongitude));
         }
 
         private void ScenarioMap_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -80,8 +116,7 @@ namespace MiniProject_GUI.Views
 
         private void SetMarker(string key, string label, PointLatLng coordinate)
         {
-            if (markers.TryGetValue(key, out GMapMarker existingMarker))
-                ScenarioMap.Markers.Remove(existingMarker);
+            RemoveMarker(key);
 
             var marker = new GMapMarker(coordinate)
             {
@@ -91,6 +126,15 @@ namespace MiniProject_GUI.Views
 
             markers[key] = marker;
             ScenarioMap.Markers.Add(marker);
+        }
+
+        private void RemoveMarker(string key)
+        {
+            if (!markers.TryGetValue(key, out GMapMarker existingMarker))
+                return;
+
+            ScenarioMap.Markers.Remove(existingMarker);
+            markers.Remove(key);
         }
 
         private void SetRadarCoverage(PointLatLng radarPosition)
@@ -241,8 +285,25 @@ namespace MiniProject_GUI.Views
                     return PackIconKind.AirplaneTakeoff;
                 case "AirthreatEnd":
                     return PackIconKind.Target;
+                case "DetectedTarget":
+                    return GetDetectedTargetIcon();
                 default:
                     return PackIconKind.MapMarker;
+            }
+        }
+
+        private PackIconKind GetDetectedTargetIcon()
+        {
+            uint detectedFlag = (DataContext as AckStatusViewModel)?.DetectedFlag ?? 0;
+
+            switch (detectedFlag)
+            {
+                case 1:
+                    return PackIconKind.AirplaneAlert;
+                case 2:
+                    return PackIconKind.Bomb;
+                default:
+                    return PackIconKind.AirplaneOff;
             }
         }
 
@@ -258,8 +319,25 @@ namespace MiniProject_GUI.Views
                     return Color.FromRgb(0x21, 0x96, 0xF3);
                 case "AirthreatEnd":
                     return Color.FromRgb(0xE9, 0x1E, 0x63);
+                case "DetectedTarget":
+                    return GetDetectedTargetColor();
                 default:
                     return Color.FromRgb(0x90, 0xA4, 0xAE);
+            }
+        }
+
+        private Color GetDetectedTargetColor()
+        {
+            uint detectedFlag = (DataContext as AckStatusViewModel)?.DetectedFlag ?? 0;
+
+            switch (detectedFlag)
+            {
+                case 1:
+                    return Color.FromRgb(0xE5, 0x39, 0x35);
+                case 2:
+                    return Color.FromRgb(0xFF, 0x6D, 0x00);
+                default:
+                    return Color.FromRgb(0x78, 0x86, 0x94);
             }
         }
     }

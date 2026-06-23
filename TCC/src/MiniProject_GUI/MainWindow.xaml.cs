@@ -213,6 +213,10 @@ namespace MiniProject_GUI
                                 // → StatusViewModel → 연결 상태 표시등 갱신
                                 SimulationService.ReceiveSimulatorState(innerNom);
                             }
+                            else if (innerNom.name == "RadarDetectionInfo")
+                            {
+                                SimulationService.ReceiveRadarDetectionInfo(innerNom);
+                            }
                             else if (innerNom.name == "StartSimulationAck")
                             {
                                 // [확장 가이드]

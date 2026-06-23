@@ -8,8 +8,8 @@
 
     <UserControl.Resources>
         <Style x:Key="StatusCardStyle" TargetType="Border">
-            <Setter Property="Margin" Value="4"/>
-            <Setter Property="Padding" Value="9"/>
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="6"/>
             <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="BorderBrush" Value="#555"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -30,11 +30,11 @@
         </Style>
 
         <Style x:Key="StatusIconStyle" TargetType="materialDesign:PackIcon">
-            <Setter Property="Width" Value="22"/>
-            <Setter Property="Height" Value="22"/>
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
             <Setter Property="Foreground" Value="#657080"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding}" Value="True">
                     <Setter Property="Foreground" Value="#34C759"/>
@@ -49,6 +49,9 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"
@@ -113,6 +116,62 @@
                     </StackPanel>
                 </Border>
             </UniformGrid>
+
+            <TextBlock Grid.Row="2"
+                       Text="전술 상태"
+                       FontWeight="SemiBold"
+                       FontSize="12"
+                       Margin="0,8,0,3"/>
+
+            <UniformGrid Grid.Row="3" Columns="2" Rows="1" TextElement.FontSize="11">
+                <Border Style="{StaticResource StatusCardStyle}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="탐지 상태"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse DataContext="{Binding IsTargetDetected}"
+                                     Style="{StaticResource StatusCircleStyle}"
+                                     Margin="0,0,6,0"/>
+                            <TextBlock Text="{Binding RadarDetectionStatusText}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatusCardStyle}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="격추 여부"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse DataContext="{Binding IsTargetDestroyed}"
+                                     Style="{StaticResource StatusCircleStyle}"
+                                     Margin="0,0,6,0"/>
+                            <TextBlock Text="격추"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <StackPanel Grid.Row="4"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,8,0,0">
+                <TextBlock Text="남은 유도탄 "
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="#B7C7D9"/>
+                <TextBlock Text="{Binding RemainingMissileCount}"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="#FFFFFF"/>
+                <TextBlock Text="발"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="#B7C7D9"/>
+            </StackPanel>
         </Grid>
     </GroupBox>
 </UserControl>

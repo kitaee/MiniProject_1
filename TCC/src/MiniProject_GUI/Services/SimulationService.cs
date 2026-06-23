@@ -84,5 +84,12 @@ namespace MiniProject_GUI.Services
                 NOMConverter.Import<SimulatorState>(nomMsg)
             );
         }
+
+        public static void ReceiveRadarDetectionInfo(NOM nomMsg)
+        {
+            EventAggregator.Instance.Publish(
+                NOMConverter.Import<RadarDetectionInfo>(nomMsg)
+            );
+        }
     }
 }

@@ -1,6 +1,8 @@
 using MiniProject_GUI.Infrastructure;
+using MiniProject_GUI.Models.Coordinate;
 using MiniProject_GUI.Models.Enum;
 using MiniProject_GUI.Models.Scenario;
+using MiniProject_GUI.Models.Simulation;
 using MiniProject_GUI.Services;
 using System;
 using System.Collections.Generic;
@@ -27,6 +29,11 @@ namespace MiniProject_GUI.ViewModels
         private bool _isMfrsScenarioAckReceived;
         private bool _isLoadingInputs;
         private bool _isSimulationRunning;
+        private bool _hasRadarDetection;
+        private uint _detectedFlag;
+        private float _detectedTargetLatitude;
+        private float _detectedTargetLongitude;
+        private int _remainingMissileCount = 4;
         private ScenarioSend _savedScenario;
         private string _selectedMapTarget = "Radar";
 
@@ -43,12 +50,14 @@ namespace MiniProject_GUI.ViewModels
         public AckStatusViewModel()
         {
             EventAggregator.Instance.Subscribe<ScenarioSendAck>(OnScenarioSendAck);
+            EventAggregator.Instance.Subscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
 
             EditScenarioCommand = new RelayCommand(EnterEditMode, () => !IsEditMode && !IsScenarioLocationLocked);
             SwitchToSimulationModeCommand = new RelayCommand(EnterSimulationMode, () => IsEditMode && !IsSimulationRunning);
             SaveScenarioCommand = new RelayCommand(SaveScenario, () => IsEditMode && HasUnsavedChanges && !IsSimulationRunning);
             DeployScenarioCommand = new RelayCommand(DeployScenario, () => !IsEditMode && HasSavedScenario && !IsSimulationRunning);
             ToggleSimulationCommand = new RelayCommand(ToggleSimulation, () => IsSimulationRunning || CanStartSimulation);
+            FireMissileCommand = new RelayCommand(FireMissile, () => CanFireMissile);
             SelectRadarCommand = new RelayCommand(() => SelectMapTarget("Radar"));
             SelectLauncherCommand = new RelayCommand(() => SelectMapTarget("Launcher"));
             SelectAirthreatStartCommand = new RelayCommand(() => SelectMapTarget("AirthreatStart"));
@@ -62,6 +71,7 @@ namespace MiniProject_GUI.ViewModels
         public ICommand SaveScenarioCommand { get; }
         public ICommand DeployScenarioCommand { get; }
         public ICommand ToggleSimulationCommand { get; }
+        public ICommand FireMissileCommand { get; }
         public ICommand SelectRadarCommand { get; }
         public ICommand SelectLauncherCommand { get; }
         public ICommand SelectAirthreatStartCommand { get; }
@@ -129,6 +139,8 @@ namespace MiniProject_GUI.ViewModels
                 OnPropertyChanged(nameof(SimulationControlButtonText));
                 OnPropertyChanged(nameof(CanStartSimulation));
                 OnPropertyChanged(nameof(IsScenarioLocationLocked));
+                OnPropertyChanged(nameof(CanFireMissile));
+                OnPropertyChanged(nameof(FireMissileButtonText));
                 RefreshCommandState();
             }
         }
@@ -183,6 +195,56 @@ namespace MiniProject_GUI.ViewModels
             IsMssScenarioAckReceived &&
             IsLcsScenarioAckReceived &&
             IsMfrsScenarioAckReceived;
+
+        public bool HasRadarDetection => _hasRadarDetection;
+
+        public uint DetectedFlag => _detectedFlag;
+
+        public bool IsTargetDetected => DetectedFlag == 1;
+
+        public bool IsTargetDestroyed => DetectedFlag == 2;
+
+        public float DetectedTargetLatitude => _detectedTargetLatitude;
+
+        public float DetectedTargetLongitude => _detectedTargetLongitude;
+
+        public int RemainingMissileCount
+        {
+            get => _remainingMissileCount;
+            private set
+            {
+                if (_remainingMissileCount == value) return;
+                _remainingMissileCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CanFireMissile));
+                OnPropertyChanged(nameof(FireMissileButtonText));
+                RefreshCommandState();
+            }
+        }
+
+        public bool CanFireMissile =>
+            IsSimulationRunning &&
+            DetectedFlag == 1 &&
+            RemainingMissileCount > 0;
+
+        public string FireMissileButtonText =>
+            "발사 명령 (" + RemainingMissileCount + ")";
+
+        public string RadarDetectionStatusText
+        {
+            get
+            {
+                switch (DetectedFlag)
+                {
+                    case 1:
+                        return "탐지";
+                    case 2:
+                        return "격추";
+                    default:
+                        return "미탐지";
+                }
+            }
+        }
 
         public bool HasRadarLocation => HasCoordinate(RadarLatitudeText, RadarLongitudeText);
 
@@ -413,6 +475,7 @@ namespace MiniProject_GUI.ViewModels
             {
                 SimulationService.SendStopSimulation();
                 IsSimulationRunning = false;
+                RemainingMissileCount = 4;
                 return;
             }
 
@@ -420,6 +483,13 @@ namespace MiniProject_GUI.ViewModels
 
             SimulationService.SendStartSimulation();
             IsSimulationRunning = true;
+        }
+
+        private void FireMissile()
+        {
+            if (!CanFireMissile) return;
+
+            RemainingMissileCount -= 1;
         }
 
         public void ToggleScenarioAck(string simulatorName)
@@ -618,6 +688,29 @@ namespace MiniProject_GUI.ViewModels
             }
         }
 
+        private void OnRadarDetectionInfo(RadarDetectionInfo radarDetection)
+        {
+            GeoCoordinate targetPosition = EcefCoordinateConverter.ToLatitudeLongitude(
+                radarDetection.TargetXPos,
+                radarDetection.TargetYPos);
+
+            _hasRadarDetection = true;
+            _detectedFlag = radarDetection.DetectedFlag;
+            _detectedTargetLatitude = targetPosition.Latitude;
+            _detectedTargetLongitude = targetPosition.Longitude;
+
+            OnPropertyChanged(nameof(HasRadarDetection));
+            OnPropertyChanged(nameof(DetectedFlag));
+            OnPropertyChanged(nameof(IsTargetDetected));
+            OnPropertyChanged(nameof(IsTargetDestroyed));
+            OnPropertyChanged(nameof(DetectedTargetLatitude));
+            OnPropertyChanged(nameof(DetectedTargetLongitude));
+            OnPropertyChanged(nameof(RadarDetectionStatusText));
+            OnPropertyChanged(nameof(CanFireMissile));
+            OnPropertyChanged(nameof(FireMissileButtonText));
+            RefreshCommandState();
+        }
+
         private void ResetScenarioAcks()
         {
             IsAtsScenarioAckReceived = false;
@@ -648,6 +741,7 @@ namespace MiniProject_GUI.ViewModels
         public void Dispose()
         {
             EventAggregator.Instance.Unsubscribe<ScenarioSendAck>(OnScenarioSendAck);
+            EventAggregator.Instance.Unsubscribe<RadarDetectionInfo>(OnRadarDetectionInfo);
         }
     }
 }

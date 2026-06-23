@@ -23,6 +23,10 @@
 		<NOM:interaction name="ScenarioACK" id="2101" semantics="simulator to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 		</NOM:interaction>
+		<NOM:interaction name="RadarDetectionInfo" id="5102" semantics="MFRS to TCC radar detection information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="RadarDetection" semantics="RadarDetection" dataType="DetectedTargetStruct"/>
+		</NOM:interaction>
 	</NOM:interactions>
 
 	<NOM:dataTypes>
