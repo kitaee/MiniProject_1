@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="ControlManager" date="2023-12-06" author="PGM3연구소.4팀 하재희">
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="ControlManager" date="2026-06-23" author="MiniProject_TCC">
 	<NOM:objects>
-
 	</NOM:objects>
 	<NOM:interactions>
-
+		<NOM:interaction name="StartSimulationCommand" id="9002" semantics="UIManager to ControlManager simulation start command" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="StopSimulationCommand" id="9003" semantics="UIManager to ControlManager simulation stop command" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="StartSimulationRequest" id="1002" semantics="TCC to simulators simulation start request" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="StopSimulationRequest" id="1003" semantics="TCC to simulators simulation stop request" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
 	</NOM:interactions>
 	<NOM:dataTypes>
 		<NOM:basicTypes>
@@ -15,7 +25,5 @@
 		</NOM:complexTypes>
 	</NOM:dataTypes>
 	<NOM:notes>
-		
 	</NOM:notes>
-
 </NOM:Nex1ObjectModel>

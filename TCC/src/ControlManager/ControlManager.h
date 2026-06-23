@@ -32,6 +32,7 @@ public:
 private:
 	void initialize();
 	void release();
+	void sendSimulationRequest(const tstring& requestName, uint32_t messageId);
 
 private:
 	IMEBComponent* meb;

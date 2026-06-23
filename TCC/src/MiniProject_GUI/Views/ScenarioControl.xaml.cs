@@ -59,6 +59,11 @@ namespace MiniProject_GUI.Views
         private void ScenarioMap_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (!(DataContext is AckStatusViewModel viewModel)) return;
+            if (viewModel.IsScenarioLocationLocked)
+            {
+                e.Handled = true;
+                return;
+            }
 
             Point point = e.GetPosition(ScenarioMap);
             PointLatLng coordinate = ScenarioMap.FromLocalToLatLng((int)point.X, (int)point.Y);

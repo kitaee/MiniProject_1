@@ -42,6 +42,8 @@ namespace MiniProject_GUI.ViewModels
             // ScenarioSendAck: ATS 연동 확인 시 ACK 수신 로그
             EventAggregator.Instance.Subscribe<ScenarioSend>(OnScenarioSend);
             EventAggregator.Instance.Subscribe<ScenarioSendAck>(OnScenarioSendAck);
+            EventAggregator.Instance.Subscribe<SimulationStart>(OnSimulationStart);
+            EventAggregator.Instance.Subscribe<SimulationStop>(OnSimulationStop);
 
             // ── [확장 가이드] 아래 구독을 활성화하여 기능 확장 가능 ──
             // 시뮬레이션 시작·종료 ACK 로그:
@@ -113,11 +115,23 @@ namespace MiniProject_GUI.ViewModels
             AddLog("[Request] TCC -> ALL ID " + ScenarioSend.MessageId + " DeployScenarioRequest 전송");
         }
 
+        private void OnSimulationStart(SimulationStart simulationStart)
+        {
+            AddLog("[Request] TCC -> ALL ID " + SimulationStart.MessageId + " StartSimulationRequest 전송");
+        }
+
+        private void OnSimulationStop(SimulationStop simulationStop)
+        {
+            AddLog("[Request] TCC -> ALL ID " + SimulationStop.MessageId + " StopSimulationRequest 전송");
+        }
+
         public void Dispose()
         {
             // Subscribe와 쌍으로 반드시 Unsubscribe 해야 메모리 누수를 방지할 수 있다.
             EventAggregator.Instance.Unsubscribe<ScenarioSend>(OnScenarioSend);
             EventAggregator.Instance.Unsubscribe<ScenarioSendAck>(OnScenarioSendAck);
+            EventAggregator.Instance.Unsubscribe<SimulationStart>(OnSimulationStart);
+            EventAggregator.Instance.Unsubscribe<SimulationStop>(OnSimulationStop);
         }
     }
 }

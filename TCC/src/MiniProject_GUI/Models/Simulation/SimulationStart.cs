@@ -14,6 +14,10 @@ namespace MiniProject_GUI.Models.Simualation
     /// </summary>
     internal class SimulationStart
     {
+        public const uint CommandMessageId = 9002;
+        public const uint MessageId = 1002;
+        public const uint MessageLengthBytes = 8;
+
         public SimulationStart() { }
     }
 }

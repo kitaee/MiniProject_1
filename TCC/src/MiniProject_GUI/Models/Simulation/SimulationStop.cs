@@ -7,6 +7,10 @@ namespace MiniProject_GUI.Models.Simualation
     /// </summary>
     internal class SimulationStop
     {
+        public const uint CommandMessageId = 9003;
+        public const uint MessageId = 1003;
+        public const uint MessageLengthBytes = 8;
+
         public SimulationStop() { }
     }
 }

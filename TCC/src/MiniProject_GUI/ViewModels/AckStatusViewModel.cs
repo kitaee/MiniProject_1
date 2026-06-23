@@ -26,6 +26,7 @@ namespace MiniProject_GUI.ViewModels
         private bool _isLcsScenarioAckReceived;
         private bool _isMfrsScenarioAckReceived;
         private bool _isLoadingInputs;
+        private bool _isSimulationRunning;
         private ScenarioSend _savedScenario;
         private string _selectedMapTarget = "Radar";
 
@@ -43,10 +44,11 @@ namespace MiniProject_GUI.ViewModels
         {
             EventAggregator.Instance.Subscribe<ScenarioSendAck>(OnScenarioSendAck);
 
-            EditScenarioCommand = new RelayCommand(EnterEditMode, () => !IsEditMode);
-            SwitchToSimulationModeCommand = new RelayCommand(EnterSimulationMode, () => IsEditMode);
-            SaveScenarioCommand = new RelayCommand(SaveScenario, () => IsEditMode && HasUnsavedChanges);
-            DeployScenarioCommand = new RelayCommand(DeployScenario, () => !IsEditMode && HasSavedScenario);
+            EditScenarioCommand = new RelayCommand(EnterEditMode, () => !IsEditMode && !IsScenarioLocationLocked);
+            SwitchToSimulationModeCommand = new RelayCommand(EnterSimulationMode, () => IsEditMode && !IsSimulationRunning);
+            SaveScenarioCommand = new RelayCommand(SaveScenario, () => IsEditMode && HasUnsavedChanges && !IsSimulationRunning);
+            DeployScenarioCommand = new RelayCommand(DeployScenario, () => !IsEditMode && HasSavedScenario && !IsSimulationRunning);
+            ToggleSimulationCommand = new RelayCommand(ToggleSimulation, () => IsSimulationRunning || CanStartSimulation);
             SelectRadarCommand = new RelayCommand(() => SelectMapTarget("Radar"));
             SelectLauncherCommand = new RelayCommand(() => SelectMapTarget("Launcher"));
             SelectAirthreatStartCommand = new RelayCommand(() => SelectMapTarget("AirthreatStart"));
@@ -59,6 +61,7 @@ namespace MiniProject_GUI.ViewModels
         public ICommand SwitchToSimulationModeCommand { get; }
         public ICommand SaveScenarioCommand { get; }
         public ICommand DeployScenarioCommand { get; }
+        public ICommand ToggleSimulationCommand { get; }
         public ICommand SelectRadarCommand { get; }
         public ICommand SelectLauncherCommand { get; }
         public ICommand SelectAirthreatStartCommand { get; }
@@ -75,6 +78,8 @@ namespace MiniProject_GUI.ViewModels
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsSimulationMode));
                 OnPropertyChanged(nameof(ModeText));
+                OnPropertyChanged(nameof(CanStartSimulation));
+                OnPropertyChanged(nameof(IsScenarioLocationLocked));
                 RefreshCommandState();
             }
         }
@@ -92,6 +97,8 @@ namespace MiniProject_GUI.ViewModels
                 _hasUnsavedChanges = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SimulationStatusText));
+                OnPropertyChanged(nameof(CanStartSimulation));
+                OnPropertyChanged(nameof(IsScenarioLocationLocked));
                 RefreshCommandState();
             }
         }
@@ -105,9 +112,40 @@ namespace MiniProject_GUI.ViewModels
                 _isScenarioDeployed = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DeploymentStatusText));
+                OnPropertyChanged(nameof(CanStartSimulation));
+                OnPropertyChanged(nameof(IsScenarioLocationLocked));
                 RefreshCommandState();
             }
         }
+
+        public bool IsSimulationRunning
+        {
+            get => _isSimulationRunning;
+            private set
+            {
+                if (_isSimulationRunning == value) return;
+                _isSimulationRunning = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SimulationControlButtonText));
+                OnPropertyChanged(nameof(CanStartSimulation));
+                OnPropertyChanged(nameof(IsScenarioLocationLocked));
+                RefreshCommandState();
+            }
+        }
+
+        public bool CanStartSimulation =>
+            !IsSimulationRunning &&
+            !IsEditMode &&
+            HasSavedScenario &&
+            !HasUnsavedChanges &&
+            IsScenarioDeployed &&
+            AreAllScenarioAcksReceived;
+
+        public bool IsScenarioLocationLocked =>
+            IsSimulationRunning || CanStartSimulation;
+
+        public string SimulationControlButtonText =>
+            IsSimulationRunning ? "모의 중지" : "모의 시작";
 
         public string ModeText => IsEditMode ? "편집" : "모의";
 
@@ -260,6 +298,8 @@ namespace MiniProject_GUI.ViewModels
 
         public void SetMapCoordinate(double latitude, double longitude)
         {
+            if (IsScenarioLocationLocked) return;
+
             if (!IsEditMode)
                 EnterEditMode();
 
@@ -292,6 +332,8 @@ namespace MiniProject_GUI.ViewModels
 
         private void EnterEditMode()
         {
+            if (IsScenarioLocationLocked) return;
+
             LoadSavedScenarioIntoInputs();
             IsEditMode = true;
         }
@@ -350,6 +392,7 @@ namespace MiniProject_GUI.ViewModels
             ResetScenarioAcks();
 
             OnPropertyChanged(nameof(HasSavedScenario));
+            OnPropertyChanged(nameof(IsScenarioLocationLocked));
             OnPropertyChanged(nameof(SimulationStatusText));
             OnPropertyChanged(nameof(SavedScenarioSummaryText));
             RefreshCommandState();
@@ -357,11 +400,45 @@ namespace MiniProject_GUI.ViewModels
 
         private void DeployScenario()
         {
-            if (_savedScenario == null) return;
+            if (_savedScenario == null || IsSimulationRunning) return;
 
             ResetScenarioAcks();
             ScenarioService.SendSendScenario(_savedScenario);
             IsScenarioDeployed = true;
+        }
+
+        private void ToggleSimulation()
+        {
+            if (IsSimulationRunning)
+            {
+                SimulationService.SendStopSimulation();
+                IsSimulationRunning = false;
+                return;
+            }
+
+            if (!CanStartSimulation) return;
+
+            SimulationService.SendStartSimulation();
+            IsSimulationRunning = true;
+        }
+
+        public void ToggleScenarioAck(string simulatorName)
+        {
+            switch (simulatorName)
+            {
+                case "ATS":
+                    IsAtsScenarioAckReceived = !IsAtsScenarioAckReceived;
+                    break;
+                case "MSS":
+                    IsMssScenarioAckReceived = !IsMssScenarioAckReceived;
+                    break;
+                case "LCS":
+                    IsLcsScenarioAckReceived = !IsLcsScenarioAckReceived;
+                    break;
+                case "MFRS":
+                    IsMfrsScenarioAckReceived = !IsMfrsScenarioAckReceived;
+                    break;
+            }
         }
 
         private bool TryCreateScenario(out ScenarioSend scenario, out string errorMessage)
@@ -556,6 +633,9 @@ namespace MiniProject_GUI.ViewModels
             storage = value;
             OnPropertyChanged(propertyName);
             OnPropertyChanged(nameof(AreAllScenarioAcksReceived));
+            OnPropertyChanged(nameof(CanStartSimulation));
+            OnPropertyChanged(nameof(IsScenarioLocationLocked));
+            RefreshCommandState();
         }
 
         private void RefreshCommandState() => CommandManager.InvalidateRequerySuggested();

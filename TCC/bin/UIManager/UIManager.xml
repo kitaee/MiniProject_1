@@ -14,6 +14,12 @@
 			<NOM:parameter name="LauncherPositionLongitude" semantics="LauncherPositionLongitude" dataType="float"/>
 			<NOM:parameter name="MissileVelocity" semantics="MissileVelocity" dataType="float"/>
 		</NOM:interaction>
+		<NOM:interaction name="StartSimulationCommand" id="9002" semantics="UIManager to ControlManager simulation start command" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="StopSimulationCommand" id="9003" semantics="UIManager to ControlManager simulation stop command" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
 		<NOM:interaction name="ScenarioACK_ATS" id="2101" semantics="ATS to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 		</NOM:interaction>

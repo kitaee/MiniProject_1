@@ -1,6 +1,7 @@
 #pragma once
 # include <nFramework/util/IniHandler.h>
 # include "ControlManager.h"
+# include <nFramework/nom/NUInteger.h>
 # include <map>
 
 /**
@@ -105,7 +106,41 @@ ControlManager::sendMsg(std::shared_ptr < NOM > nomMsg)
 void
 ControlManager::recvMsg(std::shared_ptr < NOM > nomMsg)
 {
+	if (nomMsg == nullptr)
+		return;
+
 	tcout << "[" << __FUNCTIONT__ << "] " << nomMsg->getName() << std::endl;
+
+	const auto msgName = nomMsg->getName();
+	if (msgName == _T("StartSimulationCommand"))
+	{
+		sendSimulationRequest(_T("StartSimulationRequest"), 1002);
+	}
+	else if (msgName == _T("StopSimulationCommand"))
+	{
+		sendSimulationRequest(_T("StopSimulationRequest"), 1003);
+	}
+}
+
+void
+ControlManager::sendSimulationRequest(const tstring& requestName, uint32_t messageId)
+{
+	if (meb == nullptr)
+		return;
+
+	auto requestTemplate = meb->getNOMInstance(name, requestName);
+	if (!requestTemplate)
+	{
+		tcerr << _T("[ControlManager] undefined message: ") << requestName << std::endl;
+		return;
+	}
+
+	auto requestMsg = requestTemplate->clone();
+	requestMsg->setOwner(name);
+	requestMsg->setValue(_T("MessageHeader.MessageID"), new NUInteger(messageId));
+	requestMsg->setValue(_T("MessageHeader.MessageLength"), new NUInteger(8));
+
+	sendMsg(requestMsg);
 }
 
 void

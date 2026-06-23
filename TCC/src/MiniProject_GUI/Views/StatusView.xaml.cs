@@ -1,5 +1,7 @@
 using MiniProject_GUI.ViewModels;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace MiniProject_GUI.Views
 {
@@ -15,6 +17,12 @@ namespace MiniProject_GUI.Views
         {
             InitializeComponent();
             DataContext = ViewModelLocator.AckStatus;
+        }
+
+        private void ScenarioAckCard_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement element && element.Tag is string simulatorName)
+                ViewModelLocator.AckStatus.ToggleScenarioAck(simulatorName);
         }
     }
 }

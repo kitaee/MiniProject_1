@@ -65,13 +65,14 @@ namespace MiniProject_GUI.Infrastructure
 
         public void StartSimulation(SimulationStart _)
         {
-            var nomInstance = nomHandler.GetNMessage("StartSimulation")?.createNOMInstance();
+            var nomInstance = nomHandler.GetNMessage("StartSimulationCommand")?.createNOMInstance();
             if (nomInstance == null) return;
 
             try
             {
-                nomInstance.setValue("Header.MessageID", new NUShort(0x03));
-                nomInstance.setValue("Header.MessageLength", new NUShort(2));
+                nomInstance.owner = "UIManager";
+                nomInstance.setValue("MessageHeader.MessageID", new NUInteger(SimulationStart.CommandMessageId));
+                nomInstance.setValue("MessageHeader.MessageLength", new NUInteger(SimulationStart.MessageLengthBytes));
                 nomHandler.SendNOMMessage(nomInstance);
             }
             catch (Exception ex)
@@ -82,13 +83,14 @@ namespace MiniProject_GUI.Infrastructure
 
         public void StopSimulation(SimulationStop _)
         {
-            var nomInstance = nomHandler.GetNMessage("StopSimulation")?.createNOMInstance();
+            var nomInstance = nomHandler.GetNMessage("StopSimulationCommand")?.createNOMInstance();
             if (nomInstance == null) return;
 
             try
             {
-                nomInstance.setValue("Header.MessageID", new NUShort(0x05));
-                nomInstance.setValue("Header.MessageLength", new NUShort(2));
+                nomInstance.owner = "UIManager";
+                nomInstance.setValue("MessageHeader.MessageID", new NUInteger(SimulationStop.CommandMessageId));
+                nomInstance.setValue("MessageHeader.MessageLength", new NUInteger(SimulationStop.MessageLengthBytes));
                 nomHandler.SendNOMMessage(nomInstance);
             }
             catch (Exception ex)
