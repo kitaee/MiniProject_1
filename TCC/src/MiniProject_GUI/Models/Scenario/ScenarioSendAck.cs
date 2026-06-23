@@ -24,8 +24,20 @@ namespace MiniProject_GUI.Models.Scenario
 
         public void Import(NOM nom)
         {
-            MessageId = Convert.ToUInt32(nom.msgID);
+            MessageId = GetMessageId(nom);
             SimulatorID = GetSimulatorId(MessageId);
+        }
+
+        public static uint GetMessageId(NOM nom)
+        {
+            try
+            {
+                return Convert.ToUInt32(nom.getValue("MessageHeader.MessageID").toUInt());
+            }
+            catch
+            {
+                return Convert.ToUInt32(nom.msgID);
+            }
         }
 
         public static bool IsScenarioAckMessage(uint messageId)

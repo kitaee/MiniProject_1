@@ -197,7 +197,8 @@ namespace MiniProject_GUI
 
                             // ── 수신 메시지 라우팅 ─────────────────────────────────
 
-                            if (ScenarioSendAck.IsScenarioAckMessage(Convert.ToUInt32(innerNom.msgID)))
+                            uint scenarioAckMessageId = ScenarioSendAck.GetMessageId(innerNom);
+                            if (ScenarioSendAck.IsScenarioAckMessage(scenarioAckMessageId))
                             {
                                 ScenarioService.ReceiveSendScenarioAck(innerNom);
                                 // ATS → TCC: 시나리오 배포 ACK

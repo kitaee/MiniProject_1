@@ -12,16 +12,7 @@
 			<NOM:parameter name="LauncherPositionLongitude" semantics="LauncherPositionLongitude" dataType="float"/>
 			<NOM:parameter name="MissileVelocity" semantics="MissileVelocity" dataType="float"/>
 		</NOM:interaction>
-		<NOM:interaction name="ScenarioACK_ATS" id="2101" semantics="ATS to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
-			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
-		</NOM:interaction>
-		<NOM:interaction name="ScenarioACK_MSS" id="3101" semantics="MSS to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
-			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
-		</NOM:interaction>
-		<NOM:interaction name="ScenarioACK_LCS" id="4101" semantics="LCS to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
-			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
-		</NOM:interaction>
-		<NOM:interaction name="ScenarioACK_MFRS" id="5101" semantics="MFRS to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+		<NOM:interaction name="ScenarioACK" id="2101" semantics="ATS to TCC scenario ACK" sharing="PublishSubscribe" orderType="Receive" alignment="false">
 			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
 		</NOM:interaction>
 		<NOM:interaction name="StartSimulationRequest" id="1002" semantics="통합통제기→모의기 시뮬레이션 시작" sharing="PublishSubscribe" orderType="Receive" alignment="false">

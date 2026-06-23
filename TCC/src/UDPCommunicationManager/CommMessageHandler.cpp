@@ -33,6 +33,11 @@ CommMessageHandler::release()
 void
 CommMessageHandler::setIDNameTable(unsigned short msgID, tstring msgName)
 {
+	if (msgID == 2101) {
+		idNameTable.insert(pair<unsigned short, tstring>(3101, msgName));
+		idNameTable.insert(pair<unsigned short, tstring>(4101, msgName));
+		idNameTable.insert(pair<unsigned short, tstring>(5101, msgName));
+	}
 	idNameTable.insert(pair<unsigned short, tstring>(msgID, msgName));
 }
 
