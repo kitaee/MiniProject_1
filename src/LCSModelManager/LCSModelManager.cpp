@@ -217,6 +217,16 @@ LCSModelManager::missleFire(std::shared_ptr<NOM> nomMsg)
 		std::cout << "발사 완료\n" << std::endl;
 	}
 
+	int remainMissleCount = 0;
+	for (int i = 0; i < 4; i++) {
+		if (launcherModel->inventory[i] == true)
+		{
+			remainMissleCount++;
+		}
+	}
+
+	std::cout << "잔여탄 : " << remainMissleCount << std::endl;
+
 	auto InnerNOMInstance = meb->getNOMInstance(name, _T("LaunchMissleResponseInnerManager"));
 
 	// 발사 응답 세팅
@@ -226,6 +236,7 @@ LCSModelManager::missleFire(std::shared_ptr<NOM> nomMsg)
 	InnerNOMInstance->setValue(_T("MissleID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
 	InnerNOMInstance->setValue(_T("LCSXPos"), &(NFloat)launcherModel->launcherPosition.x);
 	InnerNOMInstance->setValue(_T("LCSYPos"), &(NFloat)launcherModel->launcherPosition.y);
+	InnerNOMInstance->setValue(_T("RemainMissleCount"), &(NUInteger)remainMissleCount);
 
 	std::cout << "발사대 모의기 LCSModelManager 발사 응답 송신\n" << std::endl;
 	this->sendMsg(InnerNOMInstance);

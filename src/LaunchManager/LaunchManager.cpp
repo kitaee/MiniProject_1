@@ -190,6 +190,7 @@ LaunchManager::recvLaunchMissleResponse(std::shared_ptr<NOM> nomMsg)
 	InnerNOMInstance->setValue(_T("MissleID"), &(NUInteger)(nomMsg->getValue(_T("MissleID"))->toUInt()));
 	InnerNOMInstance->setValue(_T("LCSXPos"), &(NFloat)(nomMsg->getValue(_T("LCSXPos"))->toFloat()));
 	InnerNOMInstance->setValue(_T("LCSYPos"), &(NFloat)(nomMsg->getValue(_T("LCSYPos"))->toFloat()));
+	InnerNOMInstance->setValue(_T("RemainMissleCount"), &(NUInteger)(nomMsg->getValue(_T("RemainMissleCount"))->toFloat()));
 
 	this->sendMsg(InnerNOMInstance);
 }

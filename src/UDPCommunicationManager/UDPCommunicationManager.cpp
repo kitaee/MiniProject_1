@@ -212,7 +212,7 @@ UDPCommunicationManager::start()
 	/*
 	* MockUp 테스트 코드 (MiniProject.ini 파일에서 UDPCOmmunicationManager 맨 밑으로 내려야함)
 	*/
-	ProcessTestCode();
+	//ProcessTestCode();
 
 	return true;
 }
@@ -246,6 +246,15 @@ UDPCommunicationManager::ProcessTestCode()
 	nomMockFire->setValue(_T("AirthreatyPos"), &(NFloat)127.7);
 	nomMockFire->setValue(_T("MissleID"), &(NUInteger)1);
 	launchMissle(nomMockFire);
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+	auto nomMockFireAgain = meb->getNOMInstance(name, _T("LaunchMissileRequest"));
+	nomMockFireAgain->setValue(_T("AirthreatID"), &(NUInteger)1);
+	nomMockFireAgain->setValue(_T("AirthreatxPos"), &(NFloat)37.7);
+	nomMockFireAgain->setValue(_T("AirthreatyPos"), &(NFloat)127.7);
+	nomMockFireAgain->setValue(_T("MissleID"), &(NUInteger)2);
+	launchMissle(nomMockFireAgain);
 }
 
 bool
@@ -374,8 +383,10 @@ void UDPCommunicationManager::sendMissleFireResult(shared_ptr<NOM> nomMsg)
 
 	outerNOMInstance->setValue(_T("MessageHeader.MessageID"), &NUInteger(4102));
 
+	auto remainMissleCount = nomMsg->getValue(_T("RemainMissleCount"))->toUInt();
+
 	// 임시로 재고탄 3발 (추후 수정 예정)
-	outerNOMInstance->setValue(_T("MissileQuantity"), &NUInteger(3));
+	outerNOMInstance->setValue(_T("MissileQuantity"), &NUInteger(remainMissleCount));
 
 	commInterface->sendCommMsg(outerNOMInstance);
 }
