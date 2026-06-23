@@ -213,7 +213,7 @@ bool UDPCommunicationManager::start()
 		}
 	}
 
-	ProcessTestCode();
+	//ProcessTestCode();
 
 	return true;
 }
@@ -223,8 +223,8 @@ UDPCommunicationManager::ProcessTestCode()
 {
 	//시나리오 배포
 	auto nomMockDeployScenario = meb->getNOMInstance(name, _T("DeployScenarioRequest"));
-	NFloat radarXPos(3000000.1F);
-	NFloat radarYPos(-4000000.1F);
+	NFloat radarXPos(127.0F);
+	NFloat radarYPos(35.0F);
 	nomMockDeployScenario->setValue(_T("RadarXPos"), &radarXPos);
 	nomMockDeployScenario->setValue(_T("RadarYPos"), &radarYPos);
 	deployScenario(nomMockDeployScenario);
@@ -238,8 +238,46 @@ UDPCommunicationManager::ProcessTestCode()
 	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
 	// 모의 중지
-	auto nomMockStopSimulation = meb->getNOMInstance(name, _T("StopSimulationRequest"));
-	stopSimulation(nomMockStopSimulation);
+	/*auto nomMockStopSimulation = meb->getNOMInstance(name, _T("StopSimulationRequest"));
+	stopSimulation(nomMockStopSimulation);*/
+
+	tcout << _T("========== [ProcessTestCode] ATInfo Path Test Begin ==========")
+		<< std::endl;
+
+	for (int index = 0; index < 2; ++index)
+	{
+		auto nomMockATInfo =
+			meb->getNOMInstance(name, _T("ATInfo"));
+		if (!nomMockATInfo)
+			continue;
+
+		NUInteger airthreatID(1001);
+		NUInteger airthreatStatus(index == 0 ? 1 : 2);
+		NFloat airthreatXPos(127.0F);
+		NFloat airthreatYPos(36.0F);
+		NFloat airthreatVelocity(250.0F + (10.0F * index));
+
+		nomMockATInfo->setValue(_T("AirthreatID"), &airthreatID);
+		nomMockATInfo->setValue(_T("AirthreatStatus"), &airthreatStatus);
+		nomMockATInfo->setValue(_T("AirthreatXPos"), &airthreatXPos);
+		nomMockATInfo->setValue(_T("AirthreatYPos"), &airthreatYPos);
+		nomMockATInfo->setValue(_T("AirthreatVelocity"), &airthreatVelocity);
+
+		tcout << _T("---- [ProcessTestCode] Inject mock ATInfo #")
+			<< (index + 1)
+			<< _T(" / Status=")
+			<< airthreatStatus.toUInt()
+			<< _T(" ----")
+			<< std::endl;
+
+		recvATInfo(nomMockATInfo);
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+
+	tcout << _T("=========== [ProcessTestCode] ATInfo Path Test End ===========")
+		<< std::endl;
+
 }
 
 bool UDPCommunicationManager::stop()
@@ -287,6 +325,18 @@ void UDPCommunicationManager::funcMapInit()
 		this,
 		placeholders::_1);
 	funcMap.insert({ _T("StopSimulationRequest"), msgProcessor });
+
+	msgProcessor = bind(
+		&UDPCommunicationManager::recvATInfo,
+		this,
+		placeholders::_1);
+	funcMap.insert({ _T("ATInfo"), msgProcessor });
+
+	msgProcessor = bind(
+		&UDPCommunicationManager::sendRadarDetectionInfo,
+		this,
+		placeholders::_1);
+	funcMap.insert({ _T("RadarDetectionInfoInnerManager"), msgProcessor });
 }
 
 void UDPCommunicationManager::deployScenario(shared_ptr<NOM> nomMsg)
@@ -350,6 +400,84 @@ void UDPCommunicationManager::sendScenarioAck(shared_ptr<NOM> nomMsg)
 	commInterface->sendCommMsg(outerNOMInstance);
 }
 
+void UDPCommunicationManager::sendRadarDetectionInfo(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb || !commInterface)
+		return;
+
+	const auto targetID =
+		nomMsg->getValue(_T("TargetID"));
+	const auto targetXPos =
+		nomMsg->getValue(_T("TargetXPos"));
+	const auto targetYPos =
+		nomMsg->getValue(_T("TargetYPos"));
+	const auto detectedFlag =
+		nomMsg->getValue(_T("DetectedFlag"));
+	const auto targetVelocity =
+		nomMsg->getValue(_T("TargetVelocity"));
+
+	if (!targetID || !targetXPos || !targetYPos ||
+		!detectedFlag || !targetVelocity)
+	{
+		return;
+	}
+
+	auto outerNOMInstance =
+		meb->getNOMInstance(
+			name,
+			_T("RadarDetectionInfo"));
+
+	if (!outerNOMInstance)
+		return;
+
+	NUInteger messageID(5102);
+	NUInteger messageLength(28);
+	NUInteger targetIDValue(targetID->toUInt());
+	NFloat targetXValue(targetXPos->toFloat());
+	NFloat targetYValue(targetYPos->toFloat());
+	NUInteger detectedFlagValue(detectedFlag->toUInt());
+	NFloat targetVelocityValue(targetVelocity->toFloat());
+
+	outerNOMInstance->setValue(
+		_T("MessageHeader.MessageID"),
+		&messageID);
+	outerNOMInstance->setValue(
+		_T("MessageHeader.MessageLength"),
+		&messageLength);
+	outerNOMInstance->setValue(
+		_T("RadarDetection.TargetID"),
+		&targetIDValue);
+	outerNOMInstance->setValue(
+		_T("RadarDetection.TargetXPos"),
+		&targetXValue);
+	outerNOMInstance->setValue(
+		_T("RadarDetection.TargetYPos"),
+		&targetYValue);
+	outerNOMInstance->setValue(
+		_T("RadarDetection.DetectedFlag"),
+		&detectedFlagValue);
+	outerNOMInstance->setValue(
+		_T("RadarDetection.TargetVelocity"),
+		&targetVelocityValue);
+
+	tcout << std::fixed << std::setprecision(2)
+		<< _T("---- [UDPCommunicationManager] TCC RadarDetectionInfo SEND ----")
+		<< std::endl
+		<< _T("TargetID=")
+		<< targetIDValue.toUInt()
+		<< _T(", X=")
+		<< targetXValue.toFloat()
+		<< _T(", Y=")
+		<< targetYValue.toFloat()
+		<< _T(", DetectedFlag=")
+		<< detectedFlagValue.toUInt()
+		<< _T(", Velocity=")
+		<< targetVelocityValue.toFloat()
+		<< std::endl;
+
+	commInterface->sendCommMsg(outerNOMInstance);
+}
+
 void UDPCommunicationManager::startSimulation(shared_ptr<NOM> nomMsg)
 {
 	if (!nomMsg || !meb || !mec)
@@ -384,6 +512,64 @@ void UDPCommunicationManager::stopSimulation(shared_ptr<NOM> nomMsg)
 	mec->sendMsg(innerNOMInstance, _T("MFRSCommManager"));
 }
 
+void UDPCommunicationManager::recvATInfo(shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !meb || !mec)
+		return;
+
+	auto innerNOMInstance = meb->getNOMInstance(
+		name, _T("ATInfoInnerManager"));
+	if (!innerNOMInstance)
+		return;
+
+	const auto airthreatID =
+		nomMsg->getValue(_T("AirthreatID"));
+	const auto airthreatStatus =
+		nomMsg->getValue(_T("AirthreatStatus"));
+	const auto airthreatXPos =
+		nomMsg->getValue(_T("AirthreatXPos"));
+	const auto airthreatYPos =
+		nomMsg->getValue(_T("AirthreatYPos"));
+	const auto airthreatVelocity =
+		nomMsg->getValue(_T("AirthreatVelocity"));
+
+	if (!airthreatID || !airthreatStatus ||
+		!airthreatXPos || !airthreatYPos ||
+		!airthreatVelocity)
+	{
+		return;
+	}
+
+	NUInteger idValue(airthreatID->toUInt());
+	NUInteger statusValue(airthreatStatus->toUInt());
+	NFloat xValue(airthreatXPos->toFloat());
+	NFloat yValue(airthreatYPos->toFloat());
+	NFloat velocityValue(airthreatVelocity->toFloat());
+
+	innerNOMInstance->setValue(_T("AirthreatID"), &idValue);
+	innerNOMInstance->setValue(_T("AirthreatStatus"), &statusValue);
+	innerNOMInstance->setValue(_T("AirthreatXPos"), &xValue);
+	innerNOMInstance->setValue(_T("AirthreatYPos"), &yValue);
+	innerNOMInstance->setValue(_T("AirthreatVelocity"), &velocityValue);
+
+	tcout << std::fixed << std::setprecision(2)
+		<< _T("---- [UDPCommunicationManager] ATS ATInfo received. ----")
+		<< std::endl
+		<< _T("AirthreatID=")
+		<< idValue.toUInt()
+		<< _T(", Status=")
+		<< statusValue.toUInt()
+		<< _T(", X=")
+		<< xValue.toFloat()
+		<< _T(", Y=")
+		<< yValue.toFloat()
+		<< _T(", Velocity=")
+		<< velocityValue.toFloat()
+		<< std::endl;
+
+	mec->sendMsg(innerNOMInstance, _T("MFRSCommManager"));
+}
+
 void UDPCommunicationManager::sendInnerMsg(shared_ptr<NOM> nomMsg)
 {
 	if (!nomMsg)
@@ -398,8 +584,6 @@ void UDPCommunicationManager::processRecvMessage(
 	unsigned char* data,
 	int size)
 {
-	printf("[UDP CALLBACK] datagram received. size=%d\n", size);
-
 	if (!data || !commConfig || !meb)
 		return;
 
@@ -416,8 +600,6 @@ void UDPCommunicationManager::processRecvMessage(
 		&messageID,
 		data + idPosition,
 		sizeof(messageID));
-
-	printf("[UDP CALLBACK] messageID=%d\n", messageID);
 
 	const int messageDestination = (messageID / 100) % 10;
 	if (messageDestination != 0 && messageDestination != 5)

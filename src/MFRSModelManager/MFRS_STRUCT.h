@@ -13,8 +13,5 @@ struct MFRS_MODEL
     float minDetectionAzimuthDeg = -45.0F;
     float maxDetectionAzimuthDeg = 45.0F;
 
-    float minDetectionElevationDeg = 10.0F;
-    float maxDetectionElevationDeg = 80.0F;
-
     float maxDetectionRangeKm = 230.0F;
 };

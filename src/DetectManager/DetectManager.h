@@ -1,7 +1,11 @@
 #pragma once
+
 #include <nFramework/BaseManager.h>
 #include <nFramework/mec/MECComponent.h>
 #include <nFramework/nom/NOMMain.h>
+
+#include <functional>
+#include <map>
 
 using namespace nframework;
 using namespace nom;
@@ -13,7 +17,6 @@ public:
 	~DetectManager(void);
 
 public:
-	// inherited from the BaseManager class
 	virtual std::shared_ptr<NOM> registerMsg(tstring) override;
 	virtual void discoverMsg(std::shared_ptr<NOM>) override;
 	virtual void updateMsg(std::shared_ptr<NOM>) override;
@@ -33,11 +36,21 @@ private:
 	void initialize();
 	void release();
 
+	void recvATInfoInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
+	void recvRadarDetectionInfoInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
 private:
-	IMEBComponent* meb;
-	MECComponent* mec;
+	std::map<
+		tstring,
+		std::function<void(std::shared_ptr<NOM>)>
+	> msgFuncMap;
+
+	IMEBComponent* meb = nullptr;
+	MECComponent* mec = nullptr;
 	tstring name;
 	std::map<unsigned int, std::shared_ptr<NOM>> registeredMsgMap;
 	std::map<unsigned int, std::shared_ptr<NOM>> discoveredMsgMap;
 };
-

@@ -56,6 +56,8 @@ private:
 	void sendScenarioAck(shared_ptr<NOM> nomMsg);
 	void startSimulation(shared_ptr<NOM> nomMsg);
 	void stopSimulation(shared_ptr<NOM> nomMsg);
+	void recvATInfo(shared_ptr<NOM> nomMsg);
+	void sendRadarDetectionInfo(shared_ptr<NOM> nomMsg);
 
 public:
 	std::unique_ptr<NOMParser> nomParser;

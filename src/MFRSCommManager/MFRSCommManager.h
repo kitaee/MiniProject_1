@@ -48,6 +48,12 @@ private:
 	void recvStopSimulationInnerManager(
 		std::shared_ptr<NOM> nomMsg);
 
+	void recvATInfoInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
+	void recvRadarDetectionInfoInnerManager(
+		std::shared_ptr<NOM> nomMsg);
+
 private:
 	std::map<
 		tstring,

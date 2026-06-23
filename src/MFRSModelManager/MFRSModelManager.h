@@ -42,6 +42,7 @@ private:
 	void recvScenario(std::shared_ptr<NOM> nomMsg);
 	void recvStartSimulation(std::shared_ptr<NOM> nomMsg);
 	void recvStopSimulation(std::shared_ptr<NOM> nomMsg);
+	void recvTargetInfo(std::shared_ptr<NOM> nomMsg);
 
 private:
 	std::map<

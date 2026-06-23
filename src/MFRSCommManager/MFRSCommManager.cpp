@@ -181,6 +181,22 @@ MFRSCommManager::start()
 			this,
 			std::placeholders::_1));
 
+	msgFuncMap.emplace(
+		_T("ATInfoInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvATInfoInnerManager,
+			this,
+			std::placeholders::_1));
+
+	msgFuncMap.emplace(
+		_T("RadarDetectionInfoInnerManager"),
+		std::bind(
+			&MFRSCommManager::
+			recvRadarDetectionInfoInnerManager,
+			this,
+			std::placeholders::_1));
+
 	return true;
 }
 
@@ -251,6 +267,30 @@ recvStopSimulationInnerManager(
 	mec->sendMsg(
 		nomMsg,
 		_T("SimulationManager"));
+}
+
+void MFRSCommManager::
+recvATInfoInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("DetectManager"));
+}
+
+void MFRSCommManager::
+recvRadarDetectionInfoInnerManager(
+	std::shared_ptr<NOM> nomMsg)
+{
+	if (!nomMsg || !mec)
+		return;
+
+	mec->sendMsg(
+		nomMsg,
+		_T("UDPCommunicationManager"));
 }
 
 /************************************************************************
