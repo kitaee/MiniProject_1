@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="CommandManager" date="2023-12-06" author="PGM3연구소.4팀 하재희">
+	<NOM:objects>
+		<NOM:object name="BaseEntity.PhysicalEntity.Platform.Aircraft" id="519901" nameNotes="1 2" semantics="Aircraft Information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct" nameNotes="1 2" semantics="AccelerationVector"/>
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct"/>
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct"/>
+			<NOM:attribute name="IsFrozen" dataType="boolean"/>
+			<NOM:attribute name="Orientation" dataType="OrientationStruct"/>
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct"/>
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct"/>
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8"/>
+		</NOM:object>
+		<NOM:object name="BaseEntity.PhysicalEntity.Munition" id="519902" semantics="Munition Information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct"/>
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct"/>
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct"/>
+			<NOM:attribute name="IsFrozen" dataType="boolean"/>
+			<NOM:attribute name="Orientation" dataType="OrientationStruct"/>
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct"/>
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct"/>
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8"/>
+		</NOM:object>
+		<NOM:object name="BaseEntity.PhysicalEntity.Sensor" id="519904" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct"/>
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct"/>
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct"/>
+			<NOM:attribute name="IsFrozen" dataType="boolean"/>
+			<NOM:attribute name="Orientation" dataType="OrientationStruct"/>
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct"/>
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct"/>
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8"/>
+			<NOM:attribute name="AntennaRaised" dataType="boolean" />
+			<NOM:attribute name="BlackoutLightsOn" dataType="boolean" />
+			<NOM:attribute name="LightsOn" dataType="boolean" />
+			<NOM:attribute name="InteriorLightsOn" dataType="boolean" />
+			<NOM:attribute name="MissionKill" dataType="boolean" />
+		</NOM:object>
+		<NOM:object name="BaseEntity.PhysicalEntity.Platform.GroundVehicle" id="519903" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct"/>
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct"/>
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct"/>
+			<NOM:attribute name="IsFrozen" dataType="boolean"/>
+			<NOM:attribute name="Orientation" dataType="OrientationStruct"/>
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct"/>
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct"/>
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8"/>
+		</NOM:object>
+		<NOM:object name="BaseEntity.PhysicalEntity.Platform.SurfaceVessel" id="519905" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct"/>
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct"/>
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct"/>
+			<NOM:attribute name="IsFrozen" dataType="boolean"/>
+			<NOM:attribute name="Orientation" dataType="OrientationStruct"/>
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct"/>
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct"/>
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8"/>
+		</NOM:object>
+
+		<NOM:object name="BaseEntity.PhysicalEntity.Platform.Aircraft_GUI" id="0xAA01" semantics="Aircraft Information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="LogicalTime" dataType="uint" />
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct" />
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct" />
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct" />
+			<NOM:attribute name="IsFrozen" dataType="boolean" />
+			<NOM:attribute name="Orientation" dataType="OrientationStruct" />
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct" />
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct" />
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8" />
+		</NOM:object>
+		
+		<NOM:object name="BaseEntity.PhysicalEntity.Munition_GUI" id="0xAA02" semantics="Munition Information" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="LogicalTime" dataType="uint" />
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct" />
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct" />
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct" />
+			<NOM:attribute name="IsFrozen" dataType="boolean" />
+			<NOM:attribute name="Orientation" dataType="OrientationStruct" />
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct" />
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct" />
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8" />
+		</NOM:object>
+		
+		<NOM:object name="BaseEntity.PhysicalEntity.Sensor_GUI" id="0xAA04" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="LogicalTime" dataType="uint" />
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct" />
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct" />
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct" />
+			<NOM:attribute name="IsFrozen" dataType="boolean" />
+			<NOM:attribute name="Orientation" dataType="OrientationStruct" />
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct" />
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct" />
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8" />
+			<NOM:attribute name="AntennaRaised" dataType="boolean" />
+			<NOM:attribute name="BlackoutLightsOn" dataType="boolean" />
+			<NOM:attribute name="LightsOn" dataType="boolean" />
+			<NOM:attribute name="InteriorLightsOn" dataType="boolean" />
+			<NOM:attribute name="MissionKill" dataType="boolean" />
+		</NOM:object>
+		
+		<NOM:object name="BaseEntity.PhysicalEntity.Platform.GroundVehicle_GUI" id="0xAA03" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="LogicalTime" dataType="uint" />
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct" />
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct" />
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct" />
+			<NOM:attribute name="IsFrozen" dataType="boolean" />
+			<NOM:attribute name="Orientation" dataType="OrientationStruct" />
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct" />
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct" />
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8" />
+		</NOM:object>
+		
+		<NOM:object name="BaseEntity.PhysicalEntity.Platform.SurfaceVessel_GUI" id="0xAA05" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:attribute name="LogicalTime" dataType="uint" />
+			<NOM:attribute name="AccelerationVector" dataType="AccelerationVectorStruct" />
+			<NOM:attribute name="EntityType" dataType="EntityTypeStruct" />
+			<NOM:attribute name="EntityIdentifier" dataType="EntityIdentifierStruct" />
+			<NOM:attribute name="IsFrozen" dataType="boolean" />
+			<NOM:attribute name="Orientation" dataType="OrientationStruct" />
+			<NOM:attribute name="WorldLocation" dataType="WorldLocationStruct" />
+			<NOM:attribute name="VelocityVector" dataType="VelocityVectorStruct" />
+			<NOM:attribute name="ForceIdentifier" dataType="ForceIdentifierEnum8" />
+		</NOM:object>
+	</NOM:objects>
+	<NOM:interactions>
+		<NOM:interaction name="EventReport" id="999951" sharing="PublishSubscribe" orderType="Receive" alignment="false" nameNotes="1 2" semantics="EventReport">
+			<NOM:parameter name="OriginatingEntity" dataType="EntityIdentifierStruct" nameNotes="1 2" semantics="OriginatingEntity"/>
+			<NOM:parameter name="ReceivingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="EventType" dataType="EventTypeEnum32"/>
+			<NOM:parameter name="VariableDatumSet" dataType="VariableDatumSetStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="ActionRequest" id="511352" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="OriginatingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="ReceivingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="RequestIdentifier" dataType="uintBE"/>
+			<NOM:parameter name="ActionRequestCode" dataType="ActionEnum32"/>
+			<NOM:parameter name="VariableDatumSet" dataType="VariableDatumSetStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="ActionResponse" id="531363" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="OriginatingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="ReceivingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="RequestIdentifier" dataType="uintBE"/>
+			<NOM:parameter name="RequestStatus" dataType="RequestStatusEnum32"/>
+			<NOM:parameter name="VariableDatumSet" dataType="VariableDatumSetStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="SetData" id="511153" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="OriginatingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="ReceivingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="RequestIdentifier" dataType="uintBE"/>
+			<NOM:parameter name="VariableDatumSet" dataType="VariableDatumSetStructUnResizable"/>
+		</NOM:interaction>
+		<NOM:interaction name="Data" id="991154" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="OriginatingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="ReceivingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="RequestIdentifier" dataType="uintBE"/>
+		</NOM:interaction>
+		<NOM:interaction name="StartResume" id="511855" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="OriginatingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="ReceivingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="RequestIdentifier" dataType="uintBE"/>
+		</NOM:interaction>
+		<NOM:interaction name="StopFreeze" id="511857" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="OriginatingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="ReceivingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="RequestIdentifier" dataType="uintBE"/>
+		</NOM:interaction>
+		<NOM:interaction name="Acknowledge" id="991856" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="OriginatingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="ReceivingEntity" dataType="EntityIdentifierStruct"/>
+			<NOM:parameter name="RequestIdentifier" dataType="uintBE"/>
+			<NOM:parameter name="AcknowledgeFlag" dataType="AcknowledgeFlagEnum16"/>
+			<NOM:parameter name="ResponseFlag" dataType="ResponseFlagEnum16"/>
+		</NOM:interaction>
+		<NOM:interaction name="WeaponFire" id="511260" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="FireMissionIndex" dataType="uintBE" />
+			<NOM:parameter name="FiringLocation" dataType="WorldLocationStruct" />
+			<NOM:parameter name="FiringObjectIdentifier" dataType="RTIObjectIdStruct" />
+			<NOM:parameter name="MunitionObjectIdentifier" dataType="RTIObjectIdStruct" />
+			<NOM:parameter name="MunitionType" dataType="EntityTypeStruct" />
+			<NOM:parameter name="TargetObjectIdentifier" dataType="RTIObjectIdStruct" />
+			<NOM:parameter name="VariableDatumSet" dataType="VariableDatumSetStruct" />
+		</NOM:interaction>
+		<NOM:interaction name="Collision" id="511259" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="CollidingObjectIdentifier" dataType="RTIObjectIdStruct"/>
+			<NOM:parameter name="CollisionType" dataType="CollisionTypeEnum8"/>
+			<NOM:parameter name="CollisionLocation" dataType="RelativePositionStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="MunitionDetonation" id="511258" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="DetonationLocation" dataType="WorldLocationStruct"/>
+			<NOM:parameter name="DetonationResultCode" dataType="DetonationResultCodeEnum8"/>
+			<NOM:parameter name="FinalVelocityVector" dataType="VelocityVectorStruct"/>
+			<NOM:parameter name="MunitionObjectIdentifier" dataType="RTIObjectIdStruct"/>
+			<NOM:parameter name="RelativeDetonationLocation" dataType="RelativePositionStruct"/>
+			<NOM:parameter name="TargetObjectIdentifier" dataType="RTIObjectIdStruct"/>
+		</NOM:interaction>
+
+	</NOM:interactions>
+	<NOM:dataTypes>
+		<NOM:basicTypes>
+		</NOM:basicTypes>
+		<NOM:enumerationTypes>
+		</NOM:enumerationTypes>
+		<NOM:complexTypes>
+		</NOM:complexTypes>
+	</NOM:dataTypes>
+	<NOM:notes>
+		
+	</NOM:notes>
+</NOM:Nex1ObjectModel>

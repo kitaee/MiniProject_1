@@ -1,0 +1,5 @@
+#pragma once
+#define WM_USER 0x0400
+#define WM_SEND_DATA WM_USER + 0x01
+#define WM_DISCOVERED_MSG_DATA WM_USER + 0x02
+#define WM_REMOVED_MSG_DATA  WM_USER + 0x03

@@ -1,0 +1,127 @@
+
+struct MessageHeader {
+	unsigned short 		TopicLabel;
+	unsigned short 		TopicSize;
+	octet				SourceID;
+	octet				TopicClass;
+	unsigned short 		TopicNumber;
+	unsigned long long	SystemTime;
+
+};
+
+struct AirThreatStruct {
+	unsigned short	ObjectID;
+	octet			ObjectType;
+	octet			DestructionFlag;
+	long			PositionX;
+	long			PositionY;
+	long			PositionZ;
+	short			VelocityX;
+	short			VelocityY;
+	short			VelocityZ;
+	short			AccelerationX;
+	short			AccelerationY;
+	short			AccelerationZ;
+	unsigned short	MeanRCS;
+	octet			Reserved;
+	octet			JammingType;
+	unsigned short	JammingPower;
+	unsigned short	JammingPullOff;
+
+};
+
+struct AirThreatInformation {
+	MessageHeader		Header;
+	unsigned long		TimeTick;
+	unsigned short		SimulationFlag;
+	unsigned short		ObjectCount;
+
+	sequence<AirThreatStruct, 150>	AirThreatMessage;
+
+};
+
+struct InterceptorStruct {
+	unsigned short	ObjectID;
+	octet			MissileType;
+	octet			DestructionFlag;
+	long			PositionX;
+	long			PositionY;
+	long			PositionZ;
+	short			VelocityX;
+	short			VelocityY;
+	short			VelocityZ;
+	short			AccelerationX;
+	short			AccelerationY;
+	short			AccelerationZ;
+	unsigned short	MeanRCS;
+	unsigned short	Reserved;
+	unsigned short	SignalPower;
+	octet			SeekerPhase;
+	octet			AddressKey;
+
+};
+
+struct InterceptorInformation {
+	MessageHeader		Header;
+	unsigned long		TimeTick;
+	unsigned short		SimulationFlag;
+	unsigned short		ObjectCount;
+
+	sequence<InterceptorStruct, 30>	InterceptorMessage;
+
+};
+
+struct UplinkStruct {
+	unsigned short	AddressKey;
+	unsigned short	MissileType;
+	unsigned short	Data[26];
+
+};
+
+struct UplinkInformation {
+	MessageHeader	Header;
+	unsigned long	TimeTick;
+	UplinkStruct	UplinkMessage;
+	
+};
+
+struct DownlinkStruct {
+	unsigned short	AddressKey;
+	unsigned short	CRC;
+	unsigned short	Data[24];
+
+};
+
+struct DownlinkInformation {
+	MessageHeader	Header;
+	unsigned long	TimeTick;
+	unsigned long	ObjectCount;
+
+	sequence<DownlinkStruct, 30>	DownlinkMessage;
+	
+};
+
+struct TimeTickStruct {
+	unsigned long SyncCycle;
+	unsigned long TimeTick;
+
+};
+
+struct TimeTickInformation {
+	MessageHeader	Header;
+	TimeTickStruct 	TimeTickMessage;
+	
+};
+
+struct MFRAttitudeStruct {
+	float	MFRAntennaRoll;
+	float	MFRAntennaPitch;
+	float	MFRAntennaHeading;
+
+};
+
+struct MFRAttitudeInformation {
+	MessageHeader		Header;
+	MFRAttitudeStruct 	MFRAttitudeMessage;
+
+};
