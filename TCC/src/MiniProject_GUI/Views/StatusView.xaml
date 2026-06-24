@@ -1,0 +1,235 @@
+<UserControl x:Class="MiniProject_GUI.Views.StatusView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <Style x:Key="StatusCardStyle" TargetType="Border">
+            <Setter Property="Margin" Value="3"/>
+            <Setter Property="Padding" Value="6"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="BorderBrush" Value="#555"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style x:Key="StatusCircleStyle" TargetType="Ellipse">
+            <Setter Property="Width" Value="12"/>
+            <Setter Property="Height" Value="12"/>
+            <Setter Property="Fill" Value="#777"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding}" Value="True">
+                    <Setter Property="Fill" Value="#34C759"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding}" Value="False">
+                    <Setter Property="Fill" Value="#657080"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="StatusIconStyle" TargetType="materialDesign:PackIcon">
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Foreground" Value="#657080"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding}" Value="True">
+                    <Setter Property="Foreground" Value="#34C759"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <GroupBox Header="상태" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{StaticResource MaterialDesignCardGroupBox}">
+        <Grid Margin="8">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" MinHeight="130"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0"
+                       Text="시나리오 ACK"
+                       FontWeight="SemiBold"
+                       Margin="0,0,0,8"/>
+
+            <UniformGrid Grid.Row="1" Columns="2" Rows="2" MinHeight="130">
+                <Border Style="{StaticResource StatusCardStyle}"
+                        DataContext="{Binding IsLcsScenarioAckReceived}"
+                        Tag="LCS"
+                        Cursor="Hand"
+                        MouseLeftButtonUp="ScenarioAckCard_MouseLeftButtonUp">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="BowArrow" Style="{StaticResource StatusIconStyle}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Text="LCS" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatusCardStyle}"
+                        DataContext="{Binding IsMssScenarioAckReceived}"
+                        Tag="MSS"
+                        Cursor="Hand"
+                        MouseLeftButtonUp="ScenarioAckCard_MouseLeftButtonUp">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="RocketLaunch" Style="{StaticResource StatusIconStyle}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Text="MSS" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatusCardStyle}"
+                        DataContext="{Binding IsMfrsScenarioAckReceived}"
+                        Tag="MFRS"
+                        Cursor="Hand"
+                        MouseLeftButtonUp="ScenarioAckCard_MouseLeftButtonUp">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="Radar" Style="{StaticResource StatusIconStyle}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Text="MFRS" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatusCardStyle}"
+                        DataContext="{Binding IsAtsScenarioAckReceived}"
+                        Tag="ATS"
+                        Cursor="Hand"
+                        MouseLeftButtonUp="ScenarioAckCard_MouseLeftButtonUp">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="Airplane" Style="{StaticResource StatusIconStyle}"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse Style="{StaticResource StatusCircleStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Text="ATS" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <TextBlock Grid.Row="2"
+                       Text="전술 상태"
+                       FontWeight="SemiBold"
+                       FontSize="12"
+                       Margin="0,8,0,3"/>
+
+            <UniformGrid Grid.Row="3" Columns="2" Rows="1" TextElement.FontSize="11">
+                <Border Style="{StaticResource StatusCardStyle}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="탐지 상태"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse DataContext="{Binding IsTargetDetected}"
+                                     Style="{StaticResource StatusCircleStyle}"
+                                     Margin="0,0,6,0"/>
+                            <TextBlock Text="{Binding RadarDetectionStatusText}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource StatusCardStyle}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <TextBlock Text="격추 여부"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Ellipse DataContext="{Binding IsTargetDestroyed}"
+                                     Style="{StaticResource StatusCircleStyle}"
+                                     Margin="0,0,6,0"/>
+                            <TextBlock Text="격추"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </UniformGrid>
+
+            <Border Grid.Row="4"
+                    Style="{StaticResource StatusCardStyle}"
+                    Margin="3,8,3,0"
+                    MinHeight="92"
+                    TextElement.FontSize="11">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="54"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Row="0"
+                               Grid.ColumnSpan="2"
+                               Text="MSS DownLink"
+                               FontWeight="SemiBold"
+                               Margin="0,0,0,4"/>
+
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="0"
+                               Text="ID"
+                               Foreground="#B7C7D9"/>
+                    <TextBlock Grid.Row="1"
+                               Grid.Column="1"
+                               Text="{Binding DownlinkMissileIDText}"
+                               HorizontalAlignment="Right"/>
+
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="0"
+                               Text="Pos"
+                               Foreground="#B7C7D9"/>
+                    <TextBlock Grid.Row="2"
+                               Grid.Column="1"
+                               Text="{Binding DownlinkMissilePositionText}"
+                               TextWrapping="NoWrap"
+                               TextAlignment="Right"
+                               HorizontalAlignment="Right"/>
+
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="0"
+                               Text="Vel"
+                               Foreground="#B7C7D9"/>
+                    <TextBlock Grid.Row="3"
+                               Grid.Column="1"
+                               Text="{Binding DownlinkMissileVelocityText}"
+                               TextWrapping="NoWrap"
+                               TextAlignment="Right"
+                               HorizontalAlignment="Right"/>
+                </Grid>
+            </Border>
+
+            <StackPanel Grid.Row="5"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,8,0,0">
+                <TextBlock Text="남은 유도탄 "
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="#B7C7D9"/>
+                <TextBlock Text="{Binding RemainingMissileCount}"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="#FFFFFF"/>
+                <TextBlock Text="발"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="#B7C7D9"/>
+            </StackPanel>
+
+        </Grid>
+    </GroupBox>
+</UserControl>
