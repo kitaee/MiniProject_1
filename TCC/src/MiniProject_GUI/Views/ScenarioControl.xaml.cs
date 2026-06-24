@@ -11,6 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace MiniProject_GUI.Views
 {
@@ -20,10 +21,21 @@ namespace MiniProject_GUI.Views
         private const double RadarCoverageStartBearing = -45.0;
         private const double RadarCoverageEndBearing = 45.0;
         private const double EarthRadiusKm = 6371.0;
+        private const double RadarSweepStepDegrees = 2.2;
+        private const double RadarSweepTailDegrees = 6.5;
+        private const double RadarSweepMidTailDegrees = 26.0;
+        private const double RadarSweepSoftTailDegrees = 34.0;
+        private const double RadarSweepFrontFaceSpacingDegrees = 4.0;
+        private const int RadarSweepSliceCount = 7;
 
         private readonly Dictionary<string, GMapMarker> markers = new Dictionary<string, GMapMarker>();
+        private readonly List<GMapRoute> radarHudRoutes = new List<GMapRoute>();
+        private readonly List<GMapPolygon> radarSweepPolygons = new List<GMapPolygon>();
+        private readonly List<GMapRoute> radarSweepRoutes = new List<GMapRoute>();
         private GMapPolygon radarCoverage;
         private GMapRoute airthreatRoute;
+        private DispatcherTimer radarSweepTimer;
+        private double radarSweepBearing = RadarCoverageStartBearing;
 
         public ScenarioControl()
         {
@@ -32,6 +44,7 @@ namespace MiniProject_GUI.Views
             ViewModelLocator.AckStatus.PropertyChanged += OnViewModelPropertyChanged;
             Unloaded += OnUnloaded;
             InitializeMap();
+            InitializeRadarSweepTimer();
         }
 
         private void InitializeMap()
@@ -62,6 +75,9 @@ namespace MiniProject_GUI.Views
         private void OnUnloaded(object sender, RoutedEventArgs e)
         {
             ViewModelLocator.AckStatus.PropertyChanged -= OnViewModelPropertyChanged;
+            radarSweepTimer?.Stop();
+            if (radarSweepTimer != null)
+                radarSweepTimer.Tick -= RadarSweepTimer_Tick;
             Unloaded -= OnUnloaded;
         }
 
@@ -156,6 +172,25 @@ namespace MiniProject_GUI.Views
             return (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
         }
 
+        private void InitializeRadarSweepTimer()
+        {
+            radarSweepTimer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(55)
+            };
+            radarSweepTimer.Tick += RadarSweepTimer_Tick;
+        }
+
+        private void RadarSweepTimer_Tick(object sender, EventArgs e)
+        {
+            radarSweepBearing += RadarSweepStepDegrees;
+
+            if (radarSweepBearing > RadarCoverageEndBearing)
+                radarSweepBearing = RadarCoverageStartBearing;
+
+            RefreshRadarSweepVisuals();
+        }
+
         private void SetMarker(string key, string label, PointLatLng coordinate)
         {
             RemoveMarker(key);
@@ -184,19 +219,213 @@ namespace MiniProject_GUI.Views
             if (radarCoverage != null)
                 ScenarioMap.Markers.Remove(radarCoverage);
 
+            ClearRadarHud();
+            ClearRadarSweepVisuals();
+            radarSweepBearing = RadarCoverageStartBearing;
+
             radarCoverage = new GMapPolygon(CreateRadarCoveragePoints(radarPosition))
             {
                 ZIndex = -1000,
                 Shape = new Path
                 {
-                    Stroke = new SolidColorBrush(Color.FromArgb(0xCC, 0x1E, 0x88, 0xE5)),
-                    StrokeThickness = 2,
-                    Fill = new SolidColorBrush(Color.FromArgb(0x45, 0x1E, 0x88, 0xE5)),
+                    Stroke = new SolidColorBrush(Color.FromArgb(0x90, 0x58, 0xE6, 0xD8)),
+                    StrokeThickness = 1.3,
+                    Fill = new SolidColorBrush(Color.FromArgb(0x0C, 0x2C, 0xD6, 0xCC)),
+                    Effect = new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Color.FromRgb(0x48, 0xE6, 0xD8),
+                        BlurRadius = 5,
+                        ShadowDepth = 0,
+                        Opacity = 0.35
+                    },
                     IsHitTestVisible = false
                 }
             };
 
             ScenarioMap.Markers.Add(radarCoverage);
+            AddRadarHud(radarPosition);
+            RefreshRadarSweepVisuals();
+            radarSweepTimer.Start();
+        }
+
+        private void AddRadarHud(PointLatLng radarPosition)
+        {
+            AddRadarHudRoute(CreateRangeArcPoints(radarPosition, RadarCoverageKm * 0.25), 0x34, 0.8, null);
+            AddRadarHudRoute(CreateRangeArcPoints(radarPosition, RadarCoverageKm * 0.50), 0x42, 0.9, null);
+            AddRadarHudRoute(CreateRangeArcPoints(radarPosition, RadarCoverageKm * 0.75), 0x38, 0.8, null);
+            AddRadarHudRoute(CreateRangeArcPoints(radarPosition, RadarCoverageKm), 0x80, 1.2, null);
+
+            for (double bearing = RadarCoverageStartBearing; bearing <= RadarCoverageEndBearing; bearing += 15.0)
+            {
+                bool boundary = Math.Abs(bearing - RadarCoverageStartBearing) < 0.1 ||
+                    Math.Abs(bearing - RadarCoverageEndBearing) < 0.1;
+
+                AddRadarHudRoute(new List<PointLatLng>
+                {
+                    radarPosition,
+                    GetDestinationPoint(radarPosition, bearing, RadarCoverageKm)
+                }, boundary ? (byte)0x70 : (byte)0x36, boundary ? 1.0 : 0.75, boundary ? null : new DoubleCollection { 4, 6 });
+            }
+
+            for (double bearing = RadarCoverageStartBearing; bearing <= RadarCoverageEndBearing; bearing += 5.0)
+            {
+                bool majorTick = Math.Abs(bearing % 15.0) < 0.1;
+                double innerDistance = RadarCoverageKm * (majorTick ? 0.93 : 0.965);
+
+                AddRadarHudRoute(new List<PointLatLng>
+                {
+                    GetDestinationPoint(radarPosition, bearing, innerDistance),
+                    GetDestinationPoint(radarPosition, bearing, RadarCoverageKm)
+                }, majorTick ? (byte)0x9A : (byte)0x58, majorTick ? 1.15 : 0.7, null);
+            }
+        }
+
+        private void AddRadarHudRoute(List<PointLatLng> points, byte opacity, double strokeThickness, DoubleCollection dashArray)
+        {
+            var route = new GMapRoute(points)
+            {
+                ZIndex = -930,
+                Shape = new Path
+                {
+                    Stroke = new SolidColorBrush(Color.FromArgb(opacity, 0x7C, 0xE7, 0xD9)),
+                    StrokeThickness = strokeThickness,
+                    StrokeDashArray = dashArray,
+                    StrokeStartLineCap = PenLineCap.Round,
+                    StrokeEndLineCap = PenLineCap.Round,
+                    Effect = new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Color.FromRgb(0x48, 0xE6, 0xD8),
+                        BlurRadius = 4,
+                        ShadowDepth = 0,
+                        Opacity = 0.28
+                    },
+                    IsHitTestVisible = false
+                }
+            };
+
+            radarHudRoutes.Add(route);
+            ScenarioMap.Markers.Add(route);
+        }
+
+        private void RefreshRadarSweepVisuals()
+        {
+            ClearRadarSweepVisuals();
+
+            if (!markers.TryGetValue("Radar", out GMapMarker radarMarker))
+                return;
+
+            PointLatLng radarPosition = radarMarker.Position;
+
+            AddRadarSweepLayer(radarPosition, radarSweepBearing - 5.0, RadarSweepSoftTailDegrees, 0.56, 0x2B, 0xC8, 0xD2, -845);
+            AddRadarSweepLayer(radarPosition, radarSweepBearing - 2.0, RadarSweepMidTailDegrees, 0.78, 0x31, 0xDD, 0xD6, -835);
+
+            AddRadarSweepLayer(radarPosition, radarSweepBearing - RadarSweepFrontFaceSpacingDegrees * 2, RadarSweepTailDegrees, 0.58, 0x74, 0xFF, 0xEC, -827);
+            AddRadarSweepLayer(radarPosition, radarSweepBearing - RadarSweepFrontFaceSpacingDegrees, RadarSweepTailDegrees, 0.76, 0x74, 0xFF, 0xEC, -826);
+            AddRadarSweepLayer(radarPosition, radarSweepBearing, RadarSweepTailDegrees, 0.98, 0x74, 0xFF, 0xEC, -825);
+        }
+
+        private void AddRadarSweepLayer(PointLatLng radarPosition, double leadingBearing, double tailDegrees, double opacityScale, byte red, byte green, byte blue, int zIndex)
+        {
+            for (int i = 0; i < RadarSweepSliceCount; i++)
+            {
+                double sliceStart = leadingBearing - tailDegrees * (i + 1) / RadarSweepSliceCount;
+                double sliceEnd = leadingBearing - tailDegrees * i / RadarSweepSliceCount;
+
+                if (sliceEnd < RadarCoverageStartBearing || sliceStart > RadarCoverageEndBearing)
+                    continue;
+
+                sliceStart = Math.Max(RadarCoverageStartBearing, sliceStart);
+                sliceEnd = Math.Min(RadarCoverageEndBearing, sliceEnd);
+
+                double progress = (double)(i + 1) / RadarSweepSliceCount;
+                byte opacity = (byte)(5 + Math.Pow(progress, 2.0) * 46 * opacityScale);
+                AddRadarSweepSlice(radarPosition, sliceStart, sliceEnd, opacity, red, green, blue, zIndex);
+            }
+        }
+
+        private void AddRadarSweepSlice(PointLatLng radarPosition, double startBearing, double endBearing, byte opacity, byte red, byte green, byte blue, int zIndex)
+        {
+            var sweep = new GMapPolygon(CreateRadarSweepSlicePoints(radarPosition, startBearing, endBearing))
+            {
+                ZIndex = zIndex,
+                Shape = new Path
+                {
+                    Stroke = new SolidColorBrush(Color.FromArgb((byte)Math.Min(0x58, (int)opacity + 12), red, green, blue)),
+                    StrokeThickness = 0.35,
+                    Fill = new SolidColorBrush(Color.FromArgb(opacity, red, green, blue)),
+                    Effect = new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Color.FromRgb(red, green, blue),
+                        BlurRadius = 6,
+                        ShadowDepth = 0,
+                        Opacity = 0.32
+                    },
+                    IsHitTestVisible = false
+                }
+            };
+
+            radarSweepPolygons.Add(sweep);
+            ScenarioMap.Markers.Add(sweep);
+        }
+
+        private double WrapRadarBearing(double bearing)
+        {
+            double span = RadarCoverageEndBearing - RadarCoverageStartBearing;
+
+            while (bearing < RadarCoverageStartBearing)
+                bearing += span;
+
+            while (bearing > RadarCoverageEndBearing)
+                bearing -= span;
+
+            return bearing;
+        }
+
+        private void AddRadarSweepRoute(List<PointLatLng> points, byte opacity, double strokeThickness, double blurRadius)
+        {
+            var route = new GMapRoute(points)
+            {
+                ZIndex = -780,
+                Shape = new Path
+                {
+                    Stroke = new SolidColorBrush(Color.FromArgb(opacity, 0xDB, 0xF8, 0xFF)),
+                    StrokeThickness = strokeThickness,
+                    StrokeStartLineCap = PenLineCap.Round,
+                    StrokeEndLineCap = PenLineCap.Round,
+                    Effect = new System.Windows.Media.Effects.DropShadowEffect
+                    {
+                        Color = Color.FromRgb(0x63, 0xD8, 0xFF),
+                        BlurRadius = blurRadius,
+                        ShadowDepth = 0,
+                        Opacity = 0.75
+                    },
+                    IsHitTestVisible = false
+                }
+            };
+
+            radarSweepRoutes.Add(route);
+            ScenarioMap.Markers.Add(route);
+        }
+
+        private void ClearRadarHud()
+        {
+            foreach (GMapRoute route in radarHudRoutes)
+                ScenarioMap.Markers.Remove(route);
+
+            radarHudRoutes.Clear();
+        }
+
+        private void ClearRadarSweepVisuals()
+        {
+            foreach (GMapPolygon sweep in radarSweepPolygons)
+                ScenarioMap.Markers.Remove(sweep);
+
+            radarSweepPolygons.Clear();
+
+            foreach (GMapRoute route in radarSweepRoutes)
+                ScenarioMap.Markers.Remove(route);
+
+            radarSweepRoutes.Clear();
         }
 
         private void RefreshAirthreatRoute()
@@ -239,6 +468,28 @@ namespace MiniProject_GUI.Views
             for (double bearing = RadarCoverageStartBearing; bearing <= RadarCoverageEndBearing; bearing += 3.0)
                 points.Add(GetDestinationPoint(center, bearing, RadarCoverageKm));
 
+            points.Add(center);
+            return points;
+        }
+
+        private List<PointLatLng> CreateRangeArcPoints(PointLatLng center, double distanceKm)
+        {
+            var points = new List<PointLatLng>();
+
+            for (double bearing = RadarCoverageStartBearing; bearing <= RadarCoverageEndBearing; bearing += 2.0)
+                points.Add(GetDestinationPoint(center, bearing, distanceKm));
+
+            return points;
+        }
+
+        private List<PointLatLng> CreateRadarSweepSlicePoints(PointLatLng center, double startBearing, double endBearing)
+        {
+            var points = new List<PointLatLng> { center };
+
+            for (double bearing = startBearing; bearing <= endBearing; bearing += 1.0)
+                points.Add(GetDestinationPoint(center, bearing, RadarCoverageKm));
+
+            points.Add(GetDestinationPoint(center, endBearing, RadarCoverageKm));
             points.Add(center);
             return points;
         }
