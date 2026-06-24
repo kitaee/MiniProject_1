@@ -88,3 +88,5 @@ chore: Git ignore 파일 정리
 * 기능 추가, 버그 수정, 구조 개선, 기타 작업을 구분하여 작성한다.
 * 커밋 타입은 `feat`, `fix`, `refactor`, `chore` 중 하나를 사용한다.
 
+### 데모 영상
+https://drive.google.com/file/d/18SFCia1ubFUV9EBApbzGk7VSPSii51Qx/view?usp=drive_link
