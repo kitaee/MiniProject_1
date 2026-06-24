@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NOM:Nex1ObjectModel xmlns:NOM="lignex1.sw.nframework.NOM" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="lignex1.sw.nframework.NOM NOM.xsd" version="0.1" name="UDPCommunicationManager" date="2026-06-18" author="SimulatorSuite">
+	<NOM:objects>
+	</NOM:objects>
+	<NOM:interactions>
+		<NOM:interaction name="DeployScenarioRequest" id="1001" semantics="통합통제기→모의기 시나리오 배포" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="Airthreat" semantics="Airthreat" dataType="AirthreatStruct"/>
+			<NOM:parameter name="RadarXPos" semantics="RadarXPos" dataType="float"/>
+			<NOM:parameter name="RadarYPos" semantics="RadarYPos" dataType="float"/>
+			<NOM:parameter name="LauncherXPos" semantics="LauncherXPos" dataType="float"/>
+			<NOM:parameter name="LauncherYPos" semantics="LauncherYPos" dataType="float"/>
+			<NOM:parameter name="MissileVelocity" semantics="MissileVelocity" dataType="float"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="StartSimulationRequest" id="1002" semantics="통합통제기→모의기 시뮬레이션 시작" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="StopSimulationRequest" id="1003" semantics="통합통제기→모의기 시뮬레이션 정지" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="LaunchMissileRequest" id="1401" semantics="통합통제기→발사대 모의기 발사 명령" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+			<NOM:parameter name="AirthreatxPos" semantics="AirthreatxPos" dataType="float"/>
+			<NOM:parameter name="AirthreatyPos" semantics="AirthreatyPos" dataType="float"/>
+			<NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="LaunchMissile" id="4301" semantics="발사대→유도탄 발사 정보" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+			<NOM:parameter name="AirthreatXPos" semantics="AirthreatXPos" dataType="float"/>
+			<NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+			<NOM:parameter name="MissileID" semantics="MissileID" dataType="uint"/>
+			<NOM:parameter name="LCSXPos" semantics="LCSXPos" dataType="float"/>
+			<NOM:parameter name="LCSYPos" semantics="LCSYPos" dataType="float"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="MissileQuantityInfo" id="4102" semantics="발사대→통합통제기 유도탄 재고" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="MissileQuantity" semantics="MissileQuantity" dataType="uint"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="UplinkInfo" id="5301" semantics="레이더 모의기(유도탄 모의기) 업링크(주기)->유도탄" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="UplinkInfo" semantics="UplinkInfo" dataType="UplinkInfoStruct"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="ScenarioACK" id="3101" semantics="각 모의기→통합통제기 시나리오 ACK" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="DownlinkInfo" id="3501" semantics="유도탄(레이다)→레이더(TCC) 유도탄 좌표(주기)" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="DownlinkInfo" semantics="DownlinkInfo" dataType="DownlinkInfoStruct"/>
+		</NOM:interaction>
+
+		<NOM:interaction name="DetonationInfo" id="3201" semantics="유도탄→공중위협 요격 결과" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="MissileID" semantics="MissileID" dataType="uint"/>
+			<NOM:parameter name="TargetID" semantics="TargetID" dataType="uint"/>
+		</NOM:interaction>
+		<!-- 내부 Interaction 정의-->
+		<NOM:interaction name="DeployScenarioInnerManager" id="1" semantics="UDP -> Model" sharing="Publish" orderType="Receive" alignment="false">
+			<NOM:parameter name="LCSXPos" semantics="LCSXPos" dataType="float"/>
+			<NOM:parameter name="LCSYPos" semantics="LCSYPos" dataType="float"/>
+		</NOM:interaction>
+		<NOM:interaction name="ScenarioACKInnerManager" id="2" semantics="Manager -> UDP" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="StopSimulationRequestInnerManager" id="3" semantics="통합통제기→모의기 시뮬레이션 정지" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+		</NOM:interaction>
+		<NOM:interaction name="LaunchMissleInnerManager" id="4" semantics="발사대→유도탄 발사 정보" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+			<NOM:parameter name="AirthreatXPos" semantics="AirthreatXPos" dataType="float"/>
+			<NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+			<NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
+			<NOM:parameter name="LCSXPos" semantics="LCSXPos" dataType="float"/>
+			<NOM:parameter name="LCSYPos" semantics="LCSYPos" dataType="float"/>
+		</NOM:interaction>
+		<NOM:interaction name="LaunchMissleResponseToUDP" id="5" semantics="발사대→유도탄 발사 정보" sharing="PublishSubscribe" orderType="Receive" alignment="false">
+			<NOM:parameter name="MessageHeader" semantics="MessageHeader" dataType="MessageHeaderStruct"/>
+			<NOM:parameter name="AirthreatID" semantics="AirthreatID" dataType="uint"/>
+			<NOM:parameter name="AirthreatXPos" semantics="AirthreatXPos" dataType="float"/>
+			<NOM:parameter name="AirthreatYPos" semantics="AirthreatYPos" dataType="float"/>
+			<NOM:parameter name="MissleID" semantics="MissleID" dataType="uint"/>
+			<NOM:parameter name="LCSXPos" semantics="LCSXPos" dataType="float"/>
+			<NOM:parameter name="LCSYPos" semantics="LCSYPos" dataType="float"/>
+			<NOM:parameter name="RemainMissleCount" semantics="RemainMissleCount" dataType="uint"/>
+		</NOM:interaction>
+	</NOM:interactions>
+	<NOM:dataTypes>
+		<NOM:basicTypes/>
+		<NOM:enumerationTypes/>
+		<NOM:complexTypes/>
+	</NOM:dataTypes>
+	<NOM:notes>
+	</NOM:notes>
+</NOM:Nex1ObjectModel>
