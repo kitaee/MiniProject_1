@@ -249,6 +249,15 @@ UDPCommunicationManager::ProcessTestCode()
 	recvStartSimulationRequest(nomMockStartSimulation);
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+	// 격추 수신
+	auto nomMockDetonation = meb->getNOMInstance(name, _T("DetonationInfo"));
+	NUInteger detoMsgID(3201);
+	nomMockDetonation->setValue(_T("MessageHeader.MessageID"), &detoMsgID);
+	NUInteger detoMsgLength(nomMockDetonation->getLength());
+	nomMockDetonation->setValue(_T("MessageHeader.MessageLength"), &detoMsgLength);
+	nomMockDetonation->setValue(_T("MissileID"), &(NUInteger)1);
+	nomMockDetonation->setValue(_T("TargetID"), &(NUInteger)1);
+	recvDetonationInfo(nomMockDetonation);
 
 	// 모의 중지
 	auto nomMockStopSimulation = meb->getNOMInstance(name, _T("StopSimulationRequest"));
