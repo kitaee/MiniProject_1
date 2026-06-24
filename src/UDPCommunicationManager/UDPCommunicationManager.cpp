@@ -274,10 +274,6 @@ UDPCommunicationManager::ProcessTestCode()
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 	}
-
-	tcout << _T("=========== [ProcessTestCode] ATInfo Path Test End ===========")
-		<< std::endl;
-
 }
 
 bool UDPCommunicationManager::stop()
@@ -536,18 +532,11 @@ void UDPCommunicationManager::recvUplinkInfoToMFRS(shared_ptr<NOM> nomMsg)
 		&airthreatVelocityValue);
 
 	tcout << std::fixed << std::setprecision(2)
-		<< _T("---- [UDPCommunicationManager] TCC UplinkInfo received. ----")
-		<< std::endl
+		<< _T("[UDPCommunicationManager] TCC UplinkInfo received.")
 		<< _T("AirthreatID=")
 		<< airthreatIDValue.toUInt()
-		<< _T(", AirthreatX=")
-		<< airthreatXValue.toFloat()
-		<< _T(", AirthreatY=")
-		<< airthreatYValue.toFloat()
 		<< _T(", MissileID=")
 		<< missileIDValue.toUInt()
-		<< _T(", AirthreatVelocity=")
-		<< airthreatVelocityValue.toFloat()
 		<< std::endl;
 
 	mec->sendMsg(
@@ -615,18 +604,11 @@ void UDPCommunicationManager::sendUplinkInfoToMSS(shared_ptr<NOM> nomMsg)
 		&airthreatVelocityValue);
 
 	tcout << std::fixed << std::setprecision(2)
-		<< _T("---- [UDPCommunicationManager] MSS UplinkInfo send. ----")
-		<< std::endl
+		<< _T("[UDPCommunicationManager] MSS UplinkInfo send.")
 		<< _T("AirthreatID=")
 		<< airthreatIDValue.toUInt()
-		<< _T(", AirthreatX=")
-		<< airthreatXValue.toFloat()
-		<< _T(", AirthreatY=")
-		<< airthreatYValue.toFloat()
 		<< _T(", MissileID=")
 		<< missileIDValue.toUInt()
-		<< _T(", AirthreatVelocity=")
-		<< airthreatVelocityValue.toFloat()
 		<< std::endl;
 
 	commInterface->sendCommMsg(outerNOMInstance);
@@ -678,16 +660,9 @@ void UDPCommunicationManager::recvDownlinkInfoToMFRS(shared_ptr<NOM> nomMsg)
 		&missileYValue);
 
 	tcout << std::fixed << std::setprecision(2)
-		<< _T("---- [UDPCommunicationManager] MSS DownlinkInfo received. ----")
-		<< std::endl
+		<< _T("[UDPCommunicationManager] MSS DownlinkInfo received.")
 		<< _T("MissileID=")
 		<< missileIDValue.toUInt()
-		<< _T(", MissileVelocity=")
-		<< missileVelocityValue.toFloat()
-		<< _T(", MissileX=")
-		<< missileXValue.toFloat()
-		<< _T(", MissileY=")
-		<< missileYValue.toFloat()
 		<< std::endl;
 
 	mec->sendMsg(
@@ -749,16 +724,9 @@ void UDPCommunicationManager::sendDownlinkInfoToTCC(shared_ptr<NOM> nomMsg)
 		&missileYValue);
 
 	tcout << std::fixed << std::setprecision(2)
-		<< _T("---- [UDPCommunicationManager] TCC DownlinkInfo send. ----")
-		<< std::endl
+		<< _T("[UDPCommunicationManager] TCC DownlinkInfo send.")
 		<< _T("MissileID=")
 		<< missileIDValue.toUInt()
-		<< _T(", MissileVelocity=")
-		<< missileVelocityValue.toFloat()
-		<< _T(", MissileX=")
-		<< missileXValue.toFloat()
-		<< _T(", MissileY=")
-		<< missileYValue.toFloat()
 		<< std::endl;
 
 	commInterface->sendCommMsg(outerNOMInstance);

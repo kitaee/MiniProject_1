@@ -379,9 +379,14 @@ void MFRSModelManager::recvTargetInfo(
 		<< dist_m
 		<< _T(" m, azimuth: ")
 		<< azimuth
-		<< _T(", DetectedFlag: ")
-		<< detectedflag
-		<< _T("(0: Undetected, 1: Detected, 2: ShootDown)")
+		<< std::endl;
+
+	tcout << _T("** Radar Detection ** detectedflag: ") << detectedflag
+		<< _T(", status: ")
+		<< (detectedflag == 0 ? _T("Undetected") :
+			detectedflag == 1 ? _T("Detected") :
+			detectedflag == 2 ? _T("ShootDown") :
+			_T("Unknown"))
 		<< std::endl;
 
 	auto radarDetectionInfo =
